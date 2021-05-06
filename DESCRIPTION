@@ -1,0 +1,21 @@
+Package: regfusionr
+Type: Package
+Title: Registration Fusion
+Version: 0.0.1
+Authors@R: person("Tim", "Schäfer", role = c("aut", "cre"), email = "ts+code@rcmd.org", comment = c(ORCID = "0000-0002-3683-8070"))
+Maintainer: Tim Schäfer <ts+code@rcmd.org>
+Description: Wu et al registration fusion method implementation in R.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+URL: https://github.com/dfsp-spirit/regfusionr
+BugReports: https://github.com/dfsp-spirit/regfusionr/issues
+Imports:
+    pkgfilecache (>= 0.1.1),
+    freesurferformats (>= 0.1.14),
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat (>= 2.1.0),
+VignetteBuilder: knitr
+RoxygenNote: 7.1.1

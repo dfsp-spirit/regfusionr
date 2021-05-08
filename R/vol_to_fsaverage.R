@@ -32,8 +32,28 @@ vol_coords_to_fsaverage_coords <- function(mni_coords, template_type='MNI152_ori
 }
 
 #' @title Map values from MNI volume to fsaverage surface.
+#'
+#' Applies the Wu et al. regfusion method to obtain surface coords, then interpolates values.
+#'
+#' @param input_img 3D or 4D NIFTI or MGZ image. If 4D, the 4th dimension is considered the time/subject dimension.
+#'
+#' @param out_dir character string, the path to a writeable output directory.
+#'
+#' @param template_type character string, the source template
+#'
+#' @param rf_type the regfusion type to use.
+#'
+#' @param interp interpolation method
+#'
+#' @param out_type character string, the format of the output files. One of the following: 'curv' for FreeSurfer curv format, 'mgz' for FreeSurfer MGZ format.
+#'
 #' @export
-vol_to_fsaverage <- function(input_img, out_dir, template_type='MNI152_orig', rf_type='RF_ANTs', interp='linear', out_type='nii.gz') {
+vol_to_fsaverage <- function(input_img, out_dir=".", template_type='MNI152_orig', rf_type='RF_ANTs', interp='linear', out_type='curv') {
   check_rf_and_template(rf_type, template_type);
+  mapping = sprintf(".avgMapping_allSub_%s_%s_to_fsaverage.txt", rf_type, template_type);
+  for (hemi in c('lh', 'rh')) {
+    mapping_file = system.file("extdata", sprintf("%s%s", hemi, mapping), package = "regfusion", mustWork = TRUE);
+  }
+ ras = read.table(mapping_file, colClasses = double);
 
 }

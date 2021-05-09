@@ -1,11 +1,17 @@
 # Main functions for vol to surf mapping.
 
+#' @title Get valid brain template spaces.
 #' @keywords internal
 valid_template_types <- function() c('MNI152_orig', 'Colin27_orig', 'MNI152_norm', 'Colin27_norm')
 
+
+#' @title Get valid registration fusion types.
 #' @keywords internal
 valid_rf_types <- function() c('RF_ANTs', 'RF_M3Z')
 
+
+#' @title Ensure the template and rf types and valid and are an allowed combination.
+#'
 #' @keywords internal
 check_rf_and_template <- function(template_type, rf_type) {
   if(! (template_type %in% valid_template_types())) { stop(sprintf("Parameter template_type must be one of: %s.", paste(valid_template_types(), collapse=", "))); }
@@ -21,6 +27,7 @@ check_rf_and_template <- function(template_type, rf_type) {
   }
 }
 
+
 #' @title Map MNI coords to fsaverage coords.
 #'
 #'
@@ -33,9 +40,9 @@ vol_coords_to_fsaverage_coords <- function(mni_coords, template_type='MNI152_ori
 
 #' @title Map values from MNI volume to fsaverage surface.
 #'
-#' Applies the Wu et al. regfusion method to obtain surface coords, then interpolates values.
+#' @description Applies the Wu et al. regfusion method to obtain surface coords, then interpolates values.
 #'
-#' @param input_img 3D or 4D NIFTI or MGZ image. If 4D, the 4th dimension is considered the time/subject dimension.
+#' @param input_img 3D or 4D NIFTI or MGZ image instance of type \code{fs.volume}. If 4D, the 4th dimension is considered the time/subject dimension.
 #'
 #' @param out_dir character string, the path to a writeable output directory.
 #'
@@ -47,6 +54,8 @@ vol_coords_to_fsaverage_coords <- function(mni_coords, template_type='MNI152_ori
 #'
 #' @param out_type character string, the format of the output files. One of the following: 'curv' for FreeSurfer curv format, 'mgz' for FreeSurfer MGZ format.
 #'
+#' @return vector of character strings, the output files (for the 2 hemispheres).
+#'
 #' @export
 vol_to_fsaverage <- function(input_img, out_dir=".", template_type='MNI152_orig', rf_type='RF_ANTs', interp='linear', out_type='curv') {
   check_rf_and_template(rf_type, template_type);
@@ -57,16 +66,26 @@ vol_to_fsaverage <- function(input_img, out_dir=".", template_type='MNI152_orig'
   }
 
   mapping = sprintf(".avgMapping_allSub_%s_%s_to_fsaverage.txt", rf_type, template_type);
+
+  if(! dir.exists(out_dir)) {
+    dir.create(out_dir, recursive = FALSE);
+  }
+
+  out_files = c();
   for (hemi in c('lh', 'rh')) {
     mapping_file = system.file("extdata", sprintf("%s%s", hemi, mapping), package = "regfusionr", mustWork = TRUE);
     ras = as.matrix(data.table::fread(mapping_file, nrows = 3, header = FALSE));
-    projected = project_data(get_image_data(input_img), get_affine(input_img), ras, interp);
+    affine = freesurferformats::mghheader.ras2vox(input_img$header);
+    projected = project_data(input_img$data, affine, ras, interp);
 
     out_file = file.path(out_dir, sprintf("%s%s.%s", hemi, mapping, out_type));
     freesurferformats::write.fs.morph(out_file, projected);
+    out_files = c(out_files, out_file);
   }
   # mapping_file = file.path("~/develop/regfusionr/inst/extdata/lh.avgMapping_allSub_RF_ANTs_Colin27_orig_to_fsaverage.txt");
+  return(out_files);
 }
+
 
 #' @title Perform trilinear data interpolation.
 #'
@@ -101,6 +120,7 @@ project_data <- function(data, affine, ras, interp='linear') {
   } else {
     stop("Only 3D and 4D data supported.");
   }
+
   return(approx);
 }
 

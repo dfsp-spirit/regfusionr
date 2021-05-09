@@ -50,18 +50,57 @@ vol_coords_to_fsaverage_coords <- function(mni_coords, template_type='MNI152_ori
 #' @export
 vol_to_fsaverage <- function(input_img, out_dir=".", template_type='MNI152_orig', rf_type='RF_ANTs', interp='linear', out_type='curv') {
   check_rf_and_template(rf_type, template_type);
+
+  valid_out_types = c('curv', 'mgz');
+  if(! (out_type %in% valid_out_types)) {
+    stop(sprintf("Parameter 'out_type' must be one of: %s.", paste(valid_out_types(), collapse=", ")));
+  }
+
   mapping = sprintf(".avgMapping_allSub_%s_%s_to_fsaverage.txt", rf_type, template_type);
   for (hemi in c('lh', 'rh')) {
     mapping_file = system.file("extdata", sprintf("%s%s", hemi, mapping), package = "regfusionr", mustWork = TRUE);
     ras = as.matrix(data.table::fread(mapping_file, nrows = 3, header = FALSE));
-    projected = project_data(image_data(input_img), affine(input_img), ras, interp);
+    projected = project_data(get_image_data(input_img), get_affine(input_img), ras, interp);
+
+    out_file = file.path(out_dir, sprintf("%s%s.%s", hemi, mapping, out_type));
+    freesurferformats::write.fs.morph(out_file, projected);
   }
   # mapping_file = file.path("~/develop/regfusionr/inst/extdata/lh.avgMapping_allSub_RF_ANTs_Colin27_orig_to_fsaverage.txt");
 }
 
-
+#' @title Perform trilinear data interpolation.
+#'
+#' @param data 3D or 3D source image values
+#'
+#' @param affine 4x4 double matrix, the ras2vox transformation matrix
+#'
+#' @param ras nx3 double matrix, the source RAS coordinates
+#'
+#' @param interp character string, the interpolation mode. Only 'linear' is currently supported. We should support 'nearest' as well.
+#'
+#' @return data values interpolated at the RAS coordinates.
+#'
 #' @keywords internal
-project_data <- function(data, affine, ras, interp='linear'):
+project_data <- function(data, affine, ras, interp='linear') {
+
+  supported_interp = c("linear");
+  if(!(interp %in% supported_interp)) {
+    stop("Parameter 'interp' must be 'linear', others not supported yet.");
+  }
   coords = ras_to_vox(ras, affine);
+
+  if(length(dim(data)) == 4L) {
+    data = data[,,,1];
+    warning("Using first slice of 4D data only."); # TODO: handle ALL slices (independently).
+  } else if(length(dim(data)) == 3L) {
+    # https://rdrr.io/cran/oce/man/approx3d.html
+    x = seq_len(dim(data)[1]);
+    y = seq_len(dim(data)[2]);
+    z = seq_len(dim(data)[3]);
+    approx = oce::approx3d(x, y, z, data, coords[,1], coords[,2], coords[,3]);
+  } else {
+    stop("Only 3D and 4D data supported.");
+  }
+  return(approx);
 }
 

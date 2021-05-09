@@ -52,8 +52,9 @@ vol_to_fsaverage <- function(input_img, out_dir=".", template_type='MNI152_orig'
   check_rf_and_template(rf_type, template_type);
   mapping = sprintf(".avgMapping_allSub_%s_%s_to_fsaverage.txt", rf_type, template_type);
   for (hemi in c('lh', 'rh')) {
-    mapping_file = system.file("extdata", sprintf("%s%s", hemi, mapping), package = "regfusion", mustWork = TRUE);
+    mapping_file = system.file("extdata", sprintf("%s%s", hemi, mapping), package = "regfusionr", mustWork = TRUE);
   }
- ras = read.table(mapping_file, colClasses = double);
+  # mapping_file = file.path("~/develop/regfusionr/inst/extdata/lh.avgMapping_allSub_RF_ANTs_Colin27_orig_to_fsaverage.txt");
+  ras = as.matrix(data.table::fread(mapping_file, nrows = 3, header = FALSE));
 
 }

@@ -5,10 +5,20 @@
 \title{Map MNI coords to fsaverage coords.}
 \usage{
 vol_coords_to_fsaverage_coords(
-  mni_coords,
+  coords,
   template_type = "MNI152_orig",
   rf_type = "RF_ANTs"
 )
+}
+\arguments{
+\item{coords}{nx3 numeric matrix, the source coordinates in the input image which must be in space 'template_type'.}
+
+\item{template_type}{character string, the source template}
+
+\item{rf_type}{the regfusion type to use.}
+}
+\value{
+nx3 numeric matrix of target coordinates.
 }
 \description{
 Map MNI coords to fsaverage coords.

@@ -41,12 +41,17 @@ check_rf_and_template <- function(template_type, rf_type) {
 
 #' @title Map MNI coords to fsaverage coords.
 #'
+#' @inheritParams vol_to_fsaverage
 #'
+#' @param coords nx3 numeric matrix, the source coordinates in the input image which must be in space 'template_type'.
+#'
+#' @return nx3 numeric matrix of target coordinates.
 #'
 #' @export
-vol_coords_to_fsaverage_coords <- function(mni_coords, template_type='MNI152_orig', rf_type='RF_ANTs') {
-  check_coords(mni_coords);
+vol_coords_to_fsaverage_coords <- function(coords, template_type='MNI152_orig', rf_type='RF_ANTs') {
+  check_coords(coords);
   check_rf_and_template(rf_type, template_type);
+  stop("not implemented yet")
 
 }
 

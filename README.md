@@ -1,9 +1,9 @@
 # regfusionr
-R implementation of registration fusion method for MNI152 - 305 mapping.
+R implementation of registration fusion method for MNI152/Colin to fsaverage mapping.
 
 ## About
 
-This is an R implementation of [Wu et al. (2018)'s registration fusion methods](https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.24213) to project MRI data from standard volumetric coordinates, either MNI152 or Colin27, to Freesurfer's fsaverage. This R implementation is also heavily inspired by Dan Gale's Python implementation in the [regfusion](https://github.com/danjgale/reg-fusion) package. A huge thank you to Dan Gale and  *Wu et al* for making their excellent tools openly available!
+This is an R implementation of [Wu et al. (2018)'s registration fusion methods](https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.24213) to project MRI data from standard volumetric coordinates, either MNI152 or Colin27, to Freesurfer's fsaverage (MNI305). This R implementation is also heavily inspired by Dan Gale's Python implementation in the [regfusion](https://github.com/danjgale/reg-fusion) package. A huge thank you to Dan Gale and  *Wu et al* for making their excellent tools openly available!
 
 ## Usage
 
@@ -22,6 +22,10 @@ Required system level packages for other systems:
  
 * rpm-based systems (like Fedora, EPEL, ...): `sudo yum install udunits2-devel gdal-devel`
 * MacOS (via [brew](https://brew.sh)): `brew install udunits gdal`
+
+### R package
+
+Not yet.
 
 ## Citation
 

@@ -134,6 +134,10 @@ project_data <- function(data, affine, ras, interp='linear') {
   }
   coords = doapply.transform.mtx(ras, affine);
 
+  if(is.null(data)) {
+    stop("Parameter 'data' must not be NULL (expected numerical array).");
+  }
+
   if(length(dim(data)) == 4L) {
     data = data[,,,1];
     warning("Using first slice of 4D data only."); # TODO: handle ALL slices (independently).

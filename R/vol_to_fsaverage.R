@@ -75,7 +75,7 @@ vol_coords_to_fsaverage_coords <- function(coords, template_type='MNI152_orig', 
 #'
 #' @param input_img 3D or 4D NIFTI or MGZ image instance of type \code{fs.volume}. If 4D, the 4th dimension is considered the time/subject dimension.
 #'
-#' @param out_dir character string, the path to a writable output directory.
+#' @param out_dir character string, the path to a writable output directory. If \code{NULL}, the returned named list contains the projected data (instead of the path of the file it was written to), and the parameter 'out_type' is ignored.
 #'
 #' @param template_type character string, the source template
 #'
@@ -85,7 +85,7 @@ vol_coords_to_fsaverage_coords <- function(coords, template_type='MNI152_orig', 
 #'
 #' @param out_type character string, the format of the output files. One of the following: 'curv' for FreeSurfer curv format, 'mgz' for FreeSurfer MGZ format.
 #'
-#' @return named list of 2 character strings, the output files (for the 2 hemispheres) at keys 'lh' and 'rh'.
+#' @return named list of 2 character strings, the output files (for the 2 hemispheres) at keys 'lh' and 'rh'. See 'out_dir' if you want the data in R instead.
 #'
 #' @export
 vol_to_fsaverage <- function(input_img, out_dir=".", template_type='MNI152_orig', rf_type='RF_ANTs', interp='linear', out_type='curv') {
@@ -111,19 +111,23 @@ vol_to_fsaverage <- function(input_img, out_dir=".", template_type='MNI152_orig'
     dir.create(out_dir, recursive = FALSE);
   }
 
-  out_files = list('lh' = NULL, 'rh' = NULL);
+  out = list('lh' = NULL, 'rh' = NULL);
   for (hemi in c('lh', 'rh')) {
     mapping_file = system.file("extdata", "mappings", sprintf("%s%s", hemi, mapping), package = "regfusionr", mustWork = TRUE);
     ras = t(as.matrix(data.table::fread(mapping_file, nrows = 3, header = FALSE)));
     affine = freesurferformats::mghheader.ras2vox(input_img$header);
     projected = project_data(input_img$data, affine, ras, interp);
 
-    out_file = file.path(out_dir, sprintf("%s%s.%s", hemi, mapping, out_type));
-    freesurferformats::write.fs.morph(out_file, projected);
-    out_files[[hemi]] = out_file;
+    if(is.null(out_dir)) {
+      out[[hemi]] = projected;
+    } else {
+      out_file = file.path(out_dir, sprintf("%s%s.%s", hemi, mapping, out_type));
+      freesurferformats::write.fs.morph(out_file, projected);
+      out[[hemi]] = out_file;
+    }
   }
-  # mapping_file = file.path("~/develop/regfusionr/inst/extdata/lh.avgMapping_allSub_RF_ANTs_Colin27_orig_to_fsaverage.txt");
-  return(out_files);
+
+  return(out);
 }
 
 

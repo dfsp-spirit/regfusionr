@@ -54,7 +54,7 @@ vol_coords_to_fsaverage_coords <- function(mni_coords, template_type='MNI152_ori
 #'
 #' @param out_type character string, the format of the output files. One of the following: 'curv' for FreeSurfer curv format, 'mgz' for FreeSurfer MGZ format.
 #'
-#' @return vector of character strings, the output files (for the 2 hemispheres).
+#' @return named list of 2 character strings, the output files (for the 2 hemispheres) at keys 'lh' and 'rh'.
 #'
 #' @export
 vol_to_fsaverage <- function(input_img, out_dir=".", template_type='MNI152_orig', rf_type='RF_ANTs', interp='linear', out_type='curv') {
@@ -71,16 +71,16 @@ vol_to_fsaverage <- function(input_img, out_dir=".", template_type='MNI152_orig'
     dir.create(out_dir, recursive = FALSE);
   }
 
-  out_files = c();
+  out_files = list('lh' = NULL, 'rh' = NULL);
   for (hemi in c('lh', 'rh')) {
-    mapping_file = system.file("extdata", sprintf("%s%s", hemi, mapping), package = "regfusionr", mustWork = TRUE);
+    mapping_file = system.file("extdata", "mappings", sprintf("%s%s", hemi, mapping), package = "regfusionr", mustWork = TRUE);
     ras = as.matrix(data.table::fread(mapping_file, nrows = 3, header = FALSE));
     affine = freesurferformats::mghheader.ras2vox(input_img$header);
     projected = project_data(input_img$data, affine, ras, interp);
 
     out_file = file.path(out_dir, sprintf("%s%s.%s", hemi, mapping, out_type));
     freesurferformats::write.fs.morph(out_file, projected);
-    out_files = c(out_files, out_file);
+    out_files[[hemi]] = out_file;
   }
   # mapping_file = file.path("~/develop/regfusionr/inst/extdata/lh.avgMapping_allSub_RF_ANTs_Colin27_orig_to_fsaverage.txt");
   return(out_files);
@@ -106,7 +106,7 @@ project_data <- function(data, affine, ras, interp='linear') {
   if(!(interp %in% supported_interp)) {
     stop("Parameter 'interp' must be 'linear', others not supported yet.");
   }
-  coords = ras_to_vox(ras, affine);
+  coords = doapply.transform.mtx(ras, affine);
 
   if(length(dim(data)) == 4L) {
     data = data[,,,1];

@@ -1,13 +1,5 @@
 
-#' @title Apply spatial transformation matrix to input coords/voxel indices.
-#'
-#' @note The current implementation is copied from the develop version of freesurferformats. It will be called from there once the function is in the release.
-#'
-#' @keywords internal
-ras_to_vox <- function(ras, affine) {
-  #freesurferformats::doapply.transform.mtx(ras, affine)
-  doapply.transform.mtx(ras, affine)
-}
+
 
 #' @title Apply a spatial transformation matrix to the given coordinates.
 #'
@@ -18,11 +10,6 @@ ras_to_vox <- function(ras, affine) {
 #' @return the coords after applying the transformation. If coords was nx3, nx3 is returned, otherwise nx4.
 #'
 #' @note This function is copied from the develop version of freesurferformats. It will be called from there once the function is in the release.
-#'
-#' @examples
-#'     coords_tf = doapply.transform.mtx(c(1.0, 1.0, 1.0), mni152reg());
-#'     coords_tf;
-#'     doapply.transform.mtx(coords_tf, solve(mni152reg()));
 #'
 #' @export
 doapply.transform.mtx <- function(coords, mtx) {

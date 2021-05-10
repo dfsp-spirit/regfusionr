@@ -9,6 +9,16 @@ This is an R implementation of [Wu et al (2018)'s registration fusion methods](h
 
 This is WIP and not useable yet, come back another day.
 
+## Installation
+
+### Sys Deps
+
+Required system level packages:
+ 
+* deb: libudunits2-dev (Debian, Ubuntu, ...)
+* rpm: udunits2-devel (Fedora, EPEL, ...)
+* brew: udunits (OSX)
+
 ## Citation
 
 >Wu J, Ngo GH, Greve DN, Li J, He T, Fischl B, Eickhoff SB, Yeo BTT. [**Accurate nonlinear mapping between MNI volumetric and FreeSurfer surface coordinate systems**](http://people.csail.mit.edu/ythomas/publications/2018VolSurfMapping-HBM.pdf), *Human Brain Mapping* 39:3793–3808, 2018.

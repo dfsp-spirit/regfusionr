@@ -13,11 +13,16 @@ This is WIP and not useable yet, come back another day.
 
 ### Sys Deps
 
+```
+sudo apt install libudunits2-dev libgdal-dev
+```
+
+
 Required system level packages:
  
-* deb: libudunits2-dev (Debian, Ubuntu, ...)
-* rpm: udunits2-devel (Fedora, EPEL, ...)
-* brew: udunits (OSX)
+* deb: libudunits2-dev, libgdal-dev (Debian, Ubuntu, ...)
+* rpm: udunits2-devel, ? (Fedora, EPEL, ...)
+* brew: udunits, ? (OSX)
 
 ## Citation
 

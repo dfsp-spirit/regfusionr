@@ -21,6 +21,20 @@ check_coords <- function(coords) {
   }
 }
 
+#' @keywords internal
+check_affine <- function(affine) {
+  if(! is.matrix(affine)) {
+    stop("Parameter 'affine' must be a numeric matrix.");
+  } else {
+    if(ncol(affine) != 4) {
+      stop(sprintf("Parameter 'affine' must be a numeric matrix with 4 columns, has %d.", ncol(affine)));
+    }
+    if(nrow(affine) != 4) {
+      stop(sprintf("Parameter 'affine' must be a numeric matrix with 4 rows, has %d.", nrow(affine)));
+    }
+  }
+}
+
 #' @title Ensure the template and rf types and valid and are an allowed combination.
 #'
 #' @keywords internal
@@ -132,11 +146,14 @@ project_data <- function(data, affine, ras, interp='linear') {
   if(!(interp %in% supported_interp)) {
     stop("Parameter 'interp' must be 'linear', others not supported yet.");
   }
-  coords = doapply.transform.mtx(ras, affine);
 
   if(is.null(data)) {
     stop("Parameter 'data' must not be NULL (expected numerical array).");
   }
+
+  check_affine(affine);
+
+  coords = doapply.transform.mtx(ras, affine);
 
   if(length(dim(data)) == 4L) {
     data = data[,,,1];
@@ -144,11 +161,23 @@ project_data <- function(data, affine, ras, interp='linear') {
   };
 
   if(length(dim(data)) == 3L) {
-    # https://rdrr.io/cran/oce/man/approx3d.html
+    nvols = 1L;
+    proj_data = array(data = rep(NA, (nrow(ras)*nvols)), dim = c(nvols, nrow(ras)));
     x = seq_len(dim(data)[1]);
     y = seq_len(dim(data)[2]);
     z = seq_len(dim(data)[3]);
     approx_dta = oce::approx3d(x, y, z, data, coords[,1], coords[,2], coords[,3]);
+    proj_data[1,] = approx_dta;
+  } else if (length(dim(data)) == 4L) {
+    nvols = dim(data)[4];
+    proj_data = array(data = rep(NA, (nrow(ras)*nvols)), dim = c(nvols, nrow(ras)));
+    for(vol_idx in seq_len(nvols)) {
+      x = seq_len(dim(data)[1]);
+      y = seq_len(dim(data)[2]);
+      z = seq_len(dim(data)[3]);
+      approx_dta = oce::approx3d(x, y, z, data[,,,vol_idx], coords[,1], coords[,2], coords[,3]);
+      proj_data[vol_idx,] = approx_dta;
+    }
   } else {
     stop("Only 3D and 4D data supported.");
   }

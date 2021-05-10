@@ -32,6 +32,10 @@ test_that("The colin27 data m3z transformation works", {
 
   testthat::expect_equal(actual_lh, as.vector(expected_lh), tolerance = 1e-5);
   testthat::expect_equal(actual_rh, as.vector(expected_rh), tolerance = 1e-5);
+
+  #fsbrain::vis.data.on.fsaverage(morph_data_lh = actual_lh, morph_data_rh = actual_rh);
+  #
+  # fsbrain::vis.symmetric.data.on.subject("~/software/freesurfer/subjects", "fsaverage", morph_data_lh = actual_lh, morph_data_rh = actual_rh, surface = "inflated");
 })
 
 

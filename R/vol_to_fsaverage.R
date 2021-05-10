@@ -155,11 +155,6 @@ project_data <- function(data, affine, ras, interp='linear') {
 
   coords = doapply.transform.mtx(ras, affine);
 
-  if(length(dim(data)) == 4L) {
-    data = data[,,,1];
-    warning("Using first slice of 4D data only."); # TODO: handle ALL slices (independently).
-  };
-
   if(length(dim(data)) == 3L) {
     nvols = 1L;
     proj_data = array(data = rep(NA, (nrow(ras)*nvols)), dim = c(nvols, nrow(ras)));

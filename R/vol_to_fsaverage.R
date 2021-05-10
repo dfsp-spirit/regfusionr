@@ -10,12 +10,23 @@ valid_template_types <- function() c('MNI152_orig', 'Colin27_orig', 'MNI152_norm
 valid_rf_types <- function() c('RF_ANTs', 'RF_M3Z')
 
 
+#' @keywords internal
+check_coords <- function(coords) {
+  if(! is.matrix(coords)) {
+    stop("Parameter 'coords' must be a numeric matrix.");
+  } else {
+    if(ncol(coords) != 3) {
+      stop(sprintf("Parameter 'coords' must be a numeric matrix with 3 columns, has %d.", ncol(coords)));
+    }
+  }
+}
+
 #' @title Ensure the template and rf types and valid and are an allowed combination.
 #'
 #' @keywords internal
 check_rf_and_template <- function(template_type, rf_type) {
-  if(! (template_type %in% valid_template_types())) { stop(sprintf("Parameter template_type must be one of: %s.", paste(valid_template_types(), collapse=", "))); }
-  if(! (rf_type %in% valid_rf_types())) { stop(sprintf("Parameter rf_type must be one of: %s.", paste(valid_rf_types(), collapse=", "))); }
+  if(! (template_type %in% valid_template_types())) { stop(sprintf("Parameter template_type must be one of: '%s' but is '%s'.", paste(valid_template_types(), collapse=", "), template_type)); }
+  if(! (rf_type %in% valid_rf_types())) { stop(sprintf("Parameter rf_type must be one of: '%s' but is '%s'.", paste(valid_rf_types(), collapse=", "), rf_type)); }
 
   if (rf_type == 'RF_ANTs') {
     accepted_template_types = c('MNI152_orig', 'Colin27_orig');
@@ -23,7 +34,7 @@ check_rf_and_template <- function(template_type, rf_type) {
     accepted_template_types = c('MNI152_norm', 'Colin27_norm');
   }
   if(! (template_type %in% accepted_template_types)) {
-    stop(sprintf("When using rf_type '%s', template_type must be one of: %s.", rf_type,  paste(accepted_template_types, collapse=", ")));
+    stop(sprintf("When using rf_type '%s', template_type must be one of: '%s' but is '%s'.", rf_type,  paste(accepted_template_types, collapse=", "), template_type));
   }
 }
 
@@ -34,6 +45,7 @@ check_rf_and_template <- function(template_type, rf_type) {
 #'
 #' @export
 vol_coords_to_fsaverage_coords <- function(mni_coords, template_type='MNI152_orig', rf_type='RF_ANTs') {
+  check_coords(mni_coords);
   check_rf_and_template(rf_type, template_type);
 
 }
@@ -44,7 +56,7 @@ vol_coords_to_fsaverage_coords <- function(mni_coords, template_type='MNI152_ori
 #'
 #' @param input_img 3D or 4D NIFTI or MGZ image instance of type \code{fs.volume}. If 4D, the 4th dimension is considered the time/subject dimension.
 #'
-#' @param out_dir character string, the path to a writeable output directory.
+#' @param out_dir character string, the path to a writable output directory.
 #'
 #' @param template_type character string, the source template
 #'
@@ -58,7 +70,16 @@ vol_coords_to_fsaverage_coords <- function(mni_coords, template_type='MNI152_ori
 #'
 #' @export
 vol_to_fsaverage <- function(input_img, out_dir=".", template_type='MNI152_orig', rf_type='RF_ANTs', interp='linear', out_type='curv') {
-  check_rf_and_template(rf_type, template_type);
+
+  if(! freesurferformats::is.fs.volume(input_img)) {
+    if(is.character(input_img)) {
+      input_img = freesurferformats::read.fs.volume(input_img, with_header = TRUE);
+    } else {
+      stop("Parameter 'input_img' must be fs.volume instance or a valid path to a volume file.");
+    }
+  }
+
+  check_rf_and_template(template_type = template_type, rf_type = rf_type);
 
   valid_out_types = c('curv', 'mgz');
   if(! (out_type %in% valid_out_types)) {
@@ -74,7 +95,7 @@ vol_to_fsaverage <- function(input_img, out_dir=".", template_type='MNI152_orig'
   out_files = list('lh' = NULL, 'rh' = NULL);
   for (hemi in c('lh', 'rh')) {
     mapping_file = system.file("extdata", "mappings", sprintf("%s%s", hemi, mapping), package = "regfusionr", mustWork = TRUE);
-    ras = as.matrix(data.table::fread(mapping_file, nrows = 3, header = FALSE));
+    ras = t(as.matrix(data.table::fread(mapping_file, nrows = 3, header = FALSE)));
     affine = freesurferformats::mghheader.ras2vox(input_img$header);
     projected = project_data(input_img$data, affine, ras, interp);
 
@@ -111,16 +132,18 @@ project_data <- function(data, affine, ras, interp='linear') {
   if(length(dim(data)) == 4L) {
     data = data[,,,1];
     warning("Using first slice of 4D data only."); # TODO: handle ALL slices (independently).
-  } else if(length(dim(data)) == 3L) {
+  };
+
+  if(length(dim(data)) == 3L) {
     # https://rdrr.io/cran/oce/man/approx3d.html
     x = seq_len(dim(data)[1]);
     y = seq_len(dim(data)[2]);
     z = seq_len(dim(data)[3]);
-    approx = oce::approx3d(x, y, z, data, coords[,1], coords[,2], coords[,3]);
+    approx_dta = oce::approx3d(x, y, z, data, coords[,1], coords[,2], coords[,3]);
   } else {
     stop("Only 3D and 4D data supported.");
   }
 
-  return(approx);
+  return(approx_dta);
 }
 

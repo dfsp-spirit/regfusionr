@@ -2,9 +2,7 @@
 % Please edit documentation in R/vol_to_fsaverage.R
 \name{vol_to_fsaverage}
 \alias{vol_to_fsaverage}
-\title{Map values from MNI volume to fsaverage surface.
-
-Applies the Wu et al. regfusion method to obtain surface coords, then interpolates values.}
+\title{Map values from MNI volume to fsaverage surface.}
 \usage{
 vol_to_fsaverage(
   input_img,
@@ -16,9 +14,9 @@ vol_to_fsaverage(
 )
 }
 \arguments{
-\item{input_img}{3D or 4D NIFTI or MGZ image. If 4D, the 4th dimension is considered the time/subject dimension.}
+\item{input_img}{3D or 4D NIFTI or MGZ image instance of type \code{fs.volume}. If 4D, the 4th dimension is considered the time/subject dimension.}
 
-\item{out_dir}{character string, the path to a writeable output directory.}
+\item{out_dir}{character string, the path to a writable output directory.}
 
 \item{template_type}{character string, the source template}
 
@@ -28,8 +26,9 @@ vol_to_fsaverage(
 
 \item{out_type}{character string, the format of the output files. One of the following: 'curv' for FreeSurfer curv format, 'mgz' for FreeSurfer MGZ format.}
 }
+\value{
+named list of 2 character strings, the output files (for the 2 hemispheres) at keys 'lh' and 'rh'.
+}
 \description{
-Map values from MNI volume to fsaverage surface.
-
 Applies the Wu et al. regfusion method to obtain surface coords, then interpolates values.
 }

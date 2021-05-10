@@ -1,12 +1,12 @@
 
 
 get_test_file <- function(filename) {
-  system.file("extdata", "testdata", filename, package = "regusionr", mustWork = TRUE);
+  system.file("extdata", "testdata", filename, package = "regfusionr", mustWork = TRUE);
 }
 
 test_that("The colin27 data m3z transformation works", {
-  expected_res_file_lh = get_test_file('lh.Colin_probMap_ants.central_sulc.allSub_RF_M3Z_Colin27_norm_to_fsaverage.nii.gz');
-  expected_res_file_rh = get_test_file('rh.Colin_probMap_ants.central_sulc.allSub_RF_M3Z_Colin27_norm_to_fsaverage.nii.gz');
+  expected_res_file_lh = get_test_file('lh.Colin.RF_M3Z_Colin27_norm_to_fsaverage.nii.gz');
+  expected_res_file_rh = get_test_file('rh.Colin.RF_M3Z_Colin27_norm_to_fsaverage.nii.gz');
 
   input_img = get_test_file('Colin_probMap_ants.central_sulc.nii.gz');
   out_dir = tempdir();

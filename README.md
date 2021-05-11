@@ -11,7 +11,9 @@ This is WIP and not usable yet, come back another day.
 
 ## Installation
 
-### Sys Deps
+### System Dependencies
+
+You need to install these from your system shell before installing the R package (see below).
 
 For Debian-based Linux distros, run:
 ```
@@ -25,7 +27,14 @@ Required system level packages for other systems:
 
 ### R package
 
-Not yet.
+From an R session:
+
+```
+install.packages('remotes');
+remotes::install_github('dfsp-spirit/regfusionr');
+```
+
+It's unlikely that this package will go to CRAN soon, it requires some data files (about 100 MB), and CRAN only supports 5 MB. I'm sure one could work around that somehow, but my time for this is limited.
 
 ## Citation
 

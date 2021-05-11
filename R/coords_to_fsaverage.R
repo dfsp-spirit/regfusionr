@@ -13,7 +13,12 @@
 #' @note see standalone_scripts_for_MNI_fsaverage_coordinates_conversion/CBIG_RF_MNICoord2fsaverageVertex.m
 #'
 #' @export
-mni152_coords_to_fsaverage_coords <- function(coords, surface='white', fs_home=Sys.getenv("FS_HOME")) {
+mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.getenv("FS_HOME")) {
+  if(is.vector(coords)) {
+    if(length(coords) %% 3L == 0L) {
+      coords = matrix(coords, ncol = 3L);
+    }
+  }
   check_coords(coords);
 
   if(nchar(fs_home) == 0) {

@@ -23,7 +23,7 @@ test_that("The Colin27 data projection using m3z registration works", {
   # Load input image for test.
   input_img = get_test_file('Colin_probMap_ants.central_sulc.nii.gz');
   out_dir = tempdir();
-  outfiles = vol_to_fsaverage(input_img, out_dir, template_type='Colin27_norm', rf_type='RF_M3Z', out_type = 'curv');
+  outfiles = vol_to_fsaverage(input_img, template_type='Colin27_norm', rf_type='RF_M3Z', out_type = 'curv', out_dir = out_dir);
 
   # Compare results with expected result data.
   testthat::expect_true(file.exists(outfiles$lh));

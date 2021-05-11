@@ -34,7 +34,9 @@ install.packages('remotes');
 remotes::install_github('dfsp-spirit/regfusionr');
 ```
 
-It's unlikely that this package will go to CRAN soon, it requires some data files (about 100 MB), and CRAN only supports 5 MB. I'm sure one could work around that somehow, but my time for this is limited.
+You can also use `devtools` instead of `remotes` if you already have it installed. For those who haven't, `remotes` is a lot smaller and faster to install though.
+
+It's unlikely that this package will go to CRAN soon, it requires some data files which are about 100 MB in total size, and CRAN only supports 5 MB. I know one can work around that, but my time for this is limited.
 
 ## Citation
 

@@ -3,7 +3,7 @@ R implementation of registration fusion method for MNI152/Colin to fsaverage map
 
 ## About
 
-This is an R implementation of [Wu et al. (2018)'s registration fusion methods](https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.24213) to project MRI data from standard volumetric coordinates, either MNI152 or Colin27, to Freesurfer's fsaverage (MNI305). This R implementation is also heavily inspired by Dan Gale's Python implementation in the [regfusion](https://github.com/danjgale/reg-fusion) package. A huge thank you to Dan Gale and  *Wu et al* for making their excellent tools openly available!
+This is an R implementation of [Wu et al. (2018)'s registration fusion methods](https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.24213) to project 3D magnetic resonance imaging (MRI) data from standard space volumetric coordinates, either MNI152 or Colin27, to Freesurfer's fsaverage (MNI305). This R implementation is heavily inspired by [Dan Gale's Python implementation](https://github.com/danjgale/reg-fusion) in the [regfusion pypi package](https://pypi.org/project/regfusion/). A huge thank you to Dan Gale and  *Wu et al* for making their excellent tools openly available!
 
 ## Usage
 
@@ -11,7 +11,9 @@ This is WIP and not usable yet, come back another day.
 
 ## Installation
 
-### Sys Deps
+### System Dependencies
+
+You need to install these from your system shell before installing the R package (see below).
 
 For Debian-based Linux distros, run:
 ```
@@ -25,7 +27,16 @@ Required system level packages for other systems:
 
 ### R package
 
-Not yet.
+From an R session:
+
+```
+install.packages('remotes');
+remotes::install_github('dfsp-spirit/regfusionr');
+```
+
+You can also use `devtools` instead of `remotes` if you already have it installed. For those who haven't, `remotes` is a lot smaller and faster to install though.
+
+It's unlikely that this package will go to CRAN soon, it requires some data files which are about 100 MB in total size, and CRAN only supports 5 MB. I know one can work around that, but my time for this is limited.
 
 ## Citation
 

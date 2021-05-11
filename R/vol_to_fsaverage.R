@@ -107,8 +107,10 @@ vol_to_fsaverage <- function(input_img, template_type, rf_type='RF_ANTs', interp
 
   mapping = sprintf(".avgMapping_allSub_%s_%s_to_fsaverage.txt", rf_type, template_type);
 
-  if(! dir.exists(out_dir)) {
-    dir.create(out_dir, recursive = FALSE);
+  if(! is.null(out_dir)) {
+    if(! dir.exists(out_dir)) {
+      dir.create(out_dir, recursive = FALSE);
+    }
   }
 
   out = list('lh' = NULL, 'rh' = NULL);

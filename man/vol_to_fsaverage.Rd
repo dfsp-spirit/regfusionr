@@ -16,7 +16,7 @@ vol_to_fsaverage(
 \arguments{
 \item{input_img}{3D or 4D NIFTI or MGZ image instance of type \code{fs.volume}. If 4D, the 4th dimension is considered the time/subject dimension.}
 
-\item{out_dir}{character string, the path to a writable output directory.}
+\item{out_dir}{character string, the path to a writable output directory. If \code{NULL}, the returned named list contains the projected data (instead of the path of the file it was written to), and the parameter 'out_type' is ignored.}
 
 \item{template_type}{character string, the source template}
 
@@ -27,7 +27,7 @@ vol_to_fsaverage(
 \item{out_type}{character string, the format of the output files. One of the following: 'curv' for FreeSurfer curv format, 'mgz' for FreeSurfer MGZ format.}
 }
 \value{
-named list of 2 character strings, the output files (for the 2 hemispheres) at keys 'lh' and 'rh'.
+named list of 2 character strings, the output files (for the 2 hemispheres) at keys 'lh' and 'rh'. See 'out_dir' if you want the data in R instead.
 }
 \description{
 Applies the Wu et al. regfusion method to obtain surface coords, then interpolates values.

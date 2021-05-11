@@ -8,6 +8,8 @@
 #'
 #' @return nx3 numeric matrix of target coordinates.
 #'
+#' @note see standalone_scripts_for_MNI_fsaverage_coordinates_conversion/CBIG_RF_MNICoord2fsaverageVertex.m
+#'
 #' @export
 mni152_coords_to_fsaverage_coords <- function(coords, template_type='MNI152', surface='white', fs_home=Sys.getenv("FS_HOME")) {
   check_coords(coords);
@@ -30,11 +32,37 @@ mni152_coords_to_fsaverage_coords <- function(coords, template_type='MNI152', su
   rh_vertex = freesurferformats::read.fs.mgh(rh_map_file, with_header = FALSE, drop_empty_dims = TRUE);
 
   # Load cortex mask.
-  cortex_mask_filename = "FSL_MNI152_FS4.5.0_cortex_estimate.nii.gz";
-  #cortex_mask_filename_colin27 = "SPM_Colin27_FS4.5.0_cortex_estimate.nii.gz";
-  cortex_mask_file = get_data_file(cortex_mask_filename, subdir = "coordmap");
-  cortex_mask = freesurferformats::read.fs.volume(cortex_mask_file);
+  cortex_mask_file = get_data_file("FSL_MNI152_FS4.5.0_cortex_estimate.nii.gz", subdir = "coordmap");
+  cortex_mask = freesurferformats::read.fs.volume(cortex_mask_file, with_header = TRUE);
 
-  #
+  # Do the masking.
+  lh_vertex[which(cortex_mask$data == 0)] = 0;
+  rh_vertex[which(cortex_mask$data == 0)] = 0;
 
+  # Convert input RAS coords to voxel indices (IJK) for the matrix.
+  mni_voxels = doapply.transform.mtx(coords, freesurferformats::mghheader.ras2vox(cortex_mask)) + 1L;
+  mni_array = array(data = c(mni_voxels[2,], mni_voxels[1,], mni_voxels[3,]) , dim = c(256, 256, 256)); # TODO: get dim from image
+
+  num_coords = nrow(coords);
+  verts = rep(0L, num_coords);
+  fs_coords = matrix(rep(0.0, (num_coords * 3L)), ncol = 3L);
+  hemi = rep(NULL, num_coords);
+  for(coord_idx in seq_len(num_coords)) {
+    lh_corr = lh_vertex[mni_array[1, coord_idx], mni_array[2, coord_idx], mni_array[3, coord_idx]];
+    rh_corr = rh_vertex[mni_array[1, coord_idx], mni_array[2, coord_idx], mni_array[3, coord_idx]];
+    if(lh_corr != 0) { # vertex is from left hemi
+      verts[coord_idx] = lh_corr;
+      hemi[coord_idx] = 'lh';
+      fs_coords[coord_idx, ] = lh_surf$vertices[coord_idx, ];
+    } else if(rh_corr != 0) {
+      verts[coord_idx] = rh_corr;
+      hemi[coord_idx] = 'rh';
+      fs_coords[coord_idx, ] = rh_surf$vertices[coord_idx, ];
+    } else {
+      message(sprintf("Input coord set %d not within MNI cortex mask, returning NaNs.", coord_idx));
+      verts[coord_idx] = NaN;
+      fs_coords[coord_idx, ] = rep(NaN, 3L);
+    }
+  }
+  return(list("fsaverage_vertices"=verts, "hemi"=hemi, "fsaverage_coords"=fs_coords));
 }

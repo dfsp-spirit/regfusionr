@@ -10,6 +10,10 @@ valid_template_types <- function() c('MNI152_orig', 'Colin27_orig', 'MNI152_norm
 valid_rf_types <- function() c('RF_ANTs', 'RF_M3Z')
 
 
+#' @title Check whether coords is a nx3 numerical matrix.
+#'
+#' @note Stops if its not.
+#'
 #' @keywords internal
 check_coords <- function(coords) {
   if(! is.matrix(coords)) {
@@ -21,6 +25,12 @@ check_coords <- function(coords) {
   }
 }
 
+#' @title Check whether affine is a 4x4 numerical matrix.
+#'
+#' @param affine whatever, hopefully a 4x4 numerical matrix.
+#'
+#' @note Stops if its not.
+#'
 #' @keywords internal
 check_affine <- function(affine) {
   if(! is.matrix(affine)) {
@@ -52,8 +62,15 @@ check_rf_and_template <- function(template_type, rf_type) {
   }
 }
 
+
+#' @title Get path to a data file required by the package code.
+#'
+#' @param filename character string, the filename
+#'
+#' @param subdir character string, subdirectories (if any).
+#'
 #' @keywords internal
-get_data_file <- function(filename, subdir=NULL) {
+get_data_file <- function(filename, subdir = NULL) {
   if(is.null(subdir)) {
     data_file = system.file("extdata", filename, package = "regfusionr", mustWork = TRUE);
   } else {

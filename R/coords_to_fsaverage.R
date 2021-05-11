@@ -1,17 +1,27 @@
 # Standalone function to covert MNI/Colin coordinates to fsaverage coords.
 
-#' @title Map MNI coords to fsaverage coords.
+#' @title Map MNI152 coords to fsaverage coords.
 #'
 #' @inheritParams vol_to_fsaverage
 #'
-#' @param coords nx3 numeric matrix, the source coordinates in the input image which must be in space 'template_type'.
+#' @param coords nx3 numeric matrix, the source RAS coordinates in the input image which must be in MNI152 space.
 #'
 #' @return nx3 numeric matrix of target coordinates.
 #'
 #' @export
-vol_coords_to_fsaverage_coords <- function(coords, template_type='MNI152', rf_type='RF_ANTs') {
+mni152_coords_to_fsaverage_coords <- function(coords, template_type='MNI152', surface='white', fs_home=Sys.getenv("FS_HOME")) {
   check_coords(coords);
-  check_rf_and_template(rf_type, template_type);
+
+  if(nchar(fs_home) == 0) {
+    stop("Parameter 'fs_home' must not be empty. Make sure that the environment variable FS_HOME is set or pass a valid path.");
+  }
+  if(! dir.exists(fs_home)) {
+    stop(sprintf("Parameter 'fs_home' points to '%d', but that directory does not exist (or is not readable).", fs_home));
+  }
+
+  # Load surface
+  lh_surf = freesurferformats::read.fs.surface(file.path(fs_home, 'subjects', 'fsaverage', 'surf', sprintf("lh.%s", surface)));
+  rh_surf = freesurferformats::read.fs.surface(file.path(fs_home, 'subjects', 'fsaverage', 'surf', sprintf("rh.%s", surface)));
 
   # Load mappings
   lh_map_file = get_data_file("FSL_MNI152_FS4.5.0_RF_ANTs_avgMapping.vertex.lh.mgz", subdir = "coordmap");

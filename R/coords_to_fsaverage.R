@@ -2,16 +2,18 @@
 
 #' @title Map MNI152 coords to fsaverage coords.
 #'
-#' @inheritParams vol_to_fsaverage
-#'
 #' @param coords nx3 numeric matrix, the source RAS coordinates in the input image which must be in MNI152 space.
 #'
-#' @return nx3 numeric matrix of target coordinates.
+#' @param surface character string, the fsaverage surface (brain mesh) to load. Must be a valid FreeSurfer surface name like 'white', 'pial', 'orig, 'inflated'.
+#'
+#' @param fs_home character string, path to the FreeSurfer installation. Used to find the surfaces, at \code{<fs_home>/subjects/fsaverage/surf/<hemi>.<surface>}, where hemi is 'lh' and 'rh'.
+#'
+#' @return namd list with entries 'fsaverage_vertices': integer vector of fsaverage surface vertex indices, 'hemi': vector of hemi strings for the vertices, 'fsaverage_coords': nx3 numeric matrix of target coordinates.
 #'
 #' @note see standalone_scripts_for_MNI_fsaverage_coordinates_conversion/CBIG_RF_MNICoord2fsaverageVertex.m
 #'
 #' @export
-mni152_coords_to_fsaverage_coords <- function(coords, template_type='MNI152', surface='white', fs_home=Sys.getenv("FS_HOME")) {
+mni152_coords_to_fsaverage_coords <- function(coords, surface='white', fs_home=Sys.getenv("FS_HOME")) {
   check_coords(coords);
 
   if(nchar(fs_home) == 0) {

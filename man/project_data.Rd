@@ -2,7 +2,7 @@
 % Please edit documentation in R/vol_to_fsaverage.R
 \name{project_data}
 \alias{project_data}
-\title{Perform trilinear data interpolation.}
+\title{Perform coord transform and trilinear data interpolation.}
 \usage{
 project_data(data, affine, ras, interp = "linear")
 }
@@ -19,6 +19,6 @@ project_data(data, affine, ras, interp = "linear")
 data values interpolated at the RAS coordinates.
 }
 \description{
-Perform trilinear data interpolation.
+Perform coord transform and trilinear data interpolation.
 }
 \keyword{internal}

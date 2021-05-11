@@ -75,20 +75,20 @@ vol_coords_to_fsaverage_coords <- function(coords, template_type='MNI152_orig', 
 #'
 #' @param input_img 3D or 4D NIFTI or MGZ image instance of type \code{fs.volume}. If 4D, the 4th dimension is considered the time/subject dimension.
 #'
-#' @param out_dir character string, the path to a writable output directory. If \code{NULL}, the returned named list contains the projected data (instead of the path of the file it was written to), and the parameter 'out_type' is ignored.
+#' @param template_type character string, the source template or the space that your input image is in. One of 'MNI152_orig', 'Colin27_orig', 'MNI152_norm', 'Colin27_norm'.
 #'
-#' @param template_type character string, the source template
+#' @param rf_type the regfusion type to use, one of 'RF_ANTs' or 'RF_M3Z'.
 #'
-#' @param rf_type the regfusion type to use.
-#'
-#' @param interp interpolation method
+#' @param interp interpolation method, currenlty only 'linear' is supported.
 #'
 #' @param out_type character string, the format of the output files. One of the following: 'curv' for FreeSurfer curv format, 'mgz' for FreeSurfer MGZ format.
+#'
+#' @param out_dir character string, the path to a writable output directory. If \code{NULL}, the returned named list contains the projected data (instead of the path of the file it was written to), and the parameter 'out_type' is ignored.
 #'
 #' @return named list of 2 character strings, the output files (for the 2 hemispheres) at keys 'lh' and 'rh'. See 'out_dir' if you want the data in R instead.
 #'
 #' @export
-vol_to_fsaverage <- function(input_img, out_dir=".", template_type='MNI152_orig', rf_type='RF_ANTs', interp='linear', out_type='curv') {
+vol_to_fsaverage <- function(input_img, template_type, rf_type='RF_ANTs', interp='linear', out_type='curv', out_dir=".") {
 
   if(! freesurferformats::is.fs.volume(input_img)) {
     if(is.character(input_img)) {

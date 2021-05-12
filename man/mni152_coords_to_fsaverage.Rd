@@ -2,7 +2,7 @@
 % Please edit documentation in R/coords_to_fsaverage.R
 \name{mni152_coords_to_fsaverage}
 \alias{mni152_coords_to_fsaverage}
-\title{Map MNI152 coords to fsaverage coords.}
+\title{Map MNI152 coords to fsaverage coords and vertices.}
 \usage{
 mni152_coords_to_fsaverage(
   coords,
@@ -24,7 +24,15 @@ mni152_coords_to_fsaverage(
 named list with entries 'fsaverage_vertices': integer vector of fsaverage surface vertex indices, 'hemi': vector of hemi strings for the vertices, 'fsaverage_coords': nx3 numeric matrix of target coordinates, 'query_mni_coords': copy of input parameter coords, 'query_mni_voxels': the voxel indices at the query RAS coords.
 }
 \description{
-Map MNI152 coords to fsaverage coords.
+Map MNI152 coords to fsaverage coords and vertices.
+}
+\examples{
+\dontrun{
+  mni_ras = c(60.0, 0.0, 10.0)
+  res = mni152_coords_to_fsaverage(mni_ras, surface = "white");
+  res$fsaverage_vertices;   # 9092
+}
+
 }
 \author{
 Tim Schäfer for the R version, Wu Jianxiao and CBIG for the original Matlab version.

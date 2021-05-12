@@ -1,6 +1,6 @@
 # Standalone function to covert MNI/Colin coordinates to fsaverage coords.
 
-#' @title Map MNI152 coords to fsaverage coords.
+#' @title Map MNI152 coords to fsaverage coords and vertices.
 #'
 #' @param coords nx3 numeric matrix, the source RAS coordinates in the input image which must be in MNI152 space. The coords must be within the cortex, otherwise the mapping makes no sense and \code{NaN} values are returned for the respective coords.
 #'
@@ -13,6 +13,13 @@
 #' @return named list with entries 'fsaverage_vertices': integer vector of fsaverage surface vertex indices, 'hemi': vector of hemi strings for the vertices, 'fsaverage_coords': nx3 numeric matrix of target coordinates, 'query_mni_coords': copy of input parameter coords, 'query_mni_voxels': the voxel indices at the query RAS coords.
 #'
 #' @author Tim Schäfer for the R version, Wu Jianxiao and CBIG for the original Matlab version.
+#'
+#' @examples
+#' \dontrun{
+#'   mni_ras = c(60.0, 0.0, 10.0)
+#'   res = mni152_coords_to_fsaverage(mni_ras, surface = "white");
+#'   res$fsaverage_vertices;   # 9092
+#' }
 #'
 #' @export
 mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.getenv("FS_HOME"), silent = TRUE) {

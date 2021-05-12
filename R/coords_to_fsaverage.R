@@ -6,9 +6,9 @@
 #'
 #' @param surface character string, the fsaverage surface (brain mesh) to load. Must be a valid FreeSurfer surface name like 'white', 'pial', 'orig, 'inflated'.
 #'
-#' @param fs_home character string, path to the FreeSurfer installation. Used to find the surfaces, at \code{<fs_home>/subjects/fsaverage/surf/<hemi>.<surface>}, where hemi is 'lh' and 'rh'.
+#' @param fs_home character string, path to the FreeSurfer installation. Alternatively, a hemilist of \code{freesurferformats::fs.surface} instances like \code{surface = list("lh"=mysurflh, "rh"=mysurfrh)}. Used to find the surfaces, at \code{<fs_home>/subjects/fsaverage/surf/<hemi>.<surface>}, where hemi is 'lh' and 'rh'. Can be NULL if 'surface' is a hemilist of fs.surface instances.
 #'
-#' @return namd list with entries 'fsaverage_vertices': integer vector of fsaverage surface vertex indices, 'hemi': vector of hemi strings for the vertices, 'fsaverage_coords': nx3 numeric matrix of target coordinates.
+#' @return named list with entries 'fsaverage_vertices': integer vector of fsaverage surface vertex indices, 'hemi': vector of hemi strings for the vertices, 'fsaverage_coords': nx3 numeric matrix of target coordinates.
 #'
 #' @note see standalone_scripts_for_MNI_fsaverage_coordinates_conversion/CBIG_RF_MNICoord2fsaverageVertex.m
 #'
@@ -21,20 +21,31 @@ mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.gete
   }
   check_coords(coords);
 
-  if(nchar(fs_home) == 0) {
-    stop("Parameter 'fs_home' must not be empty. Make sure that the environment variable FS_HOME is set or pass a valid path.");
-  }
-  if(! dir.exists(fs_home)) {
-    stop(sprintf("Parameter 'fs_home' points to '%s', but that directory does not exist (or is not readable).", fs_home));
-  }
-  fsavg_path = file.path(fs_home, 'subjects', 'fsaverage');
-  if(! dir.exists(fsavg_path)) {
-    stop(sprintf("Parameter 'fs_home' points to '%s', but expected fsaverage sub directory '%s' does not exist.", fs_home, fsavg_path));
-  }
+  # Load surfaces
+  if(is.list(surface)) {
+    if(freesurferformats::is.fs.surface(surface$lh) & freesurferformats::is.fs.surface(surface$rh)) {
+      lh_surf = surface$lh;
+      rh_surf = surface$rh;
+    } else {
+      stop("Parameter 'surface' must be a character string like 'white' or a hemilist of fs.surface instances.");
+    }
+  } else if (is.character(surface)) {
+    if(nchar(fs_home) == 0) {
+      stop("Parameter 'fs_home' must not be empty. Make sure that the environment variable FS_HOME is set or pass a valid path.");
+    }
+    if(! dir.exists(fs_home)) {
+      stop(sprintf("Parameter 'fs_home' points to '%s', but that directory does not exist (or is not readable).", fs_home));
+    }
+    fsavg_path = file.path(fs_home, 'subjects', 'fsaverage');
+    if(! dir.exists(fsavg_path)) {
+      stop(sprintf("Parameter 'fs_home' points to '%s', but expected fsaverage sub directory '%s' does not exist.", fs_home, fsavg_path));
+    }
 
-  # Load surface
-  lh_surf = freesurferformats::read.fs.surface(file.path(fs_home, 'subjects', 'fsaverage', 'surf', sprintf("lh.%s", surface)));
-  rh_surf = freesurferformats::read.fs.surface(file.path(fs_home, 'subjects', 'fsaverage', 'surf', sprintf("rh.%s", surface)));
+    lh_surf = freesurferformats::read.fs.surface(file.path(fs_home, 'subjects', 'fsaverage', 'surf', sprintf("lh.%s", surface)));
+    rh_surf = freesurferformats::read.fs.surface(file.path(fs_home, 'subjects', 'fsaverage', 'surf', sprintf("rh.%s", surface)));
+  } else {
+    stop("Parameter 'surface' must be a character string like 'white' or a hemilist of fs.surface instances.");
+  }
 
   # Load mappings
   lh_map_file = get_data_file("FSL_MNI152_FS4.5.0_RF_ANTs_avgMapping.vertex.lh.mgz", subdir = "coordmap");

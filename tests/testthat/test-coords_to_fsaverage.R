@@ -2,7 +2,6 @@
 
 test_that("MNI152 coords can be mapped to fsaverage space", {
 
-
   # The next line is a setup for Tim's test system only and should be removed once this package is official.
   Sys.setenv("FS_HOME"=file.path(Sys.getenv("HOME"), "software/freesurfer/"));
 
@@ -23,4 +22,27 @@ test_that("MNI152 coords can be mapped to fsaverage space", {
   testthat::expect_equal(res_outside_cortex$fsaverage_vertices, c(NaN));
 })
 
+
+test_that("MNI152 coord mapping works with matrix iunput of several coords at once", {
+
+  # The next line is a setup for Tim's test system only and should be removed once this package is official.
+  Sys.setenv("FS_HOME"=file.path(Sys.getenv("HOME"), "software/freesurfer/"));
+
+  if(nchar(Sys.getenv("FS_HOME")) == 0L) {
+    testthat::skip("No FreeSurfer installation found or FS_HOME environment variable not set correctly.");
+  }
+  if(! dir.exists(Sys.getenv("FS_HOME"))) {
+    testthat::skip("No FreeSurfer installation found at path given in FS_HOME environment variable.");
+  }
+
+  mni_coords = matrix(c(60, 0, 10, 0, 0, 0), ncol = 3, byrow = TRUE);
+
+  res = mni152_coords_to_fsaverage(mni_coords, surface = "white");
+  testthat::expect_equal(res$fsaverage_vertices, c(9092, NaN));
+  testthat::expect_equal(length(res$fsaverage_vertices), 2L);
+  testthat::expect_equal(length(res$hemi), 2L);
+  testthat::expect_equal(nrow(res$query_mni_coords), 2L);
+  testthat::expect_equal(nrow(res$query_mni_voxels), 2L);
+  testthat::expect_equal(nrow(res$fsaverage_coords), 2L);
+})
 

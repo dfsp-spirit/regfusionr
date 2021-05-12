@@ -73,7 +73,7 @@ mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.gete
   num_coords = nrow(coords);
   verts = rep(0L, num_coords);
   fs_coords = matrix(rep(0.0, (num_coords * 3L)), ncol = 3L);
-  hemi = rep(NULL, num_coords);
+  hemi = rep(NA, num_coords);
   for(coord_idx in seq_len(num_coords)) {
     lh_corr = lh_vertex[mni_array[coord_idx, 1], mni_array[coord_idx, 2], mni_array[coord_idx, 3]];
     rh_corr = rh_vertex[mni_array[coord_idx, 1], mni_array[coord_idx, 2], mni_array[coord_idx, 3]];

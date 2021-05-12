@@ -8,12 +8,14 @@
 #'
 #' @param fs_home character string, path to the FreeSurfer installation. Alternatively, a hemilist of \code{freesurferformats::fs.surface} instances like \code{surface = list("lh"=mysurflh, "rh"=mysurfrh)}. Used to find the surfaces, at \code{<fs_home>/subjects/fsaverage/surf/<hemi>.<surface>}, where hemi is 'lh' and 'rh'. Can be NULL if 'surface' is a hemilist of fs.surface instances.
 #'
+#' @param silent logical, whether to suppress output messages in case of coords outside of cortex.
+#'
 #' @return named list with entries 'fsaverage_vertices': integer vector of fsaverage surface vertex indices, 'hemi': vector of hemi strings for the vertices, 'fsaverage_coords': nx3 numeric matrix of target coordinates, 'query_mni_coords': copy of input parameter coords, 'query_mni_voxels': the voxel indices at the query RAS coords.
 #'
 #' @author Tim Schäfer for the R version, Wu Jianxiao and CBIG for the original Matlab version.
 #'
 #' @export
-mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.getenv("FS_HOME")) {
+mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.getenv("FS_HOME"), silent = TRUE) {
   if(is.vector(coords)) {
     if(length(coords) %% 3L == 0L) {
       coords = matrix(coords, ncol = 3L);
@@ -86,7 +88,9 @@ mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.gete
       hemi[coord_idx] = 'rh';
       fs_coords[coord_idx, ] = rh_surf$vertices[coord_idx, ];
     } else {
-      message(sprintf("Input coord set %d not within MNI cortex mask, returning NaNs.", coord_idx));
+      if(! silent) {
+        message(sprintf("Input coord set %d not within MNI cortex mask, returning NaNs.", coord_idx));
+      }
       verts[coord_idx] = NaN;
       fs_coords[coord_idx, ] = rep(NaN, 3L);
     }

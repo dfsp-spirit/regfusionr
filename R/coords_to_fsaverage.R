@@ -25,7 +25,11 @@ mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.gete
     stop("Parameter 'fs_home' must not be empty. Make sure that the environment variable FS_HOME is set or pass a valid path.");
   }
   if(! dir.exists(fs_home)) {
-    stop(sprintf("Parameter 'fs_home' points to '%d', but that directory does not exist (or is not readable).", fs_home));
+    stop(sprintf("Parameter 'fs_home' points to '%s', but that directory does not exist (or is not readable).", fs_home));
+  }
+  fsavg_path = file.path(fs_home, 'subjects', 'fsaverage');
+  if(! dir.exists(fsavg_path)) {
+    stop(sprintf("Parameter 'fs_home' points to '%s', but expected fsaverage sub directory '%s' does not exist.", fs_home, fsavg_path));
   }
 
   # Load surface

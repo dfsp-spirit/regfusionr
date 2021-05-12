@@ -2,7 +2,8 @@
 
 test_that("MNI152 coords can be mapped to fsaverage space", {
 
-  Sys.setenv("FS_HOME"="/home/spirit/software/freesurfer/");
+
+  Sys.setenv("FS_HOME"=file.path(Sys.getenv("HOME"), "software/freesurfer/"));
 
   if(nchar(Sys.getenv("FS_HOME")) == 0L) {
     testthat::skip("No FreeSurfer installation found or FS_HOME environment variable not set correctly.");

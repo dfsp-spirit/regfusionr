@@ -50,28 +50,33 @@ mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.gete
   # Load mappings
   lh_map_file = get_data_file("FSL_MNI152_FS4.5.0_RF_ANTs_avgMapping.vertex.lh.mgz", subdir = "coordmap");
   rh_map_file = get_data_file("FSL_MNI152_FS4.5.0_RF_ANTs_avgMapping.vertex.rh.mgz", subdir = "coordmap");
-  lh_vertex = freesurferformats::read.fs.mgh(lh_map_file, with_header = FALSE, drop_empty_dims = TRUE);
-  rh_vertex = freesurferformats::read.fs.mgh(rh_map_file, with_header = FALSE, drop_empty_dims = TRUE);
+  lh_vertex = freesurferformats::read.fs.mgh(lh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
+  rh_vertex = freesurferformats::read.fs.mgh(rh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
 
-  # Load cortex mask.
+  # Load cortex mask volume file.
   cortex_mask_file = get_data_file("FSL_MNI152_FS4.5.0_cortex_estimate.nii.gz", subdir = "coordmap");
-  cortex_mask = freesurferformats::read.fs.volume(cortex_mask_file, with_header = TRUE);
+  # Note: cortex mask is an fs.mgh instance, the cortex_mask$data is a 256x256x256 matrix due to drop_empty_dims (256x256x256x1 originally).
+  cortex_mask = freesurferformats::read.fs.volume(cortex_mask_file, with_header = TRUE, drop_empty_dims = TRUE);
 
-  # Do the masking.
+  # Do the masking in the 3D arrays.
   lh_vertex[which(cortex_mask$data == 0)] = 0;
   rh_vertex[which(cortex_mask$data == 0)] = 0;
 
   # Convert input RAS coords to voxel indices (IJK) for the matrix.
   mni_voxels = doapply.transform.mtx(coords, freesurferformats::mghheader.ras2vox(cortex_mask)) + 1L;
-  mni_array = array(data = c(mni_voxels[2,], mni_voxels[1,], mni_voxels[3,]) , dim = c(256, 256, 256)); # TODO: get dim from image
+  if(is.vector(mni_voxels)) {
+    mni_voxels = matrix(mni_voxels, ncol = 3, byrow = TRUE);
+  }
+  # Reorder columns.
+  mni_array = matrix(data = c(mni_voxels[,2], mni_voxels[,1], mni_voxels[,3]) , ncol = 3, byrow = FALSE);
 
   num_coords = nrow(coords);
   verts = rep(0L, num_coords);
   fs_coords = matrix(rep(0.0, (num_coords * 3L)), ncol = 3L);
   hemi = rep(NULL, num_coords);
   for(coord_idx in seq_len(num_coords)) {
-    lh_corr = lh_vertex[mni_array[1, coord_idx], mni_array[2, coord_idx], mni_array[3, coord_idx]];
-    rh_corr = rh_vertex[mni_array[1, coord_idx], mni_array[2, coord_idx], mni_array[3, coord_idx]];
+    lh_corr = lh_vertex[mni_array[coord_idx, 1], mni_array[coord_idx, 2], mni_array[coord_idx, 3]];
+    rh_corr = rh_vertex[mni_array[coord_idx, 1], mni_array[coord_idx, 2], mni_array[coord_idx, 3]];
     if(lh_corr != 0) { # vertex is from left hemi
       verts[coord_idx] = lh_corr;
       hemi[coord_idx] = 'lh';
@@ -86,5 +91,5 @@ mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.gete
       fs_coords[coord_idx, ] = rep(NaN, 3L);
     }
   }
-  return(list("fsaverage_vertices"=verts, "hemi"=hemi, "fsaverage_coords"=fs_coords));
+  return(list("fsaverage_vertices"=verts, "hemi"=hemi, "fsaverage_coords"=fs_coords, "query_mni_coords"=coords, "query_mni_voxels"=mni_array));
 }

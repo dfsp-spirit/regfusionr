@@ -2,4 +2,5 @@
 
 export(doapply.transform.mtx)
 export(mni152_coords_to_fsaverage)
+export(mni152_voxels_to_fsaverage)
 export(vol_to_fsaverage)

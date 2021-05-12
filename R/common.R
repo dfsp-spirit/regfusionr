@@ -25,6 +25,22 @@ check_coords <- function(coords) {
   }
 }
 
+#' @title Check whether voxels is a nx3 integer matrix.
+#'
+#' @note Stops if its not.
+#'
+#' @keywords internal
+check_voxels <- function(voxels) {
+  if(! is.matrix(voxels)) {
+    stop("Parameter 'voxels' must be an integer matrix.");
+  } else {
+    if(ncol(voxels) != 3) {
+      stop(sprintf("Parameter 'voxels' must be an integer matrix with 3 columns, has %d.", ncol(voxels)));
+    }
+  }
+}
+
+
 #' @title Check whether affine is a 4x4 numerical matrix.
 #'
 #' @param affine whatever, hopefully a 4x4 numerical matrix.

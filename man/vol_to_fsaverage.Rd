@@ -32,3 +32,6 @@ named list of 2 character strings, the output files (for the 2 hemispheres) at k
 \description{
 Applies the Wu et al. regfusion method to obtain surface coords, then interpolates values.
 }
+\author{
+Tim Schäfer for the R version, Wu Jianxiao and CBIG for the original Matlab version.
+}

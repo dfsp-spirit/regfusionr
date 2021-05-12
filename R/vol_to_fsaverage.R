@@ -19,6 +19,8 @@
 #'
 #' @return named list of 2 character strings, the output files (for the 2 hemispheres) at keys 'lh' and 'rh'. See 'out_dir' if you want the data in R instead.
 #'
+#' @author Tim Schäfer for the R version, Wu Jianxiao and CBIG for the original Matlab version.
+#'
 #' @export
 vol_to_fsaverage <- function(input_img, template_type, rf_type='RF_ANTs', interp='linear', out_type='curv', out_dir=".") {
 

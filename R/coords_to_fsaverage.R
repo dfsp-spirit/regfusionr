@@ -2,15 +2,15 @@
 
 #' @title Map MNI152 coords to fsaverage coords.
 #'
-#' @param coords nx3 numeric matrix, the source RAS coordinates in the input image which must be in MNI152 space.
+#' @param coords nx3 numeric matrix, the source RAS coordinates in the input image which must be in MNI152 space. The coords must be within the cortex, otherwise the mapping makes no sense and \code{NaN} values are returned for the respective coords.
 #'
 #' @param surface character string, the fsaverage surface (brain mesh) to load. Must be a valid FreeSurfer surface name like 'white', 'pial', 'orig, 'inflated'.
 #'
 #' @param fs_home character string, path to the FreeSurfer installation. Alternatively, a hemilist of \code{freesurferformats::fs.surface} instances like \code{surface = list("lh"=mysurflh, "rh"=mysurfrh)}. Used to find the surfaces, at \code{<fs_home>/subjects/fsaverage/surf/<hemi>.<surface>}, where hemi is 'lh' and 'rh'. Can be NULL if 'surface' is a hemilist of fs.surface instances.
 #'
-#' @return named list with entries 'fsaverage_vertices': integer vector of fsaverage surface vertex indices, 'hemi': vector of hemi strings for the vertices, 'fsaverage_coords': nx3 numeric matrix of target coordinates.
+#' @return named list with entries 'fsaverage_vertices': integer vector of fsaverage surface vertex indices, 'hemi': vector of hemi strings for the vertices, 'fsaverage_coords': nx3 numeric matrix of target coordinates, 'query_mni_coords': copy of input parameter coords, 'query_mni_voxels': the voxel indices at the query RAS coords.
 #'
-#' @note see standalone_scripts_for_MNI_fsaverage_coordinates_conversion/CBIG_RF_MNICoord2fsaverageVertex.m
+#' @author Tim Schäfer for the R version, Wu Jianxiao and CBIG for the original Matlab version.
 #'
 #' @export
 mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.getenv("FS_HOME")) {

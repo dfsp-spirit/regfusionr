@@ -57,6 +57,9 @@ vol_to_fsaverage <- function(input_img, template_type, rf_type='RF_ANTs', interp
     if(is.null(out_dir)) {
       out[[hemi]] = projected;
     } else {
+      if(dim(projected)[1] > 1L && out_type == "curv") {
+        stop("The 'curv' output format is not supported for 4D input data.");
+      }
       out_file = file.path(out_dir, sprintf("%s%s.%s", hemi, mapping, out_type));
       freesurferformats::write.fs.morph(out_file, projected);
       out[[hemi]] = out_file;

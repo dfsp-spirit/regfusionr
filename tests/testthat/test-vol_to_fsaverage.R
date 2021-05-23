@@ -84,8 +84,6 @@ test_that("The MNI152 data projection using ANTs registration works using output
   testthat::expect_equal(actual_rh, as.vector(expected_rh), tolerance = tol());
 
   #fsbrain::vis.data.on.fsaverage(morph_data_lh = actual_lh, morph_data_rh = actual_rh);
-  #
-  # fsbrain::vis.symmetric.data.on.subject("~/software/freesurfer/subjects", "fsaverage", morph_data_lh = actual_lh, morph_data_rh = actual_rh, surface = "inflated");
 })
 
 
@@ -120,6 +118,11 @@ test_that("The MNI152 data projection using ANTs registration works returning da
   testthat::expect_equal(actual_lh, as.vector(expected_lh), tolerance = tol());
   testthat::expect_equal(actual_rh, as.vector(expected_rh), tolerance = tol());
 
+
+  # Show the source probability map as a volume in 3D:
+  # vol = freesurferformats::read.fs.volume(input_img, drop = TRUE);
+  # fsbrain::volvis.contour(vol, level = 0.2, color = "gray");
+  #
   #fsbrain::vis.data.on.fsaverage(morph_data_lh = actual_lh, morph_data_rh = actual_rh);
   #
   # fsbrain::vis.symmetric.data.on.subject("~/software/freesurfer/subjects", "fsaverage", morph_data_lh = actual_lh, morph_data_rh = actual_rh, surface = "inflated");

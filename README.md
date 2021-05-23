@@ -88,6 +88,9 @@ It's unlikely that this package will go to CRAN soon, it requires some data file
 
 See the [development information file](./DEVELOP.md).
 
+![Vis](./web/output_vol_to_fsaverage.png?raw=true "Projection a of sulcus probability map from a volume in MNI152 space to the fsaverage surface.")
+
+
 ## Citation
 
 Just cite the original *Wu et al.* paper:

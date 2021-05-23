@@ -72,9 +72,12 @@ It's unlikely that this package will go to CRAN soon, it requires some data file
 
 ## Unit tests and continuous integration
 
+Note: The R-CMD-check workflow status is always red because of the required package data (about 100 MB), that is above the 5 MB limit allowed by the CRAN checks.
+
 <!-- badges: start -->
   [![R-CMD-check](https://github.com/dfsp-spirit/regfusionr/workflows/R-CMD-check/badge.svg)](https://github.com/dfsp-spirit/regfusionr/actions)
 <!-- badges: end -->
+
 
 ## Citation
 

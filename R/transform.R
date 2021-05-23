@@ -11,7 +11,7 @@
 #'
 #' @note This function is copied from the develop version of freesurferformats. It will be called from there once the function is in the release.
 #'
-#' @export
+#' @keywords internal
 doapply.transform.mtx <- function(coords, mtx) {
   if(is.vector(coords)) {
     coords = matrix(coords, nrow = 1L);
@@ -37,9 +37,5 @@ doapply.transform.mtx <- function(coords, mtx) {
   return(transformed_coords);
 }
 
-
-project_data <- function() {
-
-}
 
 

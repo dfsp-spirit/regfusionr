@@ -1,5 +1,5 @@
 # regfusionr
-R implementation of registration fusion method for MNI152/Colin to fsaverage mapping.
+R implementation of the registration fusion method for MNI152/Colin27 to fsaverage MNI305 mapping.
 
 ## About
 
@@ -7,11 +7,43 @@ This is an R implementation of [Wu et al. (2018)'s registration fusion methods](
 
 ## Usage
 
-This is WIP and not usable yet, come back another day.
+```
+library('regfusionr')
+```
+
+To get fsaverage surface space coordinates for voxels or coordinates in MNI152 space, use:
+
+* `mni152_coords_to_fsaverage(coords, surface = "white", fs_home = Sys.getenv("FS_HOME"), silent = TRUE)`
+* `mni152_voxels_to_fsaverage(coords, surface = "white", fs_home = Sys.getenv("FS_HOME"), silent = TRUE)`
+
+To project the 3D data in an MNI152 or Colin27 volume (in NIFTI or MGH/MGZ format) to fsaverage and obtain per-vertex data (in curv or MGH/MGZ format):
+
+* `vol_to_fsaverage(input_img, template_type, rf_type = "RF_ANTs", interp = "linear", out_type = "curv", out_dir = ".")`
+
+See the [unit tests](./test/testthat/) for full usage examples, and use the in-built R help (with `?`) to see more details on all the parameters and function, e.g. `?regfusionr::mni152_coords_to_fsaverage`.
+
+## Limitations
+
+When projecting volume data to the surface, currently only the 'linear' interpolation method is implemented (which uses trilinear interpolation from the `oce` package). The 'nearest' method, which is required to project labels or atlases, is not available yet.
 
 ## Installation
 
-### System Dependencies
+### Minimal installation
+
+Note: If you want to project volume data (e.g., a NIFTI or MGZ volume) to fsaverage surface space, follow the installation instructions below.
+
+If all you want to do is to obtain fsaverage coordinates for MNI152 voxels or coordinates, you can get away without installing the system dependencies because you do not need the trilinear interpolation functions, and all you need to do is:
+
+```
+install.packages('remotes');
+remotes::install_github('dfsp-spirit/regfusionr');
+```
+
+### Full installation
+
+This is required to use the `vol_to_fsaverage()` function.
+
+#### System Dependencies
 
 You need to install these from your system shell before installing the R package (see below).
 
@@ -25,13 +57,13 @@ Required system level packages for other systems:
 * rpm-based systems (like Fedora, EPEL, ...): `sudo yum install udunits2-devel gdal-devel`
 * MacOS (via [brew](https://brew.sh)): `brew install udunits gdal`
 
-### R package
+#### R package
 
 From an R session:
 
 ```
 install.packages('remotes');
-remotes::install_github('dfsp-spirit/regfusionr');
+remotes::install_github('dfsp-spirit/regfusionr', dependencies = TRUE);
 ```
 
 You can also use `devtools` instead of `remotes` if you already have it installed. For those who haven't, `remotes` is a lot smaller and faster to install though.

@@ -20,3 +20,4 @@ Apply a spatial transformation matrix to the given coordinates.
 \note{
 This function is copied from the develop version of freesurferformats. It will be called from there once the function is in the release.
 }
+\keyword{internal}

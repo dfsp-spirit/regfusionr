@@ -82,41 +82,45 @@ vol_to_fsaverage <- function(input_img, template_type, rf_type='RF_ANTs', interp
 #' @keywords internal
 project_data <- function(data, affine, ras, interp='linear') {
 
-  supported_interp = c("linear");
-  if(!(interp %in% supported_interp)) {
-    stop("Parameter 'interp' must be 'linear', others not supported yet.");
-  }
+  if(requireNamespace("oce", quietly = TRUE)) {
 
-  if(is.null(data)) {
-    stop("Parameter 'data' must not be NULL (expected numerical array).");
-  }
+    supported_interp = c("linear");
+    if(!(interp %in% supported_interp)) {
+      stop("Parameter 'interp' must be 'linear', others not supported yet.");
+    }
 
-  check_affine(affine);
+    if(is.null(data)) {
+      stop("Parameter 'data' must not be NULL (expected numerical array).");
+    }
 
-  coords = doapply.transform.mtx(ras, affine);
+    check_affine(affine);
 
-  if(length(dim(data)) == 3L) {
-    nvols = 1L;
-    proj_data = array(data = rep(NA, (nrow(ras)*nvols)), dim = c(nvols, nrow(ras)));
-    x = seq_len(dim(data)[1]);
-    y = seq_len(dim(data)[2]);
-    z = seq_len(dim(data)[3]);
-    approx_dta = oce::approx3d(x, y, z, data, coords[,1], coords[,2], coords[,3]);
-    proj_data[1,] = approx_dta;
-  } else if (length(dim(data)) == 4L) {
-    nvols = dim(data)[4];
-    proj_data = array(data = rep(NA, (nrow(ras)*nvols)), dim = c(nvols, nrow(ras)));
-    for(vol_idx in seq_len(nvols)) {
+    coords = doapply.transform.mtx(ras, affine);
+
+    if(length(dim(data)) == 3L) {
+      nvols = 1L;
+      proj_data = array(data = rep(NA, (nrow(ras)*nvols)), dim = c(nvols, nrow(ras)));
       x = seq_len(dim(data)[1]);
       y = seq_len(dim(data)[2]);
       z = seq_len(dim(data)[3]);
-      approx_dta = oce::approx3d(x, y, z, data[,,,vol_idx], coords[,1], coords[,2], coords[,3]);
-      proj_data[vol_idx,] = approx_dta;
+      approx_dta = oce::approx3d(x, y, z, data, coords[,1], coords[,2], coords[,3]);
+      proj_data[1,] = approx_dta;
+    } else if (length(dim(data)) == 4L) {
+      nvols = dim(data)[4];
+      proj_data = array(data = rep(NA, (nrow(ras)*nvols)), dim = c(nvols, nrow(ras)));
+      for(vol_idx in seq_len(nvols)) {
+        x = seq_len(dim(data)[1]);
+        y = seq_len(dim(data)[2]);
+        z = seq_len(dim(data)[3]);
+        approx_dta = oce::approx3d(x, y, z, data[,,,vol_idx], coords[,1], coords[,2], coords[,3]);
+        proj_data[vol_idx,] = approx_dta;
+      }
+    } else {
+      stop("Only 3D and 4D data supported.");
     }
+    return(approx_dta);
   } else {
-    stop("Only 3D and 4D data supported.");
+    stop("The 'oce' package must be installed to use this functionality. See https://github.com/dfsp-spirit/regfusionr for installation instructions.");
   }
-
-  return(approx_dta);
 }
 

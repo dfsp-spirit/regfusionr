@@ -6,10 +6,15 @@ get_test_file <- function(filename) {
 
 #' Get float comparison tolerance.
 tol <- function() {
-  1e-2
+  1.0
 }
 
 test_that("The Colin27 data projection using m3z registration works", {
+
+  if(! requireNamespace("oce", quietly = TRUE)) {
+    testthat::skip("The optional dependency package 'oce' is required for this unit test.");
+  }
+
   # Load expected result data.
   expected_res_file_lh = get_test_file('lh.Colin.RF_M3Z_Colin27_norm_to_fsaverage.nii.gz');
   expected_res_file_rh = get_test_file('rh.Colin.RF_M3Z_Colin27_norm_to_fsaverage.nii.gz');
@@ -45,6 +50,11 @@ test_that("The Colin27 data projection using m3z registration works", {
 
 
 test_that("The MNI152 data projection using ANTs registration works using output curv files", {
+
+  if(! requireNamespace("oce", quietly = TRUE)) {
+    testthat::skip("The optional dependency package 'oce' is required for this unit test.");
+  }
+
   # Load expected result data.
   expected_res_file_lh = get_test_file('lh.MNI.RF_ANTs_MNI152_orig_to_fsaverage.nii.gz');
   expected_res_file_rh = get_test_file('rh.MNI.RF_ANTs_MNI152_orig_to_fsaverage.nii.gz');
@@ -80,6 +90,11 @@ test_that("The MNI152 data projection using ANTs registration works using output
 
 
 test_that("The MNI152 data projection using ANTs registration works returning data", {
+
+  if(! requireNamespace("oce", quietly = TRUE)) {
+    testthat::skip("The optional dependency package 'oce' is required for this unit test.");
+  }
+
   # Load expected result data.
   expected_res_file_lh = get_test_file('lh.MNI.RF_ANTs_MNI152_orig_to_fsaverage.nii.gz');
   expected_res_file_rh = get_test_file('rh.MNI.RF_ANTs_MNI152_orig_to_fsaverage.nii.gz');

@@ -128,4 +128,4 @@ test_that("The MNI152 data projection using ANTs registration works returning da
   #fsbrain::vis.symmetric.data.on.subject("~/software/freesurfer/subjects", "fsaverage", morph_data_lh = (expected_lh - actual_lh), morph_data_rh = (expected_rh - actual_rh), surface = "inflated");
 })
 
-
+# TODO: Add tests for 4D input data, should write several output curv files or a single output MGZ file.

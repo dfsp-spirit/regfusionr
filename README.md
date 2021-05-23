@@ -5,19 +5,33 @@ R implementation of the registration fusion method for MNI152/Colin27 to fsavera
 
 This is an R implementation of [Wu et al. (2018)'s registration fusion methods](https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.24213) to project 3D magnetic resonance imaging (MRI) data from standard space volumetric coordinates, either MNI152 or Colin27, to Freesurfer's fsaverage (MNI305). This R implementation is heavily inspired by [Dan Gale's Python implementation](https://github.com/danjgale/reg-fusion) in the [regfusion pypi package](https://pypi.org/project/regfusion/). A huge thank you to Dan Gale and  *Wu et al* for making their excellent tools openly available!
 
-## Usage
+## Documentation
 
-```
-library('regfusionr')
-```
+### Quickstart
 
-Then use one the following functions:
+Use one the following functions:
 
 * `mni152_coords_to_fsaverage()` : Map MNI152 RAS coordinates to fsaverage coordinates. For the coordinates, you also get the closest surface vertex and information on which hemisphere it belongs to.
 * `mni152_voxels_to_fsaverage()` : Map MNI152 voxel indices to fsaverage coordinates.
 * `vol_to_fsaverage()`: Project the 3D data in an MNI152 or Colin27 volume (in NIFTI or MGH/MGZ format) to fsaverage and obtain per-vertex data (in curv or MGH/MGZ format).
 
-See the [unit tests](./test/testthat/) for full usage examples, and use the in-built R help (with `?`) to see more details on all the parameters and function, e.g. `?regfusionr::mni152_coords_to_fsaverage`.
+
+### Usage examples
+
+```
+library('regfusionr');
+
+# Get fsaverage coordinates for the MNI152 RAS coordinates 60.0, 0.0, 10.0 and 0.0, 0.0, 0.0:
+mni_ras_coords = matrix(c(60, 0, 10, 0, 0, 0), ncol = 3, byrow = TRUE);
+res = mni152_coords_to_fsaverage(mni_ras_coords, surface = "white");
+
+# Get fsaverage coordinates for the MNI152 voxel at IJK index 68, 138, 146: 
+mni_voxel_ijk = c(68L, 138L, 146L);
+res_in_cortex = mni152_voxels_to_fsaverage(mni_voxel_ijk, surface = "white");
+```
+
+See the [unit tests](./test/testthat/) for more usage examples, and use the in-built R help (with `?`) to see more details on all the parameters and function, e.g. `?regfusionr::mni152_coords_to_fsaverage`.
+
 
 ## Limitations
 

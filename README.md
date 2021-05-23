@@ -73,7 +73,7 @@ It's unlikely that this package will go to CRAN soon, it requires some data file
 
 ## Unit tests and continuous integration
 
-See the (development information file)[./DEVELOP.md].
+See the [development information file](./DEVELOP.md).
 
 ## Citation
 

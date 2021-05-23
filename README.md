@@ -71,6 +71,10 @@ You can also use `devtools` instead of `remotes` if you already have it installe
 It's unlikely that this package will go to CRAN soon, it requires some data files which are about 100 MB in total size, and CRAN only supports 5 MB. I know one can work around that, but my time for this is limited.
 
 
+## Unit tests and continuous integration
+
+See the (development information file)[./DEVELOP.md].
+
 ## Citation
 
 Just cite the original *Wu et al.* paper:

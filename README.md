@@ -30,7 +30,7 @@ mni_voxel_ijk = c(68L, 138L, 146L);
 res_in_cortex = mni152_voxels_to_fsaverage(mni_voxel_ijk, surface = "white");
 ```
 
-See the [unit tests](./test/testthat/) for more usage examples, and use the in-built R help (with `?`) to see more details on all the parameters and function, e.g. `?regfusionr::mni152_coords_to_fsaverage`.
+See the [unit tests](./test/testthat/) for more usage examples, and use the in-built R help (with `?`) to see more details on all the parameters and return values, e.g. `?regfusionr::mni152_coords_to_fsaverage`.
 
 
 ## Limitations

@@ -9,10 +9,9 @@ This is an R implementation of [Wu et al. (2018)'s registration fusion methods](
 
 ### Quickstart
 
-Use one the following functions:
+The API of the `regfusionr` package consists of the following functions:
 
 * `mni152_coords_to_fsaverage()` : Map MNI152 RAS coordinates to fsaverage coordinates. For the coordinates, you also get the closest surface vertex and information on which hemisphere it belongs to.
-* `mni152_voxels_to_fsaverage()` : Map MNI152 voxel indices to fsaverage coordinates.
 * `vol_to_fsaverage()`: Project the 3D data in an MNI152 or Colin27 volume (in NIFTI or MGH/MGZ format) to fsaverage and obtain per-vertex data (in curv or MGH/MGZ format).
 
 
@@ -24,10 +23,6 @@ library('regfusionr');
 # Get fsaverage coordinates for the MNI152 RAS coordinates 60.0, 0.0, 10.0 and 0.0, 0.0, 0.0:
 mni_ras_coords = matrix(c(60, 0, 10, 0, 0, 0), ncol = 3, byrow = TRUE);
 res = mni152_coords_to_fsaverage(mni_ras_coords, surface = "white");
-
-# Get fsaverage coordinates for the MNI152 voxel at IJK index 68, 138, 146: 
-mni_voxel_ijk = c(68L, 138L, 146L);
-res_in_cortex = mni152_voxels_to_fsaverage(mni_voxel_ijk, surface = "white");
 ```
 
 See the [unit tests](./test/testthat/) for more usage examples, and use the in-built R help (with `?`) to see more details on all the parameters and return values, e.g. `?regfusionr::mni152_coords_to_fsaverage`.

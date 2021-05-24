@@ -89,7 +89,7 @@ It's unlikely that this package will go to CRAN soon, it requires some data file
 See the [development information file](./DEVELOP.md).
 
 ![Vis](./web/output_vol_to_fsaverage.png?raw=true "Projection of a central sulcus probability map from a volume in MNI152 space to the fsaverage surface.")
-Visualization of a central sulcus probability map on the fsaverage surface. The data has been obtained by projecting a volume in MNI152 space to the fsaverage surface with the `vol_to_fsaverage` function.
+Visualization of a central sulcus probability map on the fsaverage surface. The data has been obtained by projecting [a probability map in a volume in MNI152 space](./inst/extdata/testdata/MNI_probMap_ants.central_sulc.nii.gz) to the fsaverage surface with the `vol_to_fsaverage` function.
 
 
 ## Citation

@@ -54,11 +54,16 @@ vol_to_fsaverage <- function(input_img, template_type, rf_type='RF_ANTs', interp
     affine = freesurferformats::mghheader.ras2vox(input_img$header);
     projected = project_data(input_img$data, affine, ras, interp);
 
+    if(dim(projected)[1] == 1L) {
+      projected = as.vector(drop(projected));
+    }
+
     if(is.null(out_dir)) {
       out[[hemi]] = projected;
     } else {
-      if(dim(projected)[1] > 1L && out_type == "curv") {
+      if(is.array(projected) && out_type == "curv") {
         stop("The 'curv' output format is not supported for 4D input data.");
+        # We could write one output curv file per frame, but I guess simply using MGZ is better.
       }
       out_file = file.path(out_dir, sprintf("%s%s.%s", hemi, mapping, out_type));
       freesurferformats::write.fs.morph(out_file, projected);
@@ -121,7 +126,7 @@ project_data <- function(data, affine, ras, interp='linear') {
     } else {
       stop("Only 3D and 4D data supported.");
     }
-    return(approx_dta);
+    return(proj_data);
   } else {
     stop("The 'oce' package must be installed to use this functionality. See https://github.com/dfsp-spirit/regfusionr for installation instructions.");
   }

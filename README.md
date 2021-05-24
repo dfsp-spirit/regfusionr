@@ -1,5 +1,5 @@
 # regfusionr
-R implementation of the registration fusion method for MNI152/Colin27 to fsaverage MNI305 mapping.
+R implementation of the registration fusion method for MNI152 and Colin27 to fsaverage/MNI305 mapping.
 
 ## About
 

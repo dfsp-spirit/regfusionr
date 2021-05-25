@@ -132,3 +132,50 @@ test_that("The MNI152 data projection using ANTs registration works returning da
 })
 
 # TODO: Add tests for 4D input data, should write several output curv files or a single output MGZ file.
+
+
+# Create a 4D volume from a 3D volume by copying the 3D volume several times (treating the copies as new frames).
+vol3dto4d <- function(input_volume_3d, num_frames = 3L) {
+  input_volume_4d = input_volume_3d;
+  input_volume_4d$header$voldim[4] = num_frames;
+  input_volume_4d$header$voldim_orig[4] = num_frames;
+  data_4d = array(rep(NA, prod(dim(input_volume_3d$data))*num_frames), dim=c(dim(input_volume_3d$data),num_frames));
+  for(frame_idx in seq_len(num_frames)) {
+    data_4d[,,,frame_idx] = input_volume_3d$data;
+  }
+  input_volume_4d$data = data_4d;
+  return(input_volume_4d);
+}
+
+
+test_that("Projecting input 3D and 4D data leads to the expected return types.", {
+
+  if(! requireNamespace("oce", quietly = TRUE)) {
+    testthat::skip("The optional dependency package 'oce' is required for this unit test.");
+  }
+
+
+  # Load input image for test.
+  input_img = get_test_file('MNI_probMap_ants.central_sulc.nii.gz');
+  input_volume_3d = freesurferformats::read.fs.volume(input_img, with_header = TRUE, drop_empty_dims = TRUE);
+  testthat::expect_equal(length(dim(input_volume_3d$data)), 3L);
+
+  # Construct 4D image by using several copies of the 3D image as frames.
+  num_frames = 5L;
+  input_volume_4d = vol3dto4d(input_volume_3d, num_frames = num_frames);
+  testthat::expect_equal(length(dim(input_volume_4d$data)), 4L);
+
+  out_dir = NULL;
+
+  mapping = ".avgMapping_allSub_RF_ANTs_MNI152_orig_to_fsaverage.txt";
+  mapping_file = system.file("extdata", "mappings", sprintf("%s%s", "lh", mapping), package = "regfusionr", mustWork = TRUE);
+  ras = t(as.matrix(data.table::fread(mapping_file, nrows = 3, header = FALSE)));
+  affine = freesurferformats::mghheader.ras2vox(input_volume_3d$header);
+
+  projected_from_3d = regfusionr:::project_data(input_volume_3d$data, affine, ras);
+  projected_from_4d = regfusionr:::project_data(input_volume_4d$data, affine, ras);
+
+  testthat::expect_true(is.vector(projected_from_3d));
+  testthat::expect_true(is.array(projected_from_4d));
+  testthat::expect_equal(dim(projected_from_4d), c(163842L, 1, 1, num_frames));
+})

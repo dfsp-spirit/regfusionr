@@ -49,7 +49,9 @@ test_that("MNI152 coord mapping works with matrix iunput of several coords at on
 })
 
 
-test_that("MNI152 voxels can be mapped to fsaverage space", {
+# Keep in mind that the voxel indices are specific for the template file, and thus of very
+# limited use in general.
+test_that("MNI152 voxels based on the demo input file can be mapped to fsaverage space", {
 
   # The next line is a setup for Tim's test system only and should be removed once this package is official.
   Sys.setenv("FS_HOME"=file.path(Sys.getenv("HOME"), "software/freesurfer/"));
@@ -63,7 +65,7 @@ test_that("MNI152 voxels can be mapped to fsaverage space", {
 
   mni_voxel_ijk = c(68L, 138L, 146L);
 
-  res_in_cortex = mni152_voxels_to_fsaverage(mni_voxel_ijk, surface = "white");
+  res_in_cortex = regfusionr:::mni152_voxels_to_fsaverage(mni_voxel_ijk, surface = "white");
 
   testthat::expect_equal(res_in_cortex$fsaverage_vertices, c(9092));
   testthat::expect_equal(res_in_cortex$query_mni_voxels, matrix(mni_voxel_ijk, ncol=3, byrow = TRUE));

@@ -5,7 +5,7 @@
 #'
 #' @description Applies the Wu et al. regfusion method to obtain surface coords, then interpolates values.
 #'
-#' @param input_img 3D or 4D NIFTI or MGZ image instance of type \code{fs.volume}. If 4D, the 4th dimension is considered the time/subject dimension.
+#' @param input_img 3D or 4D NIFTI or MGZ image instance of type \code{fs.volume}, or a character string that will be interpreted as a file system path to such a volume that should be loaded with \code{freesurferformats::read.fs.volume}. If 4D, the 4th dimension is considered the time/subject dimension.
 #'
 #' @param template_type character string, the source template or the space that your input image is in. One of 'MNI152_orig', 'Colin27_orig', 'MNI152_norm', 'Colin27_norm'.
 #'
@@ -13,7 +13,7 @@
 #'
 #' @param interp interpolation method, currenlty only 'linear' is supported.
 #'
-#' @param out_type character string, the format of the output files. One of the following: 'curv' for FreeSurfer curv format, 'mgz' for FreeSurfer MGZ format.
+#' @param out_type character string, the format of the output files. One of the following: 'curv' for FreeSurfer curv format, 'mgz' for FreeSurfer MGZ format, 'gii' for GIFTI format.
 #'
 #' @param out_dir character string, the path to a writable output directory. If \code{NULL}, the returned named list contains the projected data (instead of the path of the file it was written to), and the parameter 'out_type' is ignored.
 #'
@@ -34,7 +34,7 @@ vol_to_fsaverage <- function(input_img, template_type, rf_type='RF_ANTs', interp
 
   check_rf_and_template(template_type = template_type, rf_type = rf_type);
 
-  valid_out_types = c('curv', 'mgz');
+  valid_out_types = c('curv', 'mgz', 'gii');
   if(! (out_type %in% valid_out_types)) {
     stop(sprintf("Parameter 'out_type' must be one of: %s.", paste(valid_out_types(), collapse=", ")));
   }
@@ -54,16 +54,12 @@ vol_to_fsaverage <- function(input_img, template_type, rf_type='RF_ANTs', interp
     affine = freesurferformats::mghheader.ras2vox(input_img$header);
     projected = project_data(input_img$data, affine, ras, interp);
 
-    if(dim(projected)[1] == 1L) {
-      projected = as.vector(drop(projected));
-    }
-
     if(is.null(out_dir)) {
       out[[hemi]] = projected;
     } else {
-      if(is.array(projected) && out_type == "curv") {
-        stop("The 'curv' output format is not supported for 4D input data.");
-        # We could write one output curv file per frame, but I guess simply using MGZ is better.
+      if(is.array(projected) && out_type %in% c("curv", "gii")) {
+        stop("The 'curv' and 'gii' output formats are not supported for 4D input data, try 'mgz' instead.");
+        # We could write one output curv/gifti file per frame, but I guess simply using MGZ is better.
       }
       out_file = file.path(out_dir, sprintf("%s%s.%s", hemi, mapping, out_type));
       freesurferformats::write.fs.morph(out_file, projected);
@@ -85,7 +81,7 @@ vol_to_fsaverage <- function(input_img, template_type, rf_type='RF_ANTs', interp
 #'
 #' @param interp character string, the interpolation mode. Only 'linear' is currently supported. We should support 'nearest' as well.
 #'
-#' @return data values interpolated at the RAS coordinates.
+#' @return a numerical vector for 3D input data or a numerical 4D array for 4D input data, the data values interpolated at the RAS coordinates. For the 4D input case, the 2D output is encoded in a 4D array with two dimensions of length 1 as follows: The first dimension contains the projected and interpolated per-vertex data values for a single frame, dimensions 2 and 3 are both of length 1, and the fourth dimensions is the timepoint/subject dimension (the frames).
 #'
 #' @keywords internal
 project_data <- function(data, affine, ras, interp='linear') {
@@ -103,28 +99,28 @@ project_data <- function(data, affine, ras, interp='linear') {
 
     check_affine(affine);
 
-    coords = doapply.transform.mtx(ras, affine);
+    coords = freesurferformats::doapply.transform.mtx(ras, affine);
+
+    data = drop(data); # remove empty dimensions (typically the last one)
 
     if(length(dim(data)) == 3L) {
       nvols = 1L;
-      proj_data = array(data = rep(NA, (nrow(ras)*nvols)), dim = c(nvols, nrow(ras)));
       x = seq_len(dim(data)[1]);
       y = seq_len(dim(data)[2]);
       z = seq_len(dim(data)[3]);
-      approx_dta = oce::approx3d(x, y, z, data, coords[,1], coords[,2], coords[,3]);
-      proj_data[1,] = approx_dta;
+      proj_data = oce::approx3d(x, y, z, data, coords[,1], coords[,2], coords[,3]);
     } else if (length(dim(data)) == 4L) {
       nvols = dim(data)[4];
-      proj_data = array(data = rep(NA, (nrow(ras)*nvols)), dim = c(nvols, nrow(ras)));
+      proj_data = array(data = rep(NA, (nrow(ras)*nvols)), dim = c(nrow(ras), 1L, 1L, nvols));
       for(vol_idx in seq_len(nvols)) {
         x = seq_len(dim(data)[1]);
         y = seq_len(dim(data)[2]);
         z = seq_len(dim(data)[3]);
         approx_dta = oce::approx3d(x, y, z, data[,,,vol_idx], coords[,1], coords[,2], coords[,3]);
-        proj_data[vol_idx,] = approx_dta;
+        proj_data[,1L,1L,vol_idx] = approx_dta;
       }
     } else {
-      stop("Only 3D and 4D data supported.");
+      stop("Only 3D or 4D input data supported.");
     }
     return(proj_data);
   } else {

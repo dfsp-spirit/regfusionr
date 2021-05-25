@@ -72,7 +72,7 @@ mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.gete
   rh_vertex[which(cortex_mask$data == 0)] = 0;
 
   # Convert input RAS coords to voxel indices (IJK) for the matrix.
-  mni_voxels = doapply.transform.mtx(coords, freesurferformats::mghheader.ras2vox(cortex_mask)) + 1L;
+  mni_voxels = freesurferformats::doapply.transform.mtx(coords, freesurferformats::mghheader.ras2vox(cortex_mask)) + 1L;
   if(is.vector(mni_voxels)) {
     mni_voxels = matrix(mni_voxels, ncol = 3, byrow = TRUE);
   }
@@ -108,6 +108,8 @@ mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.gete
 
 #' @title Map MNI152 voxels of reference file to fsaverage coords and vertices.
 #'
+#' @description The voxel indices are specific to the reference volume and thus this function is of limited use in general, but it serves as an example on howto achieve voxel mapping.
+#'
 #' @param voxels integer nx3 matrix, the IJK voxel indices in the 256x256x256 cortex mask reference file, 1-based.
 #'
 #' @inheritParams mni152_coords_to_fsaverage
@@ -116,7 +118,7 @@ mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.gete
 #'
 #' @note The voxel indices used by this function are specific to the cortex mask reference volume, so it is preferable to use the \code{} function. However, the code of this function illustrates how to get the fsaverage coords based on the IJK voxel indices for your own image, so take it as a demo.
 #'
-#' @export
+#' @keywords internal
 mni152_voxels_to_fsaverage <- function(voxels, surface='white', fs_home=Sys.getenv("FS_HOME"), silent = TRUE) {
   if(is.vector(voxels)) {
     if(length(voxels) %% 3L == 0L) {
@@ -124,14 +126,14 @@ mni152_voxels_to_fsaverage <- function(voxels, surface='white', fs_home=Sys.gete
     }
   }
   check_voxels(voxels);
-  voxels = voxels - 1L; # required 0-based for doapply.transform.mtx() below.
+  voxels = voxels - 1L; # required 0-based for freesurferformats::doapply.transform.mtx() below.
 
   cortex_mask_file = get_data_file("FSL_MNI152_FS4.5.0_cortex_estimate.nii.gz", subdir = "coordmap");
   # Note: cortex mask is an fs.mgh instance, the cortex_mask$data is a 256x256x256 matrix due to drop_empty_dims (256x256x256x1 originally).
   cortex_mask = freesurferformats::read.fs.volume(cortex_mask_file, with_header = TRUE, drop_empty_dims = TRUE);
 
   # Convert input RAS coords to voxel indices (IJK) for the matrix.
-  mni_coords = doapply.transform.mtx(voxels, freesurferformats::mghheader.vox2ras(cortex_mask));
+  mni_coords = freesurferformats::doapply.transform.mtx(voxels, freesurferformats::mghheader.vox2ras(cortex_mask));
   return(mni152_coords_to_fsaverage(mni_coords, surface = surface, fs_home = fs_home, silent = silent));
 }
 

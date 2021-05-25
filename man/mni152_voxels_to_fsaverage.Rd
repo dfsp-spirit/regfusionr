@@ -24,8 +24,9 @@ mni152_voxels_to_fsaverage(
 see \code{mni152_coords_to_fsaverage}
 }
 \description{
-Map MNI152 voxels of reference file to fsaverage coords and vertices.
+The voxel indices are specific to the reference volume and thus this function is of limited use in general, but it serves as an example on howto achieve voxel mapping.
 }
 \note{
 The voxel indices used by this function are specific to the cortex mask reference volume, so it is preferable to use the \code{} function. However, the code of this function illustrates how to get the fsaverage coords based on the IJK voxel indices for your own image, so take it as a demo.
 }
+\keyword{internal}

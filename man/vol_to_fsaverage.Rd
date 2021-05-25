@@ -14,7 +14,7 @@ vol_to_fsaverage(
 )
 }
 \arguments{
-\item{input_img}{3D or 4D NIFTI or MGZ image instance of type \code{fs.volume}. If 4D, the 4th dimension is considered the time/subject dimension.}
+\item{input_img}{3D or 4D NIFTI or MGZ image instance of type \code{fs.volume}, or a character string that will be interpreted as a file system path to such a volume that should be loaded with \code{freesurferformats::read.fs.volume}. If 4D, the 4th dimension is considered the time/subject dimension.}
 
 \item{template_type}{character string, the source template or the space that your input image is in. One of 'MNI152_orig', 'Colin27_orig', 'MNI152_norm', 'Colin27_norm'.}
 
@@ -22,7 +22,7 @@ vol_to_fsaverage(
 
 \item{interp}{interpolation method, currenlty only 'linear' is supported.}
 
-\item{out_type}{character string, the format of the output files. One of the following: 'curv' for FreeSurfer curv format, 'mgz' for FreeSurfer MGZ format.}
+\item{out_type}{character string, the format of the output files. One of the following: 'curv' for FreeSurfer curv format, 'mgz' for FreeSurfer MGZ format, 'gii' for GIFTI format.}
 
 \item{out_dir}{character string, the path to a writable output directory. If \code{NULL}, the returned named list contains the projected data (instead of the path of the file it was written to), and the parameter 'out_type' is ignored.}
 }

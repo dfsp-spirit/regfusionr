@@ -40,7 +40,9 @@ See the [unit tests](./test/testthat/) for more usage examples, and use the in-b
 
 ### Minimal installation
 
-Note: If you want to project volume data (e.g., a NIFTI or MGZ volume) to fsaverage surface space, follow the installation instructions below.
+This is a minimal installation with reduced functionality that does not require you to install the optional dependency [CGAL](https://www.cgal.org/), which can be  hard to install.
+
+Note: If you want to project volume data (e.g., a NIFTI or MGZ volume) to fsaverage surface space, follow the Full Installation instructions below.
 
 If all you want to do is to obtain fsaverage coordinates for MNI152 voxels or coordinates, you can get away without installing the system dependencies because you do not need the trilinear interpolation functions, and all you need to do is:
 

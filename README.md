@@ -13,6 +13,7 @@ The API of the `regfusionr` package consists of the following functions:
 
 * `mni152_coords_to_fsaverage()` : Map MNI152 RAS coordinates to fsaverage coordinates. For the coordinates, you also get the closest surface vertex and information on which hemisphere it belongs to.
 * `vol_to_fsaverage()`: Project the 3D data in an MNI152 or Colin27 volume (in NIFTI or MGH/MGZ format) to fsaverage and obtain per-vertex data (in curv or MGH/MGZ format).
+* `fsaverage_vertices_to_mni152_coords()`: Map fsaverage vertex indices to MNI152 coordinates.
 
 
 ### Usage examples

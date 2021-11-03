@@ -29,4 +29,3 @@ matrix of dim \code{n x 3}, the MNI152 coordinates for the query vertices, one r
 \description{
 Map fsaverage vertex indices to MNI152 coordinates.
 }
-\keyword{internal}

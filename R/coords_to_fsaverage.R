@@ -148,7 +148,7 @@ mni152_voxels_to_fsaverage <- function(voxels, surface='white', fs_home=Sys.gete
 #'
 #' @return matrix of dim \code{n x 3}, the MNI152 coordinates for the query vertices, one row per vertex.
 #'
-#' @keywords internal
+#' @export
 fsaverage_vertices_to_mni152_coords <- function(vertices, hemis, surface='white', fs_home=Sys.getenv("FS_HOME"), silent = TRUE) {
   if(! is.integer(vertices)) {
     message("Converting vertices to integer values.");

@@ -7,8 +7,6 @@ This is an R implementation of [Wu et al. (2018)'s registration fusion methods](
 
 ## Documentation
 
-**WARNING: This is work in progress, do NOT use this yet. Come back another day.**
-
 ### Quickstart
 
 The API of the `regfusionr` package consists of the following functions:

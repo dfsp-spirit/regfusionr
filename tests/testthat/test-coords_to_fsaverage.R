@@ -12,8 +12,8 @@ test_that("MNI152 coords can be mapped to fsaverage space", {
     testthat::skip("No FreeSurfer installation found at path given in FS_HOME environment variable.");
   }
 
-  mni_coord_in_cortex = c(60, 0, 10);
-  mni_coord_outside_cortex = c(0, 0, 0);
+  mni_coord_in_cortex = c(60.0, 0.0, 10.0);
+  mni_coord_outside_cortex = c(0.0, 0.0, 0.0);
 
   res_in_cortex = mni152_coords_to_fsaverage(mni_coord_in_cortex, surface = "white");
   res_outside_cortex = mni152_coords_to_fsaverage(mni_coord_outside_cortex, surface = "white");

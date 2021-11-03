@@ -137,3 +137,21 @@ mni152_voxels_to_fsaverage <- function(voxels, surface='white', fs_home=Sys.gete
   return(mni152_coords_to_fsaverage(mni_coords, surface = surface, fs_home = fs_home, silent = silent));
 }
 
+
+#' @title Map fsaverage vertex indices to MNI152 coordinates.
+#'
+#' @inheritParams mni152_coords_to_fsaverage
+#'
+#' @param vertices integer vector of vertex indices (1-based), the fsaverage vertices you want to map.
+#'
+#' @keywords internal
+fsaverage_vertices_to_mni152_coords <- function(vertices, surface='white', fs_home=Sys.getenv("FS_HOME"), silent = TRUE) {
+  if(! is.integer(vertices)) {
+    message("Converting vertices to integer values.");
+    vertices = as.integer(vertices);
+  }
+
+  TODO: continue here
+
+}
+

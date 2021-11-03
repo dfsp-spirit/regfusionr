@@ -18,6 +18,6 @@ test_that("MNI152 coords can be mapped to fsaverage space", {
 
   mni_coord = fsaverage_vertices_to_mni152_coords(vertices = query_fsaverage_vertex, hemis = query_hemis);
 
-
+  testthat::expect_true(is.matrix(mni_coord));
   testthat::expect_equal(length(mni_coord), 3L);
 })

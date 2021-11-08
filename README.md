@@ -100,6 +100,7 @@ If you are fine with a less acurate coordinate mapping, you can use the matrix l
 ![Vis](./web/regfusionr_vs_linear.png?raw=true "Difference between the regfusionr approach and the linear method. The coordinates of all fsaverage vertices were mapped to MNI152 space using both the regfusionr method and the linear method. The difference between the two methods was computed as the Euclidean distance between the resulting MNI152 coordinates.")
 **Difference between the regfusionr approach and the linear method.** The coordinates of all fsaverage vertices were mapped to MNI152 space using both the regfusionr method and the linear method. The difference between the two methods was computed as the Euclidean distance between the resulting MNI152 coordinates.
 
+The code used to produce the comparison figure is available [in this unit test](tests/testthat/test-compare_linear_to_regfusion.R).
 
 ## Citation
 

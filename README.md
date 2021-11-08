@@ -90,6 +90,11 @@ See the [development information file](./DEVELOP.md).
 Visualization of a central sulcus probability map on the fsaverage surface. The data has been obtained by projecting [this probability map in a volume in MNI152 space](./inst/extdata/testdata/MNI_probMap_ants.central_sulc.nii.gz) to the fsaverage surface with the `vol_to_fsaverage` function.
 
 
+## Alternatives
+
+If you are fine with a less acurate coordinate mapping, you can use the matrix listed in the FreeSurfer documentation on Coordinate Systems. See [section 8b on this website](https://surfer.nmr.mgh.harvard.edu/fswiki/CoordinateSystems).
+
+
 ## Citation
 
 Just cite the original *Wu et al.* paper:

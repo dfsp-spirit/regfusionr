@@ -39,3 +39,6 @@ vignettes/*.pdf
 rsconnect/
 Meta
 .Rproj.user
+
+fsbrain_cbar.png
+

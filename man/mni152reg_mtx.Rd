@@ -12,10 +12,4 @@ This returns the 4x4 matrix from the FreeSurfer Coordinate Systems documentation
 \note{
 This is the opposite of using the \cite{Wu et al.} approach. It is mainly implemented in this package to allow you to easily check the difference between the methods.
 }
-\examples{
-    coords_tf = doapply.transform.mtx(c(10.0, -20.0, 35.0), mni152reg());
-    coords_tf; #  10.695, -18.409, 36.137
-    doapply.transform.mtx(coords_tf, solve(mni152reg()));
-
-}
 \keyword{internal}

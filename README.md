@@ -88,8 +88,8 @@ It's unlikely that this package will go to CRAN soon, it requires some data file
 
 See the [development information file](./DEVELOP.md).
 
-![Vis](./web/output_vol_to_fsaverage.png?raw=true "Projection of a central sulcus probability map from a volume in MNI152 space to the fsaverage surface.")
-Visualization of a central sulcus probability map on the fsaverage surface. The data has been obtained by projecting [this probability map in a volume in MNI152 space](./inst/extdata/testdata/MNI_probMap_ants.central_sulc.nii.gz) to the fsaverage surface with the `vol_to_fsaverage` function.
+![Vis1](./web/output_vol_to_fsaverage.png?raw=true "Projection of a central sulcus probability map from a volume in MNI152 space to the fsaverage surface.")
+**Fig. 1** *Visualization of a central sulcus probability map on the fsaverage surface. The data has been obtained by projecting [this probability map in a volume in MNI152 space](./inst/extdata/testdata/MNI_probMap_ants.central_sulc.nii.gz) to the fsaverage surface with the `vol_to_fsaverage` function.*
 
 
 ## Alternatives
@@ -97,8 +97,8 @@ Visualization of a central sulcus probability map on the fsaverage surface. The 
 If you are fine with a less acurate coordinate mapping, you can use the matrix listed in the FreeSurfer documentation on Coordinate Systems. See [section 8b on this website](https://surfer.nmr.mgh.harvard.edu/fswiki/CoordinateSystems). The method is implemented in this package in the function `linear_fsaverage_coords_to_MNI152_coords()`. The difference between the results is shown below.
 
 
-![Vis](./web/regfusionr_vs_linear.png?raw=true "Difference between the regfusionr approach and the linear method. The coordinates of all fsaverage vertices were mapped to MNI152 space using both the regfusionr method and the linear method. The difference between the two methods was computed as the Euclidean distance between the resulting MNI152 coordinates.")
-**Difference between the regfusionr approach and the linear method.** The coordinates of all fsaverage vertices were mapped to MNI152 space using both the regfusionr method and the linear method. The difference between the two methods was computed as the Euclidean distance between the resulting MNI152 coordinates.
+![Vis2](./web/regfusionr_vs_linear.png?raw=true "Difference between the regfusionr approach and the linear method. The coordinates of all fsaverage vertices were mapped to MNI152 space using both the regfusionr method and the linear method. The difference between the two methods was computed as the Euclidean distance between the resulting MNI152 coordinates.")
+**Fig. 2** *Difference between the regfusionr approach and the linear method. The coordinates of all fsaverage vertices were mapped to MNI152 space using both the regfusionr method and the linear method. The difference between the two methods was computed as the Euclidean distance between the resulting MNI152 coordinates.*
 
 The code used to produce the comparison figure is available [in this unit test](tests/testthat/test-compare_linear_to_regfusion.R).
 

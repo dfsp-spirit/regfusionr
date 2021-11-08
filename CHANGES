@@ -2,7 +2,7 @@ regfusionr Changes
 ==================
 
 
-Version 0.0.1 -- Initial release
+Version 0.1.0 -- Initial release
 ---------------------------------
 Initial release. The following features are currently implemented:
 * mni152_coords_to_fsaverage(): maps MNI152 RAS coords to fsaverage

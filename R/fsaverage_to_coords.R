@@ -10,7 +10,7 @@
 #' @return matrix of dim \code{n x 3}, the MNI152 coordinates for the query vertices, one row per vertex.
 #'
 #' @export
-fsaverage_vertices_to_mni152_coords <- function(vertices, hemis, surface='white', fs_home=Sys.getenv("FS_HOME"), silent = TRUE) {
+fsaverage_vertices_to_mni152_coords <- function(vertices, hemis, fs_home=Sys.getenv("FS_HOME"), silent = TRUE) {
   if(! is.integer(vertices)) {
     message("Converting vertices to integer values.");
     vertices = as.integer(vertices);

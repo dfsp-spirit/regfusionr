@@ -7,7 +7,6 @@
 fsaverage_vertices_to_mni152_coords(
   vertices,
   hemis,
-  surface = "white",
   fs_home = Sys.getenv("FS_HOME"),
   silent = TRUE
 )
@@ -16,8 +15,6 @@ fsaverage_vertices_to_mni152_coords(
 \item{vertices}{integer vector of vertex indices (1-based), the \code{n} fsaverage vertices you want to map.}
 
 \item{hemis}{vector of character strings, the hemispheres of the query vertices. Each entry in the vector has to be either \code{'lh'} or \code{'rh'}. Length must match length of parameter \code{vertices}.}
-
-\item{surface}{character string, the fsaverage surface (brain mesh) to load. Must be a valid FreeSurfer surface name like 'white', 'pial', 'orig, 'inflated'.}
 
 \item{fs_home}{character string, path to the FreeSurfer installation. Alternatively, a hemilist of \code{freesurferformats::fs.surface} instances like \code{surface = list("lh"=mysurflh, "rh"=mysurfrh)}. Used to find the surfaces, at \code{<fs_home>/subjects/fsaverage/surf/<hemi>.<surface>}, where hemi is 'lh' and 'rh'. Can be NULL if 'surface' is a hemilist of fs.surface instances.}
 

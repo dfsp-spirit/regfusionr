@@ -94,7 +94,11 @@ Visualization of a central sulcus probability map on the fsaverage surface. The 
 
 ## Alternatives
 
-If you are fine with a less acurate coordinate mapping, you can use the matrix listed in the FreeSurfer documentation on Coordinate Systems. See [section 8b on this website](https://surfer.nmr.mgh.harvard.edu/fswiki/CoordinateSystems).
+If you are fine with a less acurate coordinate mapping, you can use the matrix listed in the FreeSurfer documentation on Coordinate Systems. See [section 8b on this website](https://surfer.nmr.mgh.harvard.edu/fswiki/CoordinateSystems). The method is implemented in this package in the function `linear_fsaverage_coords_to_MNI152_coords()`. The difference between the results is shown below.
+
+
+![Vis](./web/regfusionr_vs_linear.png?raw=true "Difference between the regfusionr approach and the linear method. The coordinates of all fsaverage vertices were mapped to MNI152 space using both the regfusionr method and the linear method. The difference between the two methods was computed as the Euclidean distance between the resulting MNI152 coordinates.")
+**Difference between the regfusionr approach and the linear method.** The coordinates of all fsaverage vertices were mapped to MNI152 space using both the regfusionr method and the linear method. The difference between the two methods was computed as the Euclidean distance between the resulting MNI152 coordinates.
 
 
 ## Citation

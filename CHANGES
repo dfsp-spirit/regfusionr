@@ -1,0 +1,11 @@
+regfusionr Changes
+==================
+
+
+Version 0.0.1 -- Initial release
+---------------------------------
+Initial release. The following features are currently implemented:
+* mni152_coords_to_fsaverage(): maps MNI152 RAS coords to fsaverage
+* vol_to_fsaverage(): map the data in an MNI152 volume to fsaverage surface space (as a vertex overlay)
+* fsaverage_vertices_to_mni152_coords(): get the MNI152 space RAS coordinates for the fsaverage vertices
+Note that this is NOT available on CRAN, the package size if >100 MB and CRAN only supports 5 MB.

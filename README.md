@@ -3,7 +3,7 @@ R implementation of the registration fusion method for MNI152 and Colin27 to fsa
 
 ## About
 
-This is an R implementation of [Wu et al. (2018)'s registration fusion methods](https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.24213) to project 3D magnetic resonance imaging (MRI) data from standard space volumetric coordinates, either MNI152 or Colin27, to Freesurfer's fsaverage (MNI305), and the other way around. Using this non-linear approach gives higher accuracy than the linear transformation with a 4x4 matrix. See [the paper]](https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.24213) for details.
+This is an R implementation of [Wu et al. (2018)'s registration fusion methods](https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.24213) to project 3D magnetic resonance imaging (MRI) data from standard space volumetric coordinates, either MNI152 or Colin27, to Freesurfer's fsaverage (MNI305), and the other way around. Using this non-linear approach gives higher accuracy than the linear transformation with a 4x4 matrix. See [the paper](https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.24213) for details.
 
 This R implementation is heavily inspired by [Dan Gale's Python implementation](https://github.com/danjgale/reg-fusion) in the [regfusion pypi package](https://pypi.org/project/regfusion/). A huge thank you to Dan Gale and  *Wu et al* for making their excellent tools openly available!
 

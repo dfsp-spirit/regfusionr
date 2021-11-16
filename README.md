@@ -81,7 +81,7 @@ remotes::install_github('dfsp-spirit/regfusionr', dependencies = TRUE);
 
 You can also use `devtools` instead of `remotes` if you already have it installed. For those who haven't, `remotes` is a lot smaller and faster to install though.
 
-It's unlikely that this package will go to CRAN soon, it requires some data files which are about 100 MB in total size, and CRAN only supports 5 MB. I know one can work around that, but my time for this is limited.
+It's unlikely that this package will go to CRAN soon, it requires some data files which are about 100 MB in total size, and CRAN only supports 5 MB. I know one can work around that, but my time for this is limited. If you want a release and know about drat, you can also get it from [my drat repo](https://github.com/dfsp-spirit/drat).
 
 
 ## Unit tests and continuous integration
@@ -94,7 +94,7 @@ See the [development information file](./DEVELOP.md).
 
 ## Alternatives
 
-If you are fine with a less acurate coordinate mapping, you can use the matrix listed in the FreeSurfer documentation on Coordinate Systems. See [section 8b on this website](https://surfer.nmr.mgh.harvard.edu/fswiki/CoordinateSystems). The method is implemented in this package in the function `linear_fsaverage_coords_to_MNI152_coords()`. The difference between the results is shown below.
+If all you need is the coordinate mapping *and* you are fine with a less acurate result, you can use the matrix listed in the FreeSurfer documentation on Coordinate Systems. See [section 8b on this website](https://surfer.nmr.mgh.harvard.edu/fswiki/CoordinateSystems). The method is implemented in this package in the function `linear_fsaverage_coords_to_MNI152_coords()`. The difference between the results is shown below.
 
 
 ![Vis2](./web/regfusionr_vs_linear.png?raw=true "Difference between the regfusionr approach and the linear method. The coordinates of all fsaverage vertices were mapped to MNI152 space using both the regfusionr method and the linear method. The difference between the two methods was computed as the Euclidean distance between the resulting MNI152 coordinates.")

@@ -7,7 +7,8 @@
 mni305_coords_to_mni152_coords(
   coords,
   surface = "orig",
-  fs_home = Sys.getenv("FS_HOME")
+  fs_home = Sys.getenv("FS_HOME"),
+  simplify = FALSE
 )
 }
 \arguments{
@@ -16,9 +17,11 @@ mni305_coords_to_mni152_coords(
 \item{surface}{a character string defining the fsaverage surface to load (like \code{"white"} or \code{"orig"}), or a pre-loaded hemilist of surfaces (i.e., \code{freesurferformats::fs.surface} instances)}
 
 \item{fs_home}{character string, path of the FreeSurfer directory from which the fsaverage surfaces should be loaded. Ignored if \code{surface} is a hemilist (in that case the surfaces have already been loaded).}
+
+\item{simplify}{logical, whether to return a vector instead of a single-row matrix in case only a single query vertex is given.}
 }
 \value{
-the MNI152 coordinates for the vertices closest to the given MNI305 query coordinates. Depending on the distance to the closest vertex, this may be way off.
+nx3 numerical matrix, the MNI152 coordinates for the vertices closest to the given MNI305 query coordinates. Depending on the distance to the closest vertex, this may be way off. Also see the 'simplify' parameter.
 }
 \description{
 Find MNI152 coordinate of fsaverage vertex closest to the given MNI305 coordinate.

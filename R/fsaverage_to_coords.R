@@ -7,10 +7,12 @@
 #'
 #' @param hemis vector of character strings, the hemispheres of the query vertices. Each entry in the vector has to be either \code{'lh'} or \code{'rh'}. Length must match length of parameter \code{vertices}.
 #'
-#' @return matrix of dim \code{n x 3}, the MNI152 coordinates for the query vertices, one row per vertex.
+#' @param simplify logical, whether to return a vector instead of a single-row matrix in case only a single query vertex is given.
+#'
+#' @return matrix of dim \code{n x 3}, the MNI152 coordinates for the query vertices, one row per vertex. Also see the 'simplify' parameter.
 #'
 #' @export
-fsaverage_vertices_to_mni152_coords <- function(vertices, hemis, fs_home=Sys.getenv("FS_HOME")) {
+fsaverage_vertices_to_mni152_coords <- function(vertices, hemis, fs_home=Sys.getenv("FS_HOME"), simplify = FALSE) {
   if(! is.integer(vertices)) {
     message("Converting vertices to integer values.");
     vertices = as.integer(vertices);
@@ -44,11 +46,17 @@ fsaverage_vertices_to_mni152_coords <- function(vertices, hemis, fs_home=Sys.get
     vertex_hemi = hemis[vertex_local_idx];
     mni152_coords[vertex_local_idx, ] = ras[[vertex_hemi]][vertex_surface_idx, ];
   }
-  return(mni152_coords);
+  if(length(vertices) == 1L & simplify) {
+    return(mni152_coords[1L, ]);
+  } else {
+    return(mni152_coords);
+  }
 }
 
 
 #' @title Find MNI152 coordinate of fsaverage vertex closest to the given MNI305 coordinate.
+#'
+#' @inheritParams fsaverage_vertices_to_mni152_coords
 #'
 #' @param coords nx3 numerical matrix, the MNI305 query coordinates.
 #'
@@ -56,10 +64,10 @@ fsaverage_vertices_to_mni152_coords <- function(vertices, hemis, fs_home=Sys.get
 #'
 #' @param fs_home character string, path of the FreeSurfer directory from which the fsaverage surfaces should be loaded. Ignored if \code{surface} is a hemilist (in that case the surfaces have already been loaded).
 #'
-#' @return the MNI152 coordinates for the vertices closest to the given MNI305 query coordinates. Depending on the distance to the closest vertex, this may be way off.
+#' @return nx3 numerical matrix, the MNI152 coordinates for the vertices closest to the given MNI305 query coordinates. Depending on the distance to the closest vertex, this may be way off. Also see the 'simplify' parameter.
 #'
 #' @export
-mni305_coords_to_mni152_coords <- function(coords, surface = "orig", fs_home=Sys.getenv("FS_HOME")) {
+mni305_coords_to_mni152_coords <- function(coords, surface = "orig", fs_home=Sys.getenv("FS_HOME"), simplify = FALSE) {
   if(! is.list(surface)) {
     surface_name = surface;
     lh_surf = freesurferformats::read.fs.surface(file.path(fs_home, "subjects", "fsaverage", "surf", sprintf("lh.%s", surface_name)));
@@ -67,7 +75,7 @@ mni305_coords_to_mni152_coords <- function(coords, surface = "orig", fs_home=Sys
     surface = list("lh" = lh_surf, "rh" = rh_surf);
   }
   dist_info = coord_closest_vertex(coords, surface);
-  return(fsaverage_vertices_to_mni152_coords(dist_info$both_closest_vertex, dist_info$both_hemi, fs_home=fs_home));
+  return(fsaverage_vertices_to_mni152_coords(dist_info$both_closest_vertex, dist_info$both_hemi, fs_home=fs_home, simplify=simplify));
 }
 
 

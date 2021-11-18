@@ -3,4 +3,5 @@
 export(fsaverage_vertices_to_mni152_coords)
 export(linear_fsaverage_coords_to_MNI152_coords)
 export(mni152_coords_to_fsaverage)
+export(mni305_coords_to_mni152_coords)
 export(vol_to_fsaverage)

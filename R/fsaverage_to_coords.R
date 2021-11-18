@@ -58,6 +58,7 @@ fsaverage_vertices_to_mni152_coords <- function(vertices, hemis, fs_home=Sys.get
 #'
 #' @return the MNI152 coordinates for the vertices closest to the given MNI305 query coordinates. Depending on the distance to the closest vertex, this may be way off.
 #'
+#' @export
 mni305_coords_to_mni152_coords <- function(coords, surface = "orig", fs_home=Sys.getenv("FS_HOME")) {
   if(! is.list(surface)) {
     surface_name = surface;
@@ -132,6 +133,6 @@ coord_closest_vertex <- function(coordinate, surfaces) {
       stop("The hemilist in parameter 'surfaces' must contain at least one fs.surface instance in keys 'lh' or 'rh'.");
     }
   }
-  return(data.frame("query_x"=coordinate[,1], "query_y"=coordinate[,2], "query_z"=coordinate[,3], "lh_closest_vertex"=lh_closest_vertex, "lh_distance"=lh_distance, "rh_closest_vertex"=rh_closest_vertex, "rh_distance"=rh_distance, "both_closest_vertex"=both_closest_vertex, "both_distance"=both_distance, "both_hemi"=both_hemi));
+  return(data.frame("query_x"=coordinate[,1], "query_y"=coordinate[,2], "query_z"=coordinate[,3], "lh_closest_vertex"=lh_closest_vertex, "lh_distance"=lh_distance, "rh_closest_vertex"=rh_closest_vertex, "rh_distance"=rh_distance, "both_closest_vertex"=both_closest_vertex, "both_distance"=both_distance, "both_hemi"=both_hemi, stringsAsFactors = FALSE));
 }
 

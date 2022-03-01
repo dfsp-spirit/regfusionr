@@ -35,6 +35,7 @@ See the [unit tests](./test/testthat/) for more usage examples, and use the in-b
 
 * When projecting volume data to the surface, currently only the 'linear' interpolation method is implemented (which uses trilinear interpolation from the `oce` package). This method is suitable for continuous data. The 'nearest' method, which is required to project labels or atlases (categorical data represented by integers), is not available yet. If you know an R function that does it, please let me know.
 * Some parts I don't need myself (like Colin27 coordinates to fsaverage vertex mapping) are not yet implemented. Please open an issue if you need them and I will do it.
+* Currently the reverse operation (mapping an fsaverage vertex-overlay to an MNI152 volume) is not implemented.
 
 
 ## Installation

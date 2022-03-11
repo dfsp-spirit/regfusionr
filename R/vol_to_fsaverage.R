@@ -1,7 +1,7 @@
 # Main functions for vol to surf mapping for an input 3D/4D image.
 
 
-#' @title Map values from MNI volume to fsaverage surface.
+#' @title Project or map values from MNI volume to fsaverage surface.
 #'
 #' @description Applies the Wu et al. regfusion method to obtain surface coords, then interpolates values.
 #'
@@ -11,13 +11,13 @@
 #'
 #' @param rf_type the regfusion type to use, one of 'RF_ANTs' or 'RF_M3Z'.
 #'
-#' @param interp interpolation method, currenlty only 'linear' is supported.
+#' @param interp interpolation method, currently only 'linear' is supported.
 #'
 #' @param out_type character string, the format of the output files. One of the following: 'curv' for FreeSurfer curv format, 'mgz' for FreeSurfer MGZ format, 'gii' for GIFTI format.
 #'
-#' @param out_dir character string, the path to a writable output directory. If \code{NULL}, the returned named list contains the projected data (instead of the path of the file it was written to), and the parameter 'out_type' is ignored.
+#' @param out_dir character string, the path to a writable output directory. If \code{NULL}, the returned named list contains the projected data (instead of the path of the file it was written to) at the keys 'lh' and 'rh', and the parameter 'out_type' is ignored.
 #'
-#' @return named list of 2 character strings, the output files (for the 2 hemispheres) at keys 'lh' and 'rh'. See 'out_dir' if you want the data in R instead.
+#' @return named list of 2 character strings, the output files (for the 2 hemispheres) at keys 'lh' and 'rh'. See the documentation for parameter 'out_dir' if you want the data in R instead.
 #'
 #' @author Tim Schäfer for the R version, Wu Jianxiao and CBIG for the original Matlab version.
 #'
@@ -126,5 +126,75 @@ project_data <- function(data, affine, ras, interp='linear') {
   } else {
     stop("The 'oce' package must be installed to use this functionality. See https://github.com/dfsp-spirit/regfusionr for installation instructions.");
   }
+}
+
+
+#' @title Project or map per-vertex values from the fsaverage surface to the cortex voxels of an MNI volume.
+#'
+#' @description Applies the Wu et al. regfusion method to obtain MNI volume coordinates, then interpolates values.
+#'
+#' @param input_vector numerical vector of per-vertex data for both hemispheres of the template subject. Must contain 327684 values for the \code{fsaverage} template (first the 163842 values for the left hemisphere, then the 163842 values for the right hemisphere).
+#'
+#' @param template_type character string, the target template or the space that your output volume should be in. One of 'MNI152_orig', 'Colin27_orig', 'MNI152_norm', 'Colin27_norm'.
+#'
+#' @param rf_type the regfusion type to use, one of 'RF_ANTs' or 'RF_M3Z'.
+#'
+#' @param interp interpolation method, currently only 'linear' is supported.
+#'
+#' @param out_type character string, the format of the output files. One of the following: 'mgz' or 'mgh' for FreeSurfer MGZ/MGH format, 'nii' for NIFTI v1 format.
+#'
+#' @param out_dir character string, the path to a writable output directory. If \code{NULL}, the returned named list contains the projected data (instead of the path of the file it was written to) at key 'out_data', and the parameter 'out_type' is ignored.
+#'
+#' @param fsaverage_path character string or NULL, the file system path to the fsaverage directory (NOT including the 'fsaverage' dir itself). If \code{NULL}, defaults to the return value of \code{fsbrain::fsaverage.path()} on the system. This path is used to read the spherical surface (both hemisphere meshes) of the template subject.
+#'
+#' @return named list of character strings, the output file is at keys 'out_file' and the output file format at key 'out_format'. See the documentation for parameter 'out_dir' if you want the data in R instead.
+#'
+#' @author Tim Schäfer for the R version, Wu Jianxiao and CBIG for the original Matlab version.
+#'
+#' @note THIS FUNCTION IS CURRENTLY WORK-IN-PROGRESS AND NOT PART OF THE OFFICIAL API, DO NOT USE IT OR BE PREPARED FOR UN-ANNOUNCED BREAKING CHANGES ANY TIME.
+#'
+#' @keywords internal
+fsaverage_to_vol <- function(input_vector, template_type, rf_type='RF_ANTs', interp='linear', out_type='mgz', out_dir=".", fsaverage_path=NULL) {
+
+  template_subject = "fsaverage";
+  if(is.null(fsaverage_path)) {
+    fsaverage_path = fsbrain::fsaverage.path(allow_fetch = TRUE);
+  }
+
+  num_fsaverage_vertices = 327684L;
+
+  if((! is.vector(input_vector)) | (length(input_vector != num_fsaverage_vertices)) | (! is.numeric(input_vector))) {
+      stop(sprintf("Parameter 'input_vector' must be a numerical vector containing %d values for the fsaverage vertices.\n", num_fsaverage_vertices));
+  }
+
+  check_rf_and_template(template_type = template_type, rf_type = rf_type);
+
+  valid_out_types = c('mgh', 'mgz', 'nii');
+  if(! (out_type %in% valid_out_types)) {
+    stop(sprintf("Parameter 'out_type' must be one of: %s.", paste(valid_out_types(), collapse=", ")));
+  }
+
+  mapping = "MNI152";
+  cortex_mask_file = get_data_file("FSL_MNI152_FS4.5.0_cortex_estimate.nii.gz", subdir = "coordmap");
+  template_meshes = fsbrain::subject.surface(fsaverage_path, template_subject, surface = "sphere");
+
+  if(! is.null(out_dir)) {
+    if(! dir.exists(out_dir)) {
+      dir.create(out_dir, recursive = FALSE);
+    }
+  }
+
+  out = list();
+  projected_vol_data = # TODO;
+
+  if(is.null(out_dir)) {
+    out$out_data = projected_vol_data;
+  } else {
+    out_file = file.path(out_dir, sprintf("projected_%s_to_%s.%s", template_subject, mapping, out_type));
+    freesurferformats::write.fs.morph(out_file);
+    out$out_file = out_file;
+    out$out_format = out_type;
+  }
+  return(out);
 }
 

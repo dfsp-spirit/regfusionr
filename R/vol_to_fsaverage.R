@@ -172,20 +172,29 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type, rf_type='RF_ANTs
   if((! is.vector(lh_input)) | (! is.numeric(lh_input))) {
     stop(sprintf("Parameter 'lh_input' must be a numerical vector containing %d values for the fsaverage left hemisphere vertices.\n", num_template_vertices_per_hemi));
   }
-  if((! is.vector(rh_input)) | (length(rh_input != num_template_vertices_per_hemi)) | (! is.numeric(rh_input))) {
+  if((! is.vector(rh_input)) | (! is.numeric(rh_input))) {
     stop(sprintf("Parameter 'rh_input' must be a numerical vector containing %d values for the fsaverage right hemisphere vertices.\n", num_template_vertices_per_hemi));
   }
 
   if(length(lh_input) != length(rh_input)) {
-    stop("The lengths of the lh_input and rh_input vectors must be identical for all supported templates (FreeSurfer fsaverage templates), but lengths differ.");
+    stop(sprintf("The lengths of the lh_input and rh_input vectors must be identical for all supported templates (FreeSurfer fsaverage templates), but lengths $d and %d differ.\n", length(lh_input), length(rh_input)));
   }
+
+  template_meshes_surface = fsbrain::subject.surface(fsaverage_path, template_subject, surface = "sphere");
 
   if(length(lh_input) != num_template_vertices_per_hemi) {
     if(length(lh_input) == 40962L) {
       message("Automatic up-sampling of input data from fsaverage6 mesh not supported yet.");
-    }
-    if(length(lh_input) == 10242L) {
+      template_orig_meshes = fsbrain::subject.surface(fsaverage_path, "fsaverage6", surface = "sphere");
+      lh_input = haze::nn_interpolate_kdtree(template_meshes_surface$lh$vertices, template_orig_meshes$lh, lh_input);
+      rh_input = haze::nn_interpolate_kdtree(template_meshes_surface$lh$vertices, template_orig_meshes$lh, rh_input);
+    } else if(length(lh_input) == 10242L) {
       message("Automatic up-sampling of input data from fsaverage5 mesh not supported yet.");
+      template_orig_meshes = fsbrain::subject.surface(fsaverage_path, "fsaverage5", surface = "sphere");
+      lh_input = haze::nn_interpolate_kdtree(template_meshes_surface$lh$vertices, template_orig_meshes$lh, lh_input);
+      rh_input = haze::nn_interpolate_kdtree(template_meshes_surface$lh$vertices, template_orig_meshes$lh, rh_input);
+    } else {
+      stop(sprintf("Unsupported number of input vertices: %d. Value must match vertex count for one of the templates fsaverage (163842), fsaverage6 (40962), or fsaverage5 (10242).\n", length(lh_input)));
     }
 
     stop(sprintf("The input vectors lh_input and rh_input must contain exactly %d values each.\n", num_template_vertices_per_hemi));
@@ -204,11 +213,11 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type, rf_type='RF_ANTs
   cortex_mask_file_volume = get_data_file(sprintf("%s_FS4.5.0_cortex_estimate.nii.gz", mapping), subdir = "coordmap");
   cortex_mask_volume = freesurferformats::read.fs.volume(cortex_mask_file_volume, with_header = TRUE, drop_empty_dims = TRUE);
 
-  template_meshes_surface = fsbrain::subject.surface(fsaverage_path, template_subject, surface = "sphere");
+
   cortex_label_surface = fsbrain::subject.label(fsaverage_path, template_subject, label = "cortex", hemi = "both");
-  cortex_mask_surface = list();
-  cortex_mask_surface$lh = fsbrain::mask.from.labeldata.for.hemi(cortex_label_surface$lh,  num_template_vertices_per_hemi);
-  cortex_mask_surface$rh = fsbrain::mask.from.labeldata.for.hemi(cortex_label_surface$rh,  num_template_vertices_per_hemi);
+  #cortex_mask_surface = list();
+  #cortex_mask_surface$lh = fsbrain::mask.from.labeldata.for.hemi(cortex_label_surface$lh,  num_template_vertices_per_hemi);
+  #cortex_mask_surface$rh = fsbrain::mask.from.labeldata.for.hemi(cortex_label_surface$rh,  num_template_vertices_per_hemi);
 
   lh_map_file = get_data_file("FSL_MNI152_FS4.5.0_RF_ANTs_avgMapping.vertex.lh.mgz", subdir = "coordmap");
   rh_map_file = get_data_file("FSL_MNI152_FS4.5.0_RF_ANTs_avgMapping.vertex.rh.mgz", subdir = "coordmap");
@@ -230,12 +239,15 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type, rf_type='RF_ANTs
   projected_vol_data$lh = rep(0.0, num_template_vertices_per_hemi);
   projected_vol_data$rh = rep(0.0, num_template_vertices_per_hemi);
   if(interp == 'linear') {
-    projected_vol_data$lh = haze::linear_interpolate_kdtree(template_meshes_surface$lh$vertices[,], template_meshes_surface$lh, input_vector$lh);
-
-
+    projected_vol_data$lh = haze::linear_interpolate_kdtree(template_meshes_surface$lh$vertices[cortex_label_surface$lh, ], template_meshes_surface$lh, lh_input);
+    projected_vol_data$rh = haze::linear_interpolate_kdtree(template_meshes_surface$rh$vertices[cortex_label_surface$rh, ], template_meshes_surface$rh, lh_input);
   } else {
     stop("Currently the only supported interpolation method is 'linear'.");
   }
+
+  # TODO: Apply the volume mask to the result, and combine the results of the hemispheres.
+  # see https://github.com/ThomasYeoLab/CBIG/blob/master/stable_projects/registration/Wu2017_RegistrationFusion/bin/scripts_final_proj/CBIG_RF_projectfsaverage2Vol_single.m
+
 
   if(is.null(out_dir)) {
     out$out_data = projected_vol_data;

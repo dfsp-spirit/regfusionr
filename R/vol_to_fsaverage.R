@@ -21,6 +21,8 @@
 #'
 #' @author Tim Schäfer for the R version, Wu Jianxiao and CBIG for the original Matlab version.
 #'
+#' @importFrom data.table fread
+#'
 #' @export
 vol_to_fsaverage <- function(input_img, template_type, rf_type='RF_ANTs', interp='linear', out_type='curv', out_dir=".") {
 
@@ -133,7 +135,9 @@ project_data <- function(data, affine, ras, interp='linear') {
 #'
 #' @description Applies the Wu et al. regfusion method to obtain MNI volume coordinates, then interpolates values.
 #'
-#' @param input_vector numerical vector of per-vertex data for both hemispheres of the template subject. Must contain 327684 values for the \code{fsaverage} template (first the 163842 values for the left hemisphere, then the 163842 values for the right hemisphere).
+#' @param lh_input numerical vector of per-vertex data for the left hemisphere of the template subject. Must 163842 values for the \code{fsaverage} template.
+#'
+#' @param rh_input numerical vector of per-vertex data for the right hemisphere of the template subject. Must 163842 values for the \code{fsaverage} template.
 #'
 #' @param template_type character string, the target template or the space that your output volume should be in. One of 'MNI152_orig', 'Colin27_orig', 'MNI152_norm', 'Colin27_norm'.
 #'
@@ -154,18 +158,39 @@ project_data <- function(data, affine, ras, interp='linear') {
 #' @note THIS FUNCTION IS CURRENTLY WORK-IN-PROGRESS AND NOT PART OF THE OFFICIAL API, DO NOT USE IT OR BE PREPARED FOR UN-ANNOUNCED BREAKING CHANGES ANY TIME.
 #'
 #' @keywords internal
-fsaverage_to_vol <- function(input_vector, template_type, rf_type='RF_ANTs', interp='linear', out_type='mgz', out_dir=".", fsaverage_path=NULL) {
+fsaverage_to_vol <- function(lh_input, rh_input, template_type, rf_type='RF_ANTs', interp='linear', out_type='mgz', out_dir=".", fsaverage_path=NULL) {
 
   template_subject = "fsaverage";
   if(is.null(fsaverage_path)) {
     fsaverage_path = fsbrain::fsaverage.path(allow_fetch = TRUE);
   }
 
-  num_fsaverage_vertices = 327684L;
+  num_template_vertices = 327684L; # for fsaverage
+  num_template_vertices_per_hemi = num_template_vertices / 2L;
 
-  if((! is.vector(input_vector)) | (length(input_vector != num_fsaverage_vertices)) | (! is.numeric(input_vector))) {
-      stop(sprintf("Parameter 'input_vector' must be a numerical vector containing %d values for the fsaverage vertices.\n", num_fsaverage_vertices));
+  # We currently do not support up-sampling from fsaverage6/5/..., the user has to do that manually using FreeSurfer tools at this time if the data were computed on a down-sampled surface.
+  if((! is.vector(lh_input)) | (! is.numeric(lh_input))) {
+    stop(sprintf("Parameter 'lh_input' must be a numerical vector containing %d values for the fsaverage left hemisphere vertices.\n", num_template_vertices_per_hemi));
   }
+  if((! is.vector(rh_input)) | (length(rh_input != num_template_vertices_per_hemi)) | (! is.numeric(rh_input))) {
+    stop(sprintf("Parameter 'rh_input' must be a numerical vector containing %d values for the fsaverage right hemisphere vertices.\n", num_template_vertices_per_hemi));
+  }
+
+  if(length(lh_input) != length(rh_input)) {
+    stop("The lengths of the lh_input and rh_input vectors must be identical for all supported templates (FreeSurfer fsaverage templates), but lengths differ.");
+  }
+
+  if(length(lh_input) != num_template_vertices_per_hemi) {
+    if(length(lh_input) == 40962L) {
+      message("Automatic up-sampling of input data from fsaverage6 mesh not supported yet.");
+    }
+    if(length(lh_input) == 10242L) {
+      message("Automatic up-sampling of input data from fsaverage5 mesh not supported yet.");
+    }
+
+    stop(sprintf("The input vectors lh_input and rh_input must contain exactly %d values each.\n", num_template_vertices_per_hemi));
+  }
+
 
   check_rf_and_template(template_type = template_type, rf_type = rf_type);
 
@@ -174,9 +199,22 @@ fsaverage_to_vol <- function(input_vector, template_type, rf_type='RF_ANTs', int
     stop(sprintf("Parameter 'out_type' must be one of: %s.", paste(valid_out_types(), collapse=", ")));
   }
 
-  mapping = "MNI152";
-  cortex_mask_file = get_data_file("FSL_MNI152_FS4.5.0_cortex_estimate.nii.gz", subdir = "coordmap");
-  template_meshes = fsbrain::subject.surface(fsaverage_path, template_subject, surface = "sphere");
+  mapping = "FSL_MNI152";    # One of "FSL_MNI152" or "SPM_Colin27".
+  # Load cortex mask volume file.
+  cortex_mask_file_volume = get_data_file(sprintf("%s_FS4.5.0_cortex_estimate.nii.gz", mapping), subdir = "coordmap");
+  cortex_mask_volume = freesurferformats::read.fs.volume(cortex_mask_file_volume, with_header = TRUE, drop_empty_dims = TRUE);
+
+  template_meshes_surface = fsbrain::subject.surface(fsaverage_path, template_subject, surface = "sphere");
+  cortex_label_surface = fsbrain::subject.label(fsaverage_path, template_subject, label = "cortex", hemi = "both");
+  cortex_mask_surface = list();
+  cortex_mask_surface$lh = fsbrain::mask.from.labeldata.for.hemi(cortex_label_surface$lh,  num_template_vertices_per_hemi);
+  cortex_mask_surface$rh = fsbrain::mask.from.labeldata.for.hemi(cortex_label_surface$rh,  num_template_vertices_per_hemi);
+
+  lh_map_file = get_data_file("FSL_MNI152_FS4.5.0_RF_ANTs_avgMapping.vertex.lh.mgz", subdir = "coordmap");
+  rh_map_file = get_data_file("FSL_MNI152_FS4.5.0_RF_ANTs_avgMapping.vertex.rh.mgz", subdir = "coordmap");
+  lh_vertex = freesurferformats::read.fs.mgh(lh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
+  rh_vertex = freesurferformats::read.fs.mgh(rh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
+
 
   if(! is.null(out_dir)) {
     if(! dir.exists(out_dir)) {
@@ -185,7 +223,19 @@ fsaverage_to_vol <- function(input_vector, template_type, rf_type='RF_ANTs', int
   }
 
   out = list();
-  projected_vol_data = # TODO;
+
+  # Find the vertices on
+
+  projected_vol_data = list();
+  projected_vol_data$lh = rep(0.0, num_template_vertices_per_hemi);
+  projected_vol_data$rh = rep(0.0, num_template_vertices_per_hemi);
+  if(interp == 'linear') {
+    projected_vol_data$lh = haze::linear_interpolate_kdtree(template_meshes_surface$lh$vertices[,], template_meshes_surface$lh, input_vector$lh);
+
+
+  } else {
+    stop("Currently the only supported interpolation method is 'linear'.");
+  }
 
   if(is.null(out_dir)) {
     out$out_data = projected_vol_data;

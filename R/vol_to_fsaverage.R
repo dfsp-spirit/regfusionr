@@ -158,7 +158,7 @@ project_data <- function(data, affine, ras, interp='linear') {
 #' @note THIS FUNCTION IS CURRENTLY WORK-IN-PROGRESS AND NOT PART OF THE OFFICIAL API, DO NOT USE IT OR BE PREPARED FOR UN-ANNOUNCED BREAKING CHANGES ANY TIME.
 #'
 #' @keywords internal
-fsaverage_to_vol <- function(lh_input, rh_input, template_type, rf_type='RF_ANTs', interp='linear', out_type='mgz', out_dir=".", fsaverage_path=NULL) {
+fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf_type='RF_ANTs', interp='linear', out_type='mgz', out_dir=".", fsaverage_path=NULL) {
 
   template_subject = "fsaverage";
   if(is.null(fsaverage_path)) {
@@ -200,12 +200,15 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type, rf_type='RF_ANTs
     stop(sprintf("The input vectors lh_input and rh_input must contain exactly %d values each.\n", num_template_vertices_per_hemi));
   }
 
-
-  check_rf_and_template(template_type = template_type, rf_type = rf_type);
-
   valid_out_types = c('mgh', 'mgz', 'nii');
   if(! (out_type %in% valid_out_types)) {
     stop(sprintf("Parameter 'out_type' must be one of: %s.", paste(valid_out_types(), collapse=", ")));
+  }
+
+  check_rf_and_template(template_type = template_type, rf_type = rf_type);
+  # Currently only MNI152 is supported.
+  if(template_type != "MNI152_orig") {
+    stop("Currently the only supported 'template_type' is 'MNI152_orig'.");
   }
 
   mapping = "FSL_MNI152";    # One of "FSL_MNI152" or "SPM_Colin27".
@@ -215,6 +218,7 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type, rf_type='RF_ANTs
 
 
   cortex_label_surface = fsbrain::subject.label(fsaverage_path, template_subject, label = "cortex", hemi = "both");
+  # We do not need a mask, the label is fine. So these lines are currently commented out.
   #cortex_mask_surface = list();
   #cortex_mask_surface$lh = fsbrain::mask.from.labeldata.for.hemi(cortex_label_surface$lh,  num_template_vertices_per_hemi);
   #cortex_mask_surface$rh = fsbrain::mask.from.labeldata.for.hemi(cortex_label_surface$rh,  num_template_vertices_per_hemi);

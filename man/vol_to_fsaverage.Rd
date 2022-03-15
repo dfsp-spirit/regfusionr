@@ -2,7 +2,7 @@
 % Please edit documentation in R/vol_to_fsaverage.R
 \name{vol_to_fsaverage}
 \alias{vol_to_fsaverage}
-\title{Map values from MNI volume to fsaverage surface.}
+\title{Project or map values from MNI volume to fsaverage surface.}
 \usage{
 vol_to_fsaverage(
   input_img,
@@ -20,14 +20,14 @@ vol_to_fsaverage(
 
 \item{rf_type}{the regfusion type to use, one of 'RF_ANTs' or 'RF_M3Z'.}
 
-\item{interp}{interpolation method, currenlty only 'linear' is supported.}
+\item{interp}{interpolation method, currently only 'linear' is supported.}
 
 \item{out_type}{character string, the format of the output files. One of the following: 'curv' for FreeSurfer curv format, 'mgz' for FreeSurfer MGZ format, 'gii' for GIFTI format.}
 
-\item{out_dir}{character string, the path to a writable output directory. If \code{NULL}, the returned named list contains the projected data (instead of the path of the file it was written to), and the parameter 'out_type' is ignored.}
+\item{out_dir}{character string, the path to a writable output directory. If \code{NULL}, the returned named list contains the projected data (instead of the path of the file it was written to) at the keys 'lh' and 'rh', and the parameter 'out_type' is ignored.}
 }
 \value{
-named list of 2 character strings, the output files (for the 2 hemispheres) at keys 'lh' and 'rh'. See 'out_dir' if you want the data in R instead.
+named list of 2 character strings, the output files (for the 2 hemispheres) at keys 'lh' and 'rh'. See the documentation for parameter 'out_dir' if you want the data in R instead.
 }
 \description{
 Applies the Wu et al. regfusion method to obtain surface coords, then interpolates values.

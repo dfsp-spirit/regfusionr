@@ -87,7 +87,7 @@ Required system level packages for other systems:
 
 #### R package
 
-From an R session:
+From an R session, via `remotes`:
 
 ```
 install.packages('remotes');

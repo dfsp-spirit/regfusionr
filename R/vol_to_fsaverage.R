@@ -174,12 +174,12 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
       num_template_vertices = 327684L; # for fsaverage
       num_template_vertices_per_hemi = num_template_vertices / 2L;
 
-      # We currently do not support up-sampling from fsaverage6/5/..., the user has to do that manually using FreeSurfer tools at this time if the data were computed on a down-sampled surface.
+      # We support automatic up-sampling of fsaverage6 and fsaverage5 data to fsaverage.
       if((! is.vector(lh_input)) | (! is.numeric(lh_input))) {
-        stop(sprintf("Parameter 'lh_input' must be a numerical vector containing %d values for the fsaverage left hemisphere vertices.\n", num_template_vertices_per_hemi));
+        stop(sprintf("Parameter 'lh_input' must be a numerical vector containing the per-vertex data for the fsaverage/fsaverage6/fsaverage5 left hemisphere vertices.\n"));
       }
       if((! is.vector(rh_input)) | (! is.numeric(rh_input))) {
-        stop(sprintf("Parameter 'rh_input' must be a numerical vector containing %d values for the fsaverage right hemisphere vertices.\n", num_template_vertices_per_hemi));
+        stop(sprintf("Parameter 'rh_input' must be a numerical vector containing the per-vertex data for the fsaverage/fsaverage6/fsaverage5 right hemisphere vertices.\n"));
       }
 
       if(length(lh_input) != length(rh_input)) {
@@ -200,10 +200,8 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
           lh_input = haze::nn_interpolate_kdtree(template_meshes_surface$lh$vertices, template_orig_meshes$lh, lh_input);
           rh_input = haze::nn_interpolate_kdtree(template_meshes_surface$lh$vertices, template_orig_meshes$lh, rh_input);
         } else {
-          stop(sprintf("Unsupported number of input vertices: %d. Value must match vertex count for one of the templates fsaverage (163842), fsaverage6 (40962), or fsaverage5 (10242).\n", length(lh_input)));
+          stop(sprintf("Unsupported number of input vertices: %d. Value must match vertex count for one of the templates fsaverage (163842), fsaverage6 (40962), or fsaverage5 (10242). Please map data to an MNI305 template using recon-all/qcache.\n", length(lh_input)));
         }
-
-        stop(sprintf("The input vectors lh_input and rh_input must contain exactly %d values each.\n", num_template_vertices_per_hemi));
       }
 
       valid_out_types = c('mgh', 'mgz', 'nii');
@@ -243,9 +241,14 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
         projected_vol_data$lh = lh_interp_res$interp_values;
         rh_interp_res = haze::linear_interpolate_kdtree(template_meshes_surface$rh$vertices[cortex_label_surface$rh, ], template_meshes_surface$rh, lh_input);
         projected_vol_data$rh = rh_interp_res$interp_values;
+      } else if(interp == 'nearest') {
+        # we could use haze::nn_interpolate_kdtree/haze::find_nv_kdtree and pracma::interp1 to implement this.
+        stop("The 'nearest' method is not implemented yet.");
       } else {
         stop("Currently the only supported interpolation method is 'linear'.");
       }
+
+      # TODO: Convert the 2D surface vector into 3D volume data.
 
       # TODO: Apply the volume mask to the result, and combine the results of the hemispheres.
       # see https://github.com/ThomasYeoLab/CBIG/blob/master/stable_projects/registration/Wu2017_RegistrationFusion/bin/scripts_final_proj/CBIG_RF_projectfsaverage2Vol_single.m

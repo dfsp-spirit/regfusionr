@@ -18,6 +18,8 @@ Suggests:
     oce,
     knitr,
     rmarkdown,
-    testthat (>= 2.1.0)
+    testthat (>= 2.1.0),
+    haze (>= 0.1.0)
+Additional_repositories: https://dfsp-spirit.r-universe.dev
 VignetteBuilder: knitr
 RoxygenNote: 7.1.2

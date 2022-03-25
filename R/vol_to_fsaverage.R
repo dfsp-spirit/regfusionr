@@ -157,6 +157,10 @@ project_data <- function(data, affine, ras, interp='linear') {
 #'
 #' @note THIS FUNCTION IS CURRENTLY WORK-IN-PROGRESS AND NOT PART OF THE OFFICIAL API, DO NOT USE IT OR BE PREPARED FOR UN-ANNOUNCED BREAKING CHANGES ANY TIME.
 #'
+#' @importFrom freesurferformats write.fs.morph read.fs.volume read.fs.mgh
+#' @importFrom fsbrain fsaverage.path subject.surface subject.label
+#' @importFrom haze nn_interpolate_kdtree linear_interpolate_kdtree
+#'
 #' @keywords internal
 fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf_type='RF_ANTs', interp='linear', out_type='mgz', out_dir=".", fsaverage_path=NULL) {
 
@@ -184,12 +188,12 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
 
   if(length(lh_input) != num_template_vertices_per_hemi) {
     if(length(lh_input) == 40962L) {
-      message("Automatic up-sampling of input data from fsaverage6 mesh not supported yet.");
+      # Automatic up-sampling of input data from fsaverage6 mesh.
       template_orig_meshes = fsbrain::subject.surface(fsaverage_path, "fsaverage6", surface = "sphere");
       lh_input = haze::nn_interpolate_kdtree(template_meshes_surface$lh$vertices, template_orig_meshes$lh, lh_input);
       rh_input = haze::nn_interpolate_kdtree(template_meshes_surface$lh$vertices, template_orig_meshes$lh, rh_input);
     } else if(length(lh_input) == 10242L) {
-      message("Automatic up-sampling of input data from fsaverage5 mesh not supported yet.");
+      # Automatic up-sampling of input data from fsaverage5 mesh.
       template_orig_meshes = fsbrain::subject.surface(fsaverage_path, "fsaverage5", surface = "sphere");
       lh_input = haze::nn_interpolate_kdtree(template_meshes_surface$lh$vertices, template_orig_meshes$lh, lh_input);
       rh_input = haze::nn_interpolate_kdtree(template_meshes_surface$lh$vertices, template_orig_meshes$lh, rh_input);
@@ -223,12 +227,6 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
   #cortex_mask_surface$lh = fsbrain::mask.from.labeldata.for.hemi(cortex_label_surface$lh,  num_template_vertices_per_hemi);
   #cortex_mask_surface$rh = fsbrain::mask.from.labeldata.for.hemi(cortex_label_surface$rh,  num_template_vertices_per_hemi);
 
-  lh_map_file = get_data_file("FSL_MNI152_FS4.5.0_RF_ANTs_avgMapping.vertex.lh.mgz", subdir = "coordmap");
-  rh_map_file = get_data_file("FSL_MNI152_FS4.5.0_RF_ANTs_avgMapping.vertex.rh.mgz", subdir = "coordmap");
-  lh_vertex = freesurferformats::read.fs.mgh(lh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
-  rh_vertex = freesurferformats::read.fs.mgh(rh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
-
-
   if(! is.null(out_dir)) {
     if(! dir.exists(out_dir)) {
       dir.create(out_dir, recursive = FALSE);
@@ -237,21 +235,23 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
 
   out = list();
 
-  # Find the vertices on
-
   projected_vol_data = list();
-  projected_vol_data$lh = rep(0.0, num_template_vertices_per_hemi);
-  projected_vol_data$rh = rep(0.0, num_template_vertices_per_hemi);
   if(interp == 'linear') {
-    projected_vol_data$lh = haze::linear_interpolate_kdtree(template_meshes_surface$lh$vertices[cortex_label_surface$lh, ], template_meshes_surface$lh, lh_input);
-    projected_vol_data$rh = haze::linear_interpolate_kdtree(template_meshes_surface$rh$vertices[cortex_label_surface$rh, ], template_meshes_surface$rh, lh_input);
+    lh_interp_res = haze::linear_interpolate_kdtree(template_meshes_surface$lh$vertices[cortex_label_surface$lh, ], template_meshes_surface$lh, lh_input);
+    projected_vol_data$lh = lh_interp_res$interp_values;
+    rh_interp_res = haze::linear_interpolate_kdtree(template_meshes_surface$rh$vertices[cortex_label_surface$rh, ], template_meshes_surface$rh, lh_input);
+    projected_vol_data$rh = rh_interp_res$interp_values;
   } else {
     stop("Currently the only supported interpolation method is 'linear'.");
   }
 
   # TODO: Apply the volume mask to the result, and combine the results of the hemispheres.
   # see https://github.com/ThomasYeoLab/CBIG/blob/master/stable_projects/registration/Wu2017_RegistrationFusion/bin/scripts_final_proj/CBIG_RF_projectfsaverage2Vol_single.m
-
+  lh_map_file = get_data_file("FSL_MNI152_FS4.5.0_RF_ANTs_avgMapping.vertex.lh.mgz", subdir = "coordmap");
+  rh_map_file = get_data_file("FSL_MNI152_FS4.5.0_RF_ANTs_avgMapping.vertex.rh.mgz", subdir = "coordmap");
+  lh_vertex = freesurferformats::read.fs.mgh(lh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
+  rh_vertex = freesurferformats::read.fs.mgh(rh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
+  # ...
 
   if(is.null(out_dir)) {
     out$out_data = projected_vol_data;

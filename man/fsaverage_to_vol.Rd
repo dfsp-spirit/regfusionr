@@ -7,7 +7,7 @@
 fsaverage_to_vol(
   lh_input,
   rh_input,
-  template_type,
+  template_type = "MNI152_orig",
   rf_type = "RF_ANTs",
   interp = "linear",
   out_type = "mgz",

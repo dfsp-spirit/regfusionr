@@ -22,7 +22,7 @@ vol3dto4d <- function(input_volume_3d, num_frames = 3L) {
   return(input_volume_4d);
 }
 
-test_that("The Colin27 data projection using m3z registration works", {
+testthat::test_that("The Colin27 data projection using m3z registration works", {
 
   if(! requireNamespace("oce", quietly = TRUE)) {
     testthat::skip("The optional dependency package 'oce' is required for this unit test.");
@@ -62,7 +62,7 @@ test_that("The Colin27 data projection using m3z registration works", {
 })
 
 
-test_that("The MNI152 data projection using ANTs registration works using output curv files", {
+testthat::test_that("The MNI152 data projection using ANTs registration works using output curv files", {
 
   if(! requireNamespace("oce", quietly = TRUE)) {
     testthat::skip("The optional dependency package 'oce' is required for this unit test.");
@@ -101,7 +101,7 @@ test_that("The MNI152 data projection using ANTs registration works using output
 
 
 
-test_that("The MNI152 data projection using ANTs registration works using output gii files", {
+testthat::test_that("The MNI152 data projection using ANTs registration works using output gii files", {
 
   if(! requireNamespace("oce", quietly = TRUE)) {
     testthat::skip("The optional dependency package 'oce' is required for this unit test.");
@@ -139,7 +139,7 @@ test_that("The MNI152 data projection using ANTs registration works using output
 })
 
 
-test_that("The MNI152 data projection using ANTs registration works returning data (from 3D input)", {
+testthat::test_that("The MNI152 data projection using ANTs registration works returning data (from 3D input)", {
 
   if(! requireNamespace("oce", quietly = TRUE)) {
     testthat::skip("The optional dependency package 'oce' is required for this unit test.");
@@ -184,7 +184,7 @@ test_that("The MNI152 data projection using ANTs registration works returning da
 })
 
 
-test_that("The MNI152 data projection using ANTs registration works returning data (from 4D input)", {
+testthat::test_that("The MNI152 data projection using ANTs registration works returning data (from 4D input)", {
 
   if(! requireNamespace("oce", quietly = TRUE)) {
     testthat::skip("The optional dependency package 'oce' is required for this unit test.");
@@ -225,7 +225,7 @@ test_that("The MNI152 data projection using ANTs registration works returning da
 
 
 
-test_that("Projecting input 3D and 4D data leads to the expected return types.", {
+testthat::test_that("Projecting input 3D and 4D data leads to the expected return types.", {
 
   if(! requireNamespace("oce", quietly = TRUE)) {
     testthat::skip("The optional dependency package 'oce' is required for this unit test.");

@@ -29,6 +29,13 @@
 #'
 #' @importFrom freesurferformats write.fs.morph read.fs.volume read.fs.mgh
 #'
+#' @examples
+#' \dontrun{
+#'   lh_input = rnorm(163842L, 3.0, 0.2);
+#'   rh_input = rnorm(163842L, 3.0, 0.2);
+#'   res = fsaverage_to_vol(lh_input, rh_input);
+#' }
+#'
 #' @keywords internal
 fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf_type='RF_ANTs', interp='linear', out_type='mgz', out_dir=".", fsaverage_path=NULL) {
 

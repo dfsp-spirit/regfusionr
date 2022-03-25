@@ -16,7 +16,7 @@
 #'
 #' @param out_type character string, the format of the output files. One of the following: 'mgz' or 'mgh' for FreeSurfer MGZ/MGH format, 'nii' for NIFTI v1 format.
 #'
-#' @param out_dir character string, the path to a writable output directory. If \code{NULL}, the returned named list contains the projected data (instead of the path of the file it was written to) at key 'out_data', and the parameter 'out_type' is ignored.
+#' @param out_dir character string, the path to a writable output directory. If \code{NULL}, the returned named list contains the projected data (instead of the path of the file it was written to) at key 'out_data', and the parameter 'out_type' is ignored. The 'out_data' is a named list with keys 'lh', 'rh' and 'both', each of which holds a \code{256x256x256} array with the data.
 #'
 #' @param fsaverage_path character string or NULL, the file system path to the fsaverage directory (NOT including the 'fsaverage' dir itself). If \code{NULL}, defaults to the return value of \code{fsbrain::fsaverage.path()} on the system. This path is used to read the spherical surface (both hemisphere meshes) of the template subject.
 #'
@@ -125,22 +125,23 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
       }
 
       # TODO: Convert the 2D surface vector into 3D volume data.
-
       # TODO: Apply the volume mask to the result, and combine the results of the hemispheres.
       # see https://github.com/ThomasYeoLab/CBIG/blob/master/stable_projects/registration/Wu2017_RegistrationFusion/bin/scripts_final_proj/CBIG_RF_projectfsaverage2Vol_single.m
+
+      # The 3D arrays in the following files assign to each voxel a vertex index (integer).
       lh_map_file = get_data_file("FSL_MNI152_FS4.5.0_RF_ANTs_avgMapping.vertex.lh.mgz", subdir = "coordmap");
       rh_map_file = get_data_file("FSL_MNI152_FS4.5.0_RF_ANTs_avgMapping.vertex.rh.mgz", subdir = "coordmap");
       lh_vertex = freesurferformats::read.fs.mgh(lh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
       rh_vertex = freesurferformats::read.fs.mgh(rh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
       # ...
 
-      projected_vol_data$brain = projected_vol_data$lh; # TODO: merge lh and rh.
+      projected_vol_data$both = projected_vol_data$lh; # TODO: merge lh and rh.
 
       if(is.null(out_dir)) {
         out$out_data = projected_vol_data;
       } else {
-        out_file = file.path(out_dir, sprintf("projected_%s_to_%s_brain.%s", template_subject, mapping, out_type));
-        freesurferformats::write.fs.morph(out_file, projected_vol_data$brain);
+        out_file = file.path(out_dir, sprintf("projected_%s_to_%s_both.%s", template_subject, mapping, out_type));
+        freesurferformats::write.fs.morph(out_file, projected_vol_data$both);
         out$out_file = out_file;
         out$out_format = out_type;
       }

@@ -40,6 +40,8 @@ Applies the Wu et al. regfusion method to obtain MNI volume coordinates, then in
 }
 \note{
 THIS FUNCTION IS CURRENTLY WORK-IN-PROGRESS AND NOT PART OF THE OFFICIAL API, DO NOT USE IT OR BE PREPARED FOR UN-ANNOUNCED BREAKING CHANGES ANY TIME.
+
+This function requires the packages 'fsbrain' and 'haze', which are optional dependencies. The package 'fsbrain' can be installed from CRAN. For 'haze', see \code{https://github.com/dfsp-spirit/haze}.
 }
 \author{
 Tim Schäfer for the R version, Wu Jianxiao and CBIG for the original Matlab version.

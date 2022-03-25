@@ -48,10 +48,24 @@ Note: If you want to project volume data (e.g., a NIFTI or MGZ volume) to fsaver
 
 If all you want to do is to obtain fsaverage coordinates for MNI152 voxels or coordinates, you can get away without installing the system dependencies because you do not need the trilinear interpolation functions, and all you need to do is:
 
+via `remotes`:
+
 ```
 install.packages('remotes');
 remotes::install_github('dfsp-spirit/regfusionr');
 ```
+
+or using [R universe](https://r-universe.dev/):
+
+```r
+options(repos = c(
+    dfspspirit = 'https://dfsp-spirit.r-universe.dev',
+    CRAN = 'https://cloud.r-project.org'))
+
+install.packages('regfusionr');
+```
+
+I prefer R universe.
 
 ### Full installation
 
@@ -79,6 +93,18 @@ From an R session:
 install.packages('remotes');
 remotes::install_github('dfsp-spirit/regfusionr', dependencies = TRUE);
 ```
+
+or using [R universe](https://r-universe.dev/):
+
+```r
+options(repos = c(
+    dfspspirit = 'https://dfsp-spirit.r-universe.dev',
+    CRAN = 'https://cloud.r-project.org'))
+
+install.packages('regfusionr', dependencies = TRUE);
+```
+
+I prefer R universe.
 
 You can also use `devtools` instead of `remotes` if you already have it installed. For those who haven't, `remotes` is a lot smaller and faster to install though.
 

@@ -54,4 +54,3 @@ This function requires the packages 'fsbrain' and 'haze', which are optional dep
 \author{
 Tim Schäfer for the R version, Wu Jianxiao and CBIG for the original Matlab version.
 }
-\keyword{internal}

@@ -36,7 +36,7 @@
 #'   res = fsaverage_to_vol(lh_input, rh_input);
 #' }
 #'
-#' @keywords internal
+#' @export
 fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf_type='RF_ANTs', interp='linear', out_type='mgz', out_dir=".", fsaverage_path=NULL) {
 
   if(requireNamespace("fsbrain", quietly = TRUE)) {
@@ -134,11 +134,13 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
       rh_vertex = freesurferformats::read.fs.mgh(rh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
       # ...
 
+      projected_vol_data$brain = projected_vol_data$lh; # TODO: merge lh and rh.
+
       if(is.null(out_dir)) {
         out$out_data = projected_vol_data;
       } else {
-        out_file = file.path(out_dir, sprintf("projected_%s_to_%s.%s", template_subject, mapping, out_type));
-        freesurferformats::write.fs.morph(out_file);
+        out_file = file.path(out_dir, sprintf("projected_%s_to_%s_brain.%s", template_subject, mapping, out_type));
+        freesurferformats::write.fs.morph(out_file, projected_vol_data$brain);
         out$out_file = out_file;
         out$out_format = out_type;
       }

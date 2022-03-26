@@ -1,5 +1,9 @@
 # functions for projecting fsaverage(7/6/5) per-vertex data to MNI152/Colin27 volumes.
 
+
+# lh_input = rh_input = rnorm(163842L, 3.0, 0.2); template_type="MNI152_orig"; rf_type='RF_ANTs'; interp='linear'; out_type='mgz'; out_dir=NULL; fsaverage_path=NULL;
+
+
 #' @title Project or map per-vertex values from the fsaverage surface to the cortex voxels of an MNI volume.
 #'
 #' @description Applies the Wu et al. regfusion method to obtain MNI volume coordinates, then interpolates values.
@@ -110,8 +114,8 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
       }
 
       # The 3D arrays in the following files assign to each voxel a vertex index (integer).
-      lh_map_file = get_data_file("FSL_MNI152_FS4.5.0_RF_ANTs_avgMapping.vertex.lh.mgz", subdir = "coordmap");
-      rh_map_file = get_data_file("FSL_MNI152_FS4.5.0_RF_ANTs_avgMapping.vertex.rh.mgz", subdir = "coordmap");
+      lh_map_file = get_data_file(sprintf("FSL_MNI152_FS4.5.0_%s_avgMapping.vertex.lh.mgz", rf_type), subdir = "coordmap");
+      rh_map_file = get_data_file(sprintf("FSL_MNI152_FS4.5.0_%s_avgMapping.vertex.rh.mgz", rf_type), subdir = "coordmap");
       lh_coord = freesurferformats::read.fs.mgh(lh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
       rh_coord = freesurferformats::read.fs.mgh(rh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
 

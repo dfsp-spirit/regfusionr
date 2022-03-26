@@ -114,16 +114,18 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
       }
 
       # The 3D arrays in the following files assign to each voxel a vertex index (integer).
-      lh_map_file = get_data_file(sprintf("FSL_MNI152_FS4.5.0_%s_avgMapping.vertex.lh.mgz", rf_type), subdir = "coordmap");
-      rh_map_file = get_data_file(sprintf("FSL_MNI152_FS4.5.0_%s_avgMapping.vertex.rh.mgz", rf_type), subdir = "coordmap");
-      lh_coord = freesurferformats::read.fs.mgh(lh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
-      rh_coord = freesurferformats::read.fs.mgh(rh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
+      ## ALL OF THIS IS RUBBISH: we need the reverse mapping.
+      #lh_map_file = get_data_file(sprintf("FSL_MNI152_FS4.5.0_%s_avgMapping.vertex.lh.mgz", rf_type), subdir = "coordmap");
+      #rh_map_file = get_data_file(sprintf("FSL_MNI152_FS4.5.0_%s_avgMapping.vertex.rh.mgz", rf_type), subdir = "coordmap");
+      #lh_coord = freesurferformats::read.fs.mgh(lh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
+      #rh_coord = freesurferformats::read.fs.mgh(rh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
 
       # Binary volume masks for projection. Voxels from lh_coord and rh_coord with value (0, 0, 0) mapping will be masked out and can be ignored as they are not part of the cortex.
-      lh_mask = array(data = rep(FALSE, prod(dim(lh_coord))), dim = dim(lh_coord));
-      lh_mask[which(lh_coord != 0L, arr.ind = TRUE)] = TRUE;
-      rh_mask = array(data = rep(FALSE, prod(dim(rh_coord))), dim = dim(rh_coord));
-      rh_mask[which(rh_coord != 0L, arr.ind = TRUE)] = TRUE;
+      ## ALL OF THIS IS RUBBISH, see the comment on the mapping above.
+      #lh_mask = array(data = rep(FALSE, prod(dim(lh_coord))), dim = dim(lh_coord));
+      #lh_mask[which(lh_coord != 0L, arr.ind = TRUE)] = TRUE;
+      #rh_mask = array(data = rep(FALSE, prod(dim(rh_coord))), dim = dim(rh_coord));
+      #rh_mask[which(rh_coord != 0L, arr.ind = TRUE)] = TRUE;
 
       out = list();
 

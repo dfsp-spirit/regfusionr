@@ -8,8 +8,6 @@ testthat::test_that("Per-vertex data for fsaverage can be projected, using linea
     testthat::skip("The optional dependency package 'haze' is required for this unit test.");
   }
 
-  num_fsaverage_verts_per_hemi = 163842L;
-
   # Get some per-vertex data for fsaverage. We use the fsbrain download option.
   fsbrain::download_fsaverage(TRUE);
   lh_pvd_file = fsbrain::get_optional_data_filepath("subjects_dir/fsaverage/surf/lh.curv");

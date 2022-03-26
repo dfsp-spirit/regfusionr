@@ -20,5 +20,5 @@ testthat::test_that("Per-vertex data for fsaverage can be projected, using linea
 
   testthat::expect_equal(dim(res$lh), c(256L, 256L, 256L));
   testthat::expect_equal(dim(res$rh), c(256L, 256L, 256L));
-  testthat::expect_equal(dim(res$brain), c(256L, 256L, 256L));
+  testthat::expect_equal(dim(res$both), c(256L, 256L, 256L));
 })

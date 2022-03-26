@@ -20,7 +20,7 @@
 #'
 #' @param fsaverage_path character string or NULL, the file system path to the fsaverage directory (NOT including the 'fsaverage' dir itself). If \code{NULL}, defaults to the return value of \code{fsbrain::fsaverage.path()} on the system. This path is used to read the spherical surface (both hemisphere meshes) of the template subject.
 #'
-#' @return named list of character strings, the output file is at keys 'out_file' and the output file format at key 'out_format'. See the documentation for parameter 'out_dir' if you want the data in R instead.
+#' @return see \code{out_dir} parameter. If out_dir is not \code{NULL}, the return value is instead a named list of character strings, the output file is at keys 'out_file' and the output file format at key 'out_format'. See the documentation for parameter 'out_dir' if you want the data in R instead.
 #'
 #' @author Tim Schäfer for the R version, Wu Jianxiao and CBIG for the original Matlab version.
 #'
@@ -37,7 +37,7 @@
 #' }
 #'
 #' @export
-fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf_type='RF_ANTs', interp='linear', out_type='mgz', out_dir=".", fsaverage_path=NULL) {
+fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf_type='RF_ANTs', interp='linear', out_type='mgz', out_dir=NULL, fsaverage_path=NULL) {
 
   if(requireNamespace("fsbrain", quietly = TRUE)) {
     if(requireNamespace("haze", quietly = TRUE)) {

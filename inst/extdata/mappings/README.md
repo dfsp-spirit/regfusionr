@@ -20,6 +20,7 @@ for( rf_type in c('RF_ANTs', 'RF_M3Z')) {
     
     freesurferformats::write.fs.mgh(file.path(target_dir, target_file_lh), dd$lh.coord);
     freesurferformats::write.fs.mgh(file.path(target_dir, target_file_rh), dd$rh.coord);
+    dd = NULL;
   }
 }
 ```    

@@ -127,6 +127,14 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
       #rh_mask = array(data = rep(FALSE, prod(dim(rh_coord))), dim = dim(rh_coord));
       #rh_mask[which(rh_coord != 0L, arr.ind = TRUE)] = TRUE;
 
+
+      lh_map_file = regfusionr:::get_data_file(sprintf("allSub_fsaverage_to_%s_FS4.5.0_%s_avgMapping.lh.mgz", mapping, rf_type), subdir = "coordmap");
+      rh_map_file = regfusionr:::get_data_file(sprintf("allSub_fsaverage_to_%s_FS4.5.0_%s_avgMapping.rh.mgz", mapping, rf_type), subdir = "coordmap");
+      lh_coord = freesurferformats::read.fs.mgh(lh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 3x16777216 matrix
+      rh_coord = freesurferformats::read.fs.mgh(rh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 3x16777216 matrix
+
+      # TODO: create lh_mask and rh_mask
+
       out = list();
 
       projected_vol_data = list();

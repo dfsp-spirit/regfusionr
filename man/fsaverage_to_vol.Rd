@@ -11,7 +11,7 @@ fsaverage_to_vol(
   rf_type = "RF_ANTs",
   interp = "linear",
   out_type = "mgz",
-  out_dir = ".",
+  out_dir = NULL,
   fsaverage_path = NULL
 )
 }
@@ -24,16 +24,16 @@ fsaverage_to_vol(
 
 \item{rf_type}{the regfusion type to use, one of 'RF_ANTs' or 'RF_M3Z'.}
 
-\item{interp}{interpolation method, currently only 'linear' is supported.}
+\item{interp}{interpolation method, currently only 'linear' and 'nearest' are supported. The performance of the 'linear' method is currently quite bad, and it will be rewritten in \code{C++} when I find the time.}
 
-\item{out_type}{character string, the format of the output files. One of the following: 'mgz' or 'mgh' for FreeSurfer MGZ/MGH format, 'nii' for NIFTI v1 format.}
+\item{out_type}{character string, the format of the output files. One of the following: 'mgz' or 'mgh' for FreeSurfer MGZ/MGH format, 'nii' for NIFTI v1 format. Ignored unless out_dir is not NULL.}
 
-\item{out_dir}{character string, the path to a writable output directory. If \code{NULL}, the returned named list contains the projected data (instead of the path of the file it was written to) at key 'out_data', and the parameter 'out_type' is ignored.}
+\item{out_dir}{optional character string, the path to a writable output directory to which the output should be written as volume files. If \code{NULL}, no data is written to files (but the result is returned as described below). If out_dir is not \code{NULL}, the return value additionally contains the following keys: 'out_file' and the output file format at key 'out_format'.}
 
 \item{fsaverage_path}{character string or NULL, the file system path to the fsaverage directory (NOT including the 'fsaverage' dir itself). If \code{NULL}, defaults to the return value of \code{fsbrain::fsaverage.path()} on the system. This path is used to read the spherical surface (both hemisphere meshes) of the template subject.}
 }
 \value{
-named list of character strings, the output file is at keys 'out_file' and the output file format at key 'out_format'. See the documentation for parameter 'out_dir' if you want the data in R instead.
+named list with keys 'projected' and 'projected_seg', each of which holds a \code{256x256x256} array with the projected data. The data in 'projected_seg' is identical to the data in 'projected', with the exception that data values originating from the right hemisphere have been incremented by 1000. See \code{out_dir} parameter to easily write results to files. If out_dir is not \code{NULL}, the return value additionally contains the following keys: 'out_file' and the output file format at key 'out_format'.
 }
 \description{
 Applies the Wu et al. regfusion method to obtain MNI volume coordinates, then interpolates values.

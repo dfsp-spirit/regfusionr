@@ -16,15 +16,15 @@
 #'
 #' @param rf_type the regfusion type to use, one of 'RF_ANTs' or 'RF_M3Z'.
 #'
-#' @param interp interpolation method, currently only 'linear' is supported.
+#' @param interp interpolation method, currently only 'linear' and 'nearest' are supported. The performance of the 'linear' method is currently quite bad, and it will be rewritten in \code{C++} when I find the time.
 #'
-#' @param out_type character string, the format of the output files. One of the following: 'mgz' or 'mgh' for FreeSurfer MGZ/MGH format, 'nii' for NIFTI v1 format.
+#' @param out_type character string, the format of the output files. One of the following: 'mgz' or 'mgh' for FreeSurfer MGZ/MGH format, 'nii' for NIFTI v1 format. Ignored unless out_dir is not NULL.
 #'
-#' @param out_dir character string, the path to a writable output directory. If \code{NULL}, the returned named list contains the projected data (instead of the path of the file it was written to) at key 'out_data', and the parameter 'out_type' is ignored. The 'out_data' is a named list with keys 'lh', 'rh' and 'both', each of which holds a \code{256x256x256} array with the data.
+#' @param out_dir optional character string, the path to a writable output directory to which the output should be written as volume files. If \code{NULL}, no data is written to files (but the result is returned as described below). If out_dir is not \code{NULL}, the return value additionally contains the following keys: 'out_file' and the output file format at key 'out_format'.
 #'
 #' @param fsaverage_path character string or NULL, the file system path to the fsaverage directory (NOT including the 'fsaverage' dir itself). If \code{NULL}, defaults to the return value of \code{fsbrain::fsaverage.path()} on the system. This path is used to read the spherical surface (both hemisphere meshes) of the template subject.
 #'
-#' @return see \code{out_dir} parameter. If out_dir is not \code{NULL}, the return value is instead a named list of character strings, the output file is at keys 'out_file' and the output file format at key 'out_format'. See the documentation for parameter 'out_dir' if you want the data in R instead.
+#' @return named list with keys 'projected' and 'projected_seg', each of which holds a \code{256x256x256} array with the projected data. The data in 'projected_seg' is identical to the data in 'projected', with the exception that data values originating from the right hemisphere have been incremented by 1000. See \code{out_dir} parameter to easily write results to files. If out_dir is not \code{NULL}, the return value additionally contains the following keys: 'out_file' and the output file format at key 'out_format'.
 #'
 #' @author Tim Schäfer for the R version, Wu Jianxiao and CBIG for the original Matlab version.
 #'
@@ -42,6 +42,8 @@
 #'
 #' @export
 fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf_type='RF_ANTs', interp='linear', out_type='mgz', out_dir=NULL, fsaverage_path=NULL) {
+
+  rh_seg_start = 1000; # offset to identify right hemisphere projected values in whole brain volume.
 
   if(requireNamespace("fsbrain", quietly = TRUE)) {
     if(requireNamespace("haze", quietly = TRUE)) {
@@ -95,45 +97,19 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
         stop("Currently the only supported 'template_type' is 'MNI152_orig'.");
       }
 
-      mapping = "FSL_MNI152";    # One of "FSL_MNI152" or "SPM_Colin27".
-      # Load cortex mask volume file.
-      cortex_mask_file_volume = get_data_file(sprintf("%s_FS4.5.0_cortex_estimate.nii.gz", mapping), subdir = "coordmap");
-      cortex_mask_volume = freesurferformats::read.fs.volume(cortex_mask_file_volume, with_header = TRUE, drop_empty_dims = TRUE);
-
-
-      cortex_label_surface = fsbrain::subject.label(fsaverage_path, template_subject, label = "cortex", hemi = "both");
-      # We do not need a mask, the label is fine. So these lines are currently commented out.
-      #cortex_mask_surface = list();
-      #cortex_mask_surface$lh = fsbrain::mask.from.labeldata.for.hemi(cortex_label_surface$lh,  num_template_vertices_per_hemi);
-      #cortex_mask_surface$rh = fsbrain::mask.from.labeldata.for.hemi(cortex_label_surface$rh,  num_template_vertices_per_hemi);
-
       if(! is.null(out_dir)) {
         if(! dir.exists(out_dir)) {
           dir.create(out_dir, recursive = FALSE);
         }
       }
 
-      # The 3D arrays in the following files assign to each voxel a vertex index (integer).
-      ## ALL OF THIS IS RUBBISH: we need the reverse mapping.
-      #lh_map_file = get_data_file(sprintf("FSL_MNI152_FS4.5.0_%s_avgMapping.vertex.lh.mgz", rf_type), subdir = "coordmap");
-      #rh_map_file = get_data_file(sprintf("FSL_MNI152_FS4.5.0_%s_avgMapping.vertex.rh.mgz", rf_type), subdir = "coordmap");
-      #lh_coord = freesurferformats::read.fs.mgh(lh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
-      #rh_coord = freesurferformats::read.fs.mgh(rh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 256x256x256 array
-
-      # Binary volume masks for projection. Voxels from lh_coord and rh_coord with value (0, 0, 0) mapping will be masked out and can be ignored as they are not part of the cortex.
-      ## ALL OF THIS IS RUBBISH, see the comment on the mapping above.
-      #lh_mask = array(data = rep(FALSE, prod(dim(lh_coord))), dim = dim(lh_coord));
-      #lh_mask[which(lh_coord != 0L, arr.ind = TRUE)] = TRUE;
-      #rh_mask = array(data = rep(FALSE, prod(dim(rh_coord))), dim = dim(rh_coord));
-      #rh_mask[which(rh_coord != 0L, arr.ind = TRUE)] = TRUE;
-
-
+      mapping = "FSL_MNI152";    # One of "FSL_MNI152" or "SPM_Colin27".
       lh_map_file = regfusionr:::get_data_file(sprintf("allSub_fsaverage_to_%s_FS4.5.0_%s_avgMapping.lh.mgz", mapping, rf_type), subdir = "coordmap");
       rh_map_file = regfusionr:::get_data_file(sprintf("allSub_fsaverage_to_%s_FS4.5.0_%s_avgMapping.rh.mgz", mapping, rf_type), subdir = "coordmap");
       lh_coord = freesurferformats::read.fs.mgh(lh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 3x16777216 matrix
       rh_coord = freesurferformats::read.fs.mgh(rh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 3x16777216 matrix
 
-      # TODO: create lh_mask and rh_mask
+      # Create a mask that allows us to ignore background voxels which do not map to the surface.
       lh_mask = which(colSums(lh_coord) != 0L); # 1x16777216 matrix (or vector if dropped), logical
       rh_mask = which(colSums(rh_coord) != 0L); # 1x16777216 matrix (or vector if dropped), logical
       num_voxels = length(lh_mask);
@@ -149,30 +125,41 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
       } else if(interp == 'nearest') {
         lh_vertex = rep(0.0, num_voxels);
         lh_vertex[lh_mask] = haze::find_nv_kdtree(t(lh_coord[, lh_mask]), template_meshes_surface$lh)$index;
-        lh_projected = rep(0.0, num_voxels);
-        lh_projected[lh_mask] = pracma::interp1(seq.int(length(lh_input)), lh_input, lh_vertex[lh_mask], method = "nearest");
+        projected_vol_data$lh = rep(0.0, num_voxels);
+        projected_vol_data$lh[lh_mask] = pracma::interp1(seq.int(length(lh_input)), lh_input, lh_vertex[lh_mask], method = "nearest");
         # now for rh
         rh_vertex = rep(0.0, num_voxels);
         rh_vertex[rh_mask] = haze::find_nv_kdtree(t(rh_coord[, rh_mask]), template_meshes_surface$rh)$index;
-        rh_projected = rep(0.0, num_voxels);
-        rh_projected[rh_mask] = pracma::interp1(seq.int(length(rh_input)), rh_input, rh_vertex[rh_mask], method = "nearest");
+        projected_vol_data$rh = rep(0.0, num_voxels);
+        projected_vol_data$rh[rh_mask] = pracma::interp1(seq.int(length(rh_input)), rh_input, rh_vertex[rh_mask], method = "nearest");
       } else {
         stop("Currently the only supported interpolation methods are 'linear' and 'nearest'.");
       }
 
-      # TODO: Convert the 2D surface vector into 3D volume data.
-      # TODO: Apply the volume mask to the result, and combine the results of the hemispheres.
-      # see https://github.com/ThomasYeoLab/CBIG/blob/master/stable_projects/registration/Wu2017_RegistrationFusion/bin/scripts_final_proj/CBIG_RF_projectfsaverage2Vol_single.m
+      # Load cortex mask volume file and apply it. Data projected to non-cortical brain regions is useless/wrong, so we
+      # remove it with a cortical volume mask.
+      cortex_mask_file_volume = get_data_file(sprintf("%s_FS4.5.0_cortex_estimate.nii.gz", mapping), subdir = "coordmap");
+      cortex_mask_fs_volume = freesurferformats::read.fs.volume(cortex_mask_file_volume, with_header = TRUE, drop_empty_dims = TRUE);
+      cortex_mask_volume = cortex_mask_fs_volume$data;
+      #cortex_label_surface = fsbrain::subject.label(fsaverage_path, template_subject, label = "cortex", hemi = "both");
+      # Apply loaded vol mask.
+      projected_vol_data$lh[cortex_mask_volume==0L] = 0L;
+      projected_vol_data$rh[cortex_mask_volume==0L] = 0L;
 
-      # ...
+      # Combine results of the two hemispheres
+      projected = cortex_mask_fs_volume;
+      projected$data = array(data = projected_vol_data$lh + projected_vol_data$rh, dim = dim(cortex_mask_volume)); # reshape 1x16777216 vector to 256x256x256 array.
 
-      projected_vol_data$both = projected_vol_data$lh; # TODO: merge lh and rh.
+      # Create 2nd version with RH values incremented by 1000 offset.
+      projected_vol_data$rh = projected_vol_data$rh + rh_seg_start;
+      projected_seg = cortex_mask_fs_volume;
+      projected_seg$data = array(data = projected_vol_data$lh + projected_vol_data$rh, dim = dim(cortex_mask_volume)); # same as above, but RH values have been incremented.
 
-      if(is.null(out_dir)) {
-        out$out_data = projected_vol_data;
-      } else {
-        out_file = file.path(out_dir, sprintf("projected_%s_to_%s_both.%s", template_subject, mapping, out_type));
-        freesurferformats::write.fs.morph(out_file, projected_vol_data$both);
+      out$projected = projected;
+      out$projected_seg = projected_seg;
+      if(! is.null(out_dir)) {
+        out_file = file.path(out_dir, sprintf("projected_%s_to_%s.%s", template_subject, mapping, out_type));
+        freesurferformats::write.fs.morph(out_file, projected);
         out$out_file = out_file;
         out$out_format = out_type;
       }

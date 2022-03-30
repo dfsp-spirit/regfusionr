@@ -136,20 +136,28 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
       # TODO: create lh_mask and rh_mask
       lh_mask = which(colSums(lh_coord) != 0L); # 1x16777216 matrix (or vector if dropped), logical
       rh_mask = which(colSums(rh_coord) != 0L); # 1x16777216 matrix (or vector if dropped), logical
+      num_voxels = length(lh_mask);
 
       out = list();
 
       projected_vol_data = list();
       if(interp == 'linear') {
-        lh_interp_res = haze::linear_interpolate_kdtree(template_meshes_surface$lh$vertices[cortex_label_surface$lh, ], template_meshes_surface$lh, lh_input);
-        projected_vol_data$lh = lh_interp_res$interp_values;
-        rh_interp_res = haze::linear_interpolate_kdtree(template_meshes_surface$rh$vertices[cortex_label_surface$rh, ], template_meshes_surface$rh, lh_input);
-        projected_vol_data$rh = rh_interp_res$interp_values;
+        projected_vol_data$lh = rep(0.0, num_voxels);
+        projected_vol_data$lh[lh_mask] = haze::linear_interpolate_kdtree(t(lh_coord[, lh_mask]), template_meshes_surface$lh, lh_input);
+        projected_vol_data$rh = rep(0.0, num_voxels);
+        projected_vol_data$rh[rh_mask] = haze::linear_interpolate_kdtree(t(rh_coord[, rh_mask]), template_meshes_surface$rh, rh_input);
       } else if(interp == 'nearest') {
-        # we could use haze::nn_interpolate_kdtree/haze::find_nv_kdtree and pracma::interp1 to implement this.
-        stop("The 'nearest' method is not implemented yet.");
+        lh_vertex = rep(0.0, num_voxels);
+        lh_vertex[lh_mask] = haze::find_nv_kdtree(t(lh_coord[, lh_mask]), template_meshes_surface$lh)$index;
+        lh_projected = rep(0.0, num_voxels);
+        lh_projected[lh_mask] = pracma::interp1(seq.int(length(lh_input)), lh_input, lh_vertex[lh_mask], method = "nearest");
+        # now for rh
+        rh_vertex = rep(0.0, num_voxels);
+        rh_vertex[rh_mask] = haze::find_nv_kdtree(t(rh_coord[, rh_mask]), template_meshes_surface$rh)$index;
+        rh_projected = rep(0.0, num_voxels);
+        rh_projected[rh_mask] = pracma::interp1(seq.int(length(rh_input)), rh_input, rh_vertex[rh_mask], method = "nearest");
       } else {
-        stop("Currently the only supported interpolation method is 'linear'.");
+        stop("Currently the only supported interpolation methods are 'linear' and 'nearest'.");
       }
 
       # TODO: Convert the 2D surface vector into 3D volume data.

@@ -134,6 +134,8 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
       rh_coord = freesurferformats::read.fs.mgh(rh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 3x16777216 matrix
 
       # TODO: create lh_mask and rh_mask
+      lh_mask = ; # 1x16777216 matrix (or vector if dropped), logical
+      rh_mask = ; # 1x16777216 matrix (or vector if dropped), logical
 
       out = list();
 

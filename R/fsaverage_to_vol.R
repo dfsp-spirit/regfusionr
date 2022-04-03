@@ -8,21 +8,21 @@
 #'
 #' @description Applies the Wu et al. regfusion method to obtain MNI volume coordinates, then interpolates values.
 #'
-#' @param lh_input numerical vector of per-vertex data for the left hemisphere of the template subject. Must 163842 values for the \code{fsaverage} template.
+#' @param lh_input numerical vector of per-vertex data for the left hemisphere of the template subject. Must contain 163842 values for the \code{fsaverage} template. Input for fsaverage6 (40962 values) or fsaverage5 (10242 values) can also be used and will be upsampled using \code{\link[haze]{nn_interpolate_kdtree}}.
 #'
-#' @param rh_input numerical vector of per-vertex data for the right hemisphere of the template subject. Must 163842 values for the \code{fsaverage} template.
+#' @param rh_input numerical vector of per-vertex data for the right hemisphere of the template subject. Must contain 163842 values for the \code{fsaverage} template. See description for \code{lh_input} for more details.
 #'
-#' @param template_type character string, the target template or the space that your output volume should be in. One of 'MNI152_orig', 'Colin27_orig', 'MNI152_norm', 'Colin27_norm'.
+#' @param target_space character string, the target template or the space that your output volume should be in. One of 'FSL_MNI152' or  'SPM_Colin27'.
 #'
-#' @param rf_type the regfusion type to use, one of 'RF_ANTs' or 'RF_M3Z'.
+#' @param rf_type the \code{regfusion} type to use, one of 'RF_ANTs' or 'RF_M3Z'.
 #'
 #' @param interp interpolation method, currently only 'linear' and 'nearest' are supported. The performance of the 'linear' method is currently quite bad, and it will be rewritten in \code{C++} when I find the time.
 #'
 #' @param out_type character string, the format of the output files. One of the following: 'mgz' or 'mgh' for FreeSurfer MGZ/MGH format, 'nii' for NIFTI v1 format. Ignored unless out_dir is not NULL.
 #'
-#' @param out_dir optional character string, the path to a writable output directory to which the output should be written as volume files. If \code{NULL}, no data is written to files (but the result is returned as described below). If out_dir is not \code{NULL}, the return value additionally contains the following keys: 'out_file' and the output file format at key 'out_format'.
+#' @param out_dir optional character string, the path to a writable output directory to which the output should be written as volume files. If \code{NULL}, no data is written to files. If out_dir is not \code{NULL}, the return value additionally contains the following keys: 'out_file' and the output file format at key 'out_format', (and 'out_file_seg'/'out_format_seg' for the respective \code{seg} versions).
 #'
-#' @param fsaverage_path character string or NULL, the file system path to the fsaverage directory (NOT including the 'fsaverage' dir itself). If \code{NULL}, defaults to the return value of \code{fsbrain::fsaverage.path()} on the system. This path is used to read the spherical surface (both hemisphere meshes) of the template subject.
+#' @param fsaverage_path character string or NULL, the file system path to the \code{fsaverage} directory (NOT including the 'fsaverage' dir itself). If \code{NULL}, defaults to the return value of \code{fsbrain::fsaverage.path()} on the system. This path is used to read the spherical surface (both hemisphere meshes) of the template subject.
 #'
 #' @return named list with keys 'projected' and 'projected_seg', each of which holds a \code{256x256x256} array with the projected data. The data in 'projected_seg' is identical to the data in 'projected', with the exception that data values originating from the right hemisphere have been incremented by 1000. See \code{out_dir} parameter to easily write results to files. If out_dir is not \code{NULL}, the return value additionally contains the following keys: 'out_file' and the output file format at key 'out_format'.
 #'
@@ -37,13 +37,17 @@
 #' \dontrun{
 #'   lh_input = rnorm(163842L, 3.0, 0.2);
 #'   rh_input = rnorm(163842L, 3.0, 0.2);
-#'   res = fsaverage_to_vol(lh_input, rh_input);
+#'   res = fsaverage_to_vol(lh_input, rh_input, "FSL_MNI152");
 #' }
 #'
 #' @export
-fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf_type='RF_ANTs', interp='linear', out_type='mgz', out_dir=NULL, fsaverage_path=NULL) {
+fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_type='RF_ANTs', interp='linear', out_type='mgz', out_dir=NULL, fsaverage_path=NULL) {
 
   rh_seg_start = 1000; # offset to identify right hemisphere projected values in whole brain volume.
+
+  if(!(target_space %in% c("FSL_MNI152", "SPM_Colin27"))) {
+    stop("Parameter 'target_space' must be one of 'FSL_MNI152' or 'SPM_Colin27'.");
+  }
 
   if(requireNamespace("fsbrain", quietly = TRUE)) {
     if(requireNamespace("haze", quietly = TRUE)) {
@@ -70,6 +74,7 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
 
       template_meshes_surface = fsbrain::subject.surface(fsaverage_path, template_subject, surface = "sphere");
 
+      # Check input data length. May require up-samling if from fsaverage6, or fsaverage5.
       if(length(lh_input) != num_template_vertices_per_hemi) {
         if(length(lh_input) == 40962L) {
           # Automatic up-sampling of input data from fsaverage6 mesh.
@@ -91,21 +96,14 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
         stop(sprintf("Parameter 'out_type' must be one of: %s.", paste(valid_out_types(), collapse=", ")));
       }
 
-      check_rf_and_template(template_type = template_type, rf_type = rf_type);
-      # Currently only MNI152 is supported.
-      if(template_type != "MNI152_orig") {
-        stop("Currently the only supported 'template_type' is 'MNI152_orig'.");
-      }
-
       if(! is.null(out_dir)) {
         if(! dir.exists(out_dir)) {
           dir.create(out_dir, recursive = FALSE);
         }
       }
 
-      mapping = "FSL_MNI152";    # One of "FSL_MNI152" or "SPM_Colin27".
-      lh_map_file = regfusionr:::get_data_file(sprintf("allSub_fsaverage_to_%s_FS4.5.0_%s_avgMapping.lh.mgz", mapping, rf_type), subdir = "coordmap");
-      rh_map_file = regfusionr:::get_data_file(sprintf("allSub_fsaverage_to_%s_FS4.5.0_%s_avgMapping.rh.mgz", mapping, rf_type), subdir = "coordmap");
+      lh_map_file = get_data_file(sprintf("allSub_fsaverage_to_%s_FS4.5.0_%s_avgMapping.lh.mgz", target_space, rf_type), subdir = "coordmap");
+      rh_map_file = get_data_file(sprintf("allSub_fsaverage_to_%s_FS4.5.0_%s_avgMapping.rh.mgz", target_space, rf_type), subdir = "coordmap");
       lh_coord = freesurferformats::read.fs.mgh(lh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 3x16777216 matrix
       rh_coord = freesurferformats::read.fs.mgh(rh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 3x16777216 matrix
 
@@ -138,7 +136,7 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
 
       # Load cortex mask volume file and apply it. Data projected to non-cortical brain regions is useless/wrong, so we
       # remove it with a cortical volume mask.
-      cortex_mask_file_volume = get_data_file(sprintf("%s_FS4.5.0_cortex_estimate.nii.gz", mapping), subdir = "coordmap");
+      cortex_mask_file_volume = get_data_file(sprintf("%s_FS4.5.0_cortex_estimate.nii.gz", target_space), subdir = "coordmap");
       cortex_mask_fs_volume = freesurferformats::read.fs.volume(cortex_mask_file_volume, with_header = TRUE, drop_empty_dims = TRUE);
       cortex_mask_volume = cortex_mask_fs_volume$data;
       #cortex_label_surface = fsbrain::subject.label(fsaverage_path, template_subject, label = "cortex", hemi = "both");
@@ -157,11 +155,15 @@ fsaverage_to_vol <- function(lh_input, rh_input, template_type="MNI152_orig", rf
 
       out$projected = projected;
       out$projected_seg = projected_seg;
-      if(! is.null(out_dir)) {
-        out_file = file.path(out_dir, sprintf("projected_%s_to_%s.%s", template_subject, mapping, out_type));
+      if(! is.null(out_dir)) { # also write the data to disk in requested format.
+        out_file = file.path(out_dir, sprintf("projected_%s_to_%s.%s", template_subject, target_space, out_type));
         freesurferformats::write.fs.morph(out_file, projected);
         out$out_file = out_file;
         out$out_format = out_type;
+        out_file_seg = file.path(out_dir, sprintf("projectedseg_%s_to_%s.%s", template_subject, target_space, out_type));
+        freesurferformats::write.fs.morph(out_file_seg, projected_seg);
+        out$out_file_seg = out_file_seg;
+        out$out_format_seg = out_type;
       }
       return(out);
     } else {

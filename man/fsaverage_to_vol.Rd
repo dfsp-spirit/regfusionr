@@ -33,7 +33,7 @@ fsaverage_to_vol(
 \item{fsaverage_path}{character string or NULL, the file system path to the \code{fsaverage} directory (NOT including the 'fsaverage' dir itself). If \code{NULL}, defaults to the return value of \code{fsbrain::fsaverage.path()} on the system. This path is used to read the spherical surface (both hemisphere meshes) of the template subject.}
 }
 \value{
-named list with keys 'projected' and 'projected_seg', each of which holds a \code{256x256x256} array with the projected data. The data in 'projected_seg' is identical to the data in 'projected', with the exception that data values originating from the right hemisphere have been incremented by 1000. See \code{out_dir} parameter to easily write results to files. If out_dir is not \code{NULL}, the return value additionally contains the following keys: 'out_file' and the output file format at key 'out_format'.
+named list with keys 'projected' and 'projected_seg', each of which holds an \code{fs.volume} instance, its 'data' key holds a \code{256x256x256} array with the projected data. The data in 'projected_seg' is identical to the data in 'projected', with the exception that data values originating from the right hemisphere have been incremented by 1000. See \code{out_dir} parameter to easily write results to files. If out_dir is not \code{NULL}, the return value additionally contains the following keys: 'out_file' and the output file format at key 'out_format'.
 }
 \description{
 Applies the Wu et al. regfusion method to obtain MNI volume coordinates, then interpolates values.

@@ -11,8 +11,45 @@
 #'
 #' @return matrix of dim \code{n x 3}, the MNI152 coordinates for the query vertices, one row per vertex. Also see the 'simplify' parameter.
 #'
+#' @seealso Use the more general function \code{\link{fsaverage_vertices_to_vol_coords}} for more options.
+#'
 #' @export
 fsaverage_vertices_to_mni152_coords <- function(vertices, hemis, fs_home=Sys.getenv("FS_HOME"), simplify = FALSE) {
+  return(fsaverage_vertices_to_vol_coords(vertices, hemis, fs_home=fs_home, simplify=simplify, rf_type="RF_ANTs", template_type="MNI152_orig"));
+}
+
+#' @title Map fsaverage vertex indices to Colin27 coordinates.
+#'
+#' @inheritParams fsaverage_vertices_to_mni152_coords
+#'
+#' @return matrix of dim \code{n x 3}, the MNI152 coordinates for the query vertices, one row per vertex. Also see the 'simplify' parameter.
+#'
+#' @seealso Use the more general function \code{\link{fsaverage_vertices_to_vol_coords}} for more options.
+#'
+#' @export
+fsaverage_vertices_to_colin27_coords <- function(vertices, hemis, fs_home=Sys.getenv("FS_HOME"), simplify = FALSE) {
+  return(fsaverage_vertices_to_vol_coords(vertices, hemis, fs_home=fs_home, simplify=simplify, rf_type="RF_ANTs", template_type="Colin27_orig"));
+}
+
+
+#' @title Map fsaverage vertex indices to MNI152 or Colin27 volumne coordinates.
+#'
+#' @inheritParams mni152_coords_to_fsaverage
+#'
+#' @param vertices integer vector of vertex indices (1-based), the \code{n} fsaverage vertices you want to map.
+#'
+#' @param hemis vector of character strings, the hemispheres of the query vertices. Each entry in the vector has to be either \code{'lh'} or \code{'rh'}. Length must match length of parameter \code{vertices}.
+#'
+#' @param simplify logical, whether to return a vector instead of a single-row matrix in case only a single query vertex is given.
+#'
+#' @param rf_type the registration fusion type, one of 'RF_ANTs' or 'RF_M3Z'.
+#'
+#' @param template_type the space into which to map. One of 'MNI152_orig', 'MNI152_norm', 'Colin27_orig', 'Colin27_norm'. Note that the 'RF_ANTs' rf_type must be used for \code{_orig} templates, and the 'RF_M3Z' type for \code{_norm} templates.
+#'
+#' @return matrix of dim \code{n x 3}, the MNI152 or Colin27 coordinates for the query vertices, one row per vertex. Also see the 'simplify' parameter.
+#'
+#' @export
+fsaverage_vertices_to_vol_coords <- function(vertices, hemis, fs_home=Sys.getenv("FS_HOME"), simplify = FALSE, rf_type="RF_ANTs", template_type="MNI152_orig") {
   if(! is.integer(vertices)) {
     message("Converting vertices to integer values.");
     vertices = as.integer(vertices);
@@ -28,28 +65,30 @@ fsaverage_vertices_to_mni152_coords <- function(vertices, hemis, fs_home=Sys.get
     stop("Must pass at least one query vertex");
   }
 
+  check_rf_and_template(template_type, rf_type);
+
   # Load the mapping data.
   mapping_files = list("lh"=NULL, "rh"=NULL); # Filled below.
   ras = list("lh"=NULL, "rh"=NULL);
   if("lh" %in% hemis) { # Only load files we need for speed.
-    mapping_files$lh = get_data_file("lh.avgMapping_allSub_RF_ANTs_MNI152_orig_to_fsaverage.txt", subdir = "mappings");
+    mapping_files$lh = get_data_file(sprintf("lh.avgMapping_allSub_%s_%s_to_fsaverage.txt", rf_type, template_type), subdir = "mappings");
     ras$lh = t(as.matrix(data.table::fread(mapping_files$lh, nrows = 3, header = FALSE)));
   }
   if("rh" %in% hemis) {
-    mapping_files$rh = get_data_file("rh.avgMapping_allSub_RF_ANTs_MNI152_orig_to_fsaverage.txt", subdir = "mappings");
+    mapping_files$rh = get_data_file(sprintf("rh.avgMapping_allSub_%s_%s_to_fsaverage.txt", rf_type, template_type), subdir = "mappings");
     ras$rh = t(as.matrix(data.table::fread(mapping_files$rh, nrows = 3, header = FALSE)));
   }
 
-  mni152_coords = matrix(rep(NA, num_vertices*3L), nrow=num_vertices, ncol=3L);
+  vol_coords = matrix(rep(NA, num_vertices*3L), nrow=num_vertices, ncol=3L);
   for (vertex_local_idx in seq_along(vertices)) {
     vertex_surface_idx = vertices[vertex_local_idx];
     vertex_hemi = hemis[vertex_local_idx];
-    mni152_coords[vertex_local_idx, ] = ras[[vertex_hemi]][vertex_surface_idx, ];
+    vol_coords[vertex_local_idx, ] = ras[[vertex_hemi]][vertex_surface_idx, ];
   }
   if(length(vertices) == 1L & simplify) {
-    return(mni152_coords[1L, ]);
+    return(vol_coords[1L, ]);
   } else {
-    return(mni152_coords);
+    return(vol_coords);
   }
 }
 
@@ -76,6 +115,31 @@ mni305_coords_to_mni152_coords <- function(coords, surface = "orig", fs_home=Sys
   }
   dist_info = coord_closest_vertex(coords, surface);
   return(fsaverage_vertices_to_mni152_coords(dist_info$both_closest_vertex, dist_info$both_hemi, fs_home=fs_home, simplify=simplify));
+}
+
+
+#' @title Find Colin27 coordinate of fsaverage vertex closest to the given MNI305 coordinate.
+#'
+#' @inheritParams mni305_coords_to_mni152_coords
+#'
+#' @param coords nx3 numerical matrix, the MNI305 query coordinates.
+#'
+#' @param surface a character string defining the fsaverage surface to load (like \code{"white"} or \code{"orig"}), or a pre-loaded hemilist of surfaces (i.e., \code{freesurferformats::fs.surface} instances)
+#'
+#' @param fs_home character string, path of the FreeSurfer directory from which the fsaverage surfaces should be loaded. Ignored if \code{surface} is a hemilist (in that case the surfaces have already been loaded).
+#'
+#' @return nx3 numerical matrix, the Colin27 coordinates for the vertices closest to the given MNI305 query coordinates. Depending on the distance to the closest vertex, this may be way off. Also see the 'simplify' parameter.
+#'
+#' @export
+mni305_coords_to_colin27_coords <- function(coords, surface = "orig", fs_home=Sys.getenv("FS_HOME"), simplify = FALSE) {
+  if(! is.list(surface)) {
+    surface_name = surface;
+    lh_surf = freesurferformats::read.fs.surface(file.path(fs_home, "subjects", "fsaverage", "surf", sprintf("lh.%s", surface_name)));
+    rh_surf = freesurferformats::read.fs.surface(file.path(fs_home, "subjects", "fsaverage", "surf", sprintf("rh.%s", surface_name)));
+    surface = list("lh" = lh_surf, "rh" = rh_surf);
+  }
+  dist_info = coord_closest_vertex(coords, surface);
+  return(fsaverage_vertices_to_colin27_coords(dist_info$both_closest_vertex, dist_info$both_hemi, fs_home=fs_home, simplify=simplify));
 }
 
 

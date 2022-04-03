@@ -66,6 +66,8 @@ colin27_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.get
 
 #' @title Map MNI152 or Colin27 volume coords to fsaverage coords and vertices.
 #'
+#' @inheritParams vol_to_fsaverage
+#'
 #' @param coords nx3 numeric matrix, the source RAS coordinates in the input image which must be in MNI152/Colin27 space. The coords must be within the cortex, otherwise the mapping makes no sense and \code{NaN} values are returned for the respective coords.
 #'
 #' @param surface character string, the fsaverage surface (brain mesh) to load. Must be a valid FreeSurfer surface name like 'white', 'pial', 'orig, 'inflated'.

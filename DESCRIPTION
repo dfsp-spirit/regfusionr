@@ -20,7 +20,7 @@ Suggests:
     knitr,
     rmarkdown,
     testthat (>= 2.1.0),
-    haze (>= 0.1.0),
+    haze (>= 0.2.0),
     fsbrain (>= 0.5.3)
 Additional_repositories: https://dfsp-spirit.r-universe.dev
 VignetteBuilder: knitr

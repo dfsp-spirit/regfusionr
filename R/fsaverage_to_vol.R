@@ -76,6 +76,9 @@ fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_t
 
       # Check input data length. May require up-samling if from fsaverage6, or fsaverage5.
       if(length(lh_input) != num_template_vertices_per_hemi) {
+        if(interp != "linear") {
+          stop("Automatic upsampling is only supported for 'interp'='linear'.");
+        }
         if(length(lh_input) == 40962L) {
           # Automatic up-sampling of input data from fsaverage6 mesh.
           template_orig_meshes = fsbrain::subject.surface(fsaverage_path, "fsaverage6", surface = "sphere");
@@ -173,4 +176,6 @@ fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_t
     stop("This functionality requires the 'fsbrain' package. Please install it.");
   }
 }
+
+upsample_
 

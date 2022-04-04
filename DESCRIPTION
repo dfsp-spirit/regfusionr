@@ -1,7 +1,7 @@
 Package: regfusionr
 Type: Package
 Title: Registration Fusion in R
-Version: 0.1.2
+Version: 0.2.0
 Authors@R: person("Tim", "Schäfer", role = c("aut", "cre"), email = "ts+code@rcmd.org", comment = c(ORCID = "0000-0002-3683-8070"))
 Maintainer: Tim Schäfer <ts+code@rcmd.org>
 Description: Implementation of the 'Wu et al. 2018' registration fusion method in R.

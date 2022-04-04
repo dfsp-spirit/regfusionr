@@ -1,6 +1,11 @@
 regfusionr Changes
 ==================
 
+Version 0.2.0 -- fsaverage_to_vol
+---------------------------------
+* add the fsaverage_to_vol() function
+* now requires haze v0.2.0 (for fsaverage_to_vol())
+
 
 Version 0.1.0 -- Initial release
 ---------------------------------

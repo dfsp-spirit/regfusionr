@@ -8,7 +8,7 @@
 #'
 #' @description Applies the Wu et al. regfusion method to obtain MNI volume coordinates, then interpolates values.
 #'
-#' @param lh_input numerical vector of per-vertex data for the left hemisphere of the template subject. Must contain 163842 values for the \code{fsaverage} template. Input for fsaverage6 (40962 values) or fsaverage5 (10242 values) can also be used and will be upsampled using \code{\link[haze]{nn_interpolate_kdtree}}.
+#' @param lh_input numerical vector of per-vertex data for the left hemisphere of the template subject. Must contain 163842 values for the \code{fsaverage} template. Input for fsaverage6 (40962 values) or fsaverage5 (10242 values) can also be used and will be upsampled using \code{\link[haze]{nn_interpolate_kdtree}}. Automatic upsamping is only supported with \code{interp='linear'}.
 #'
 #' @param rh_input numerical vector of per-vertex data for the right hemisphere of the template subject. Must contain 163842 values for the \code{fsaverage} template. See description for \code{lh_input} for more details.
 #'

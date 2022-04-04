@@ -1,8 +1,6 @@
 
 testthat::test_that("Per-vertex data for fsaverage can be projected, using linear interpolation, to an MNI152 volume.", {
 
-  testthat::skip("too slow");
-
   if(! requireNamespace("fsbrain", quietly = TRUE)) {
     testthat::skip("The optional dependency package 'fsbrain' is required for this unit test.");
   }

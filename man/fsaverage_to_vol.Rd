@@ -16,7 +16,7 @@ fsaverage_to_vol(
 )
 }
 \arguments{
-\item{lh_input}{numerical vector of per-vertex data for the left hemisphere of the template subject. Must contain 163842 values for the \code{fsaverage} template. Input for fsaverage6 (40962 values) or fsaverage5 (10242 values) can also be used and will be upsampled using \code{\link[haze]{nn_interpolate_kdtree}}.}
+\item{lh_input}{numerical vector of per-vertex data for the left hemisphere of the template subject. Must contain 163842 values for the \code{fsaverage} template. Input for fsaverage6 (40962 values) or fsaverage5 (10242 values) can also be used and will be upsampled using \code{\link[haze]{nn_interpolate_kdtree}}. Automatic upsamping is only supported with \code{interp='linear'}.}
 
 \item{rh_input}{numerical vector of per-vertex data for the right hemisphere of the template subject. Must contain 163842 values for the \code{fsaverage} template. See description for \code{lh_input} for more details.}
 
@@ -40,6 +40,8 @@ Applies the Wu et al. regfusion method to obtain MNI volume coordinates, then in
 }
 \note{
 This function requires the packages 'fsbrain' and 'haze', which are optional dependencies. The package 'fsbrain' can be installed from CRAN. For 'haze', see \code{https://github.com/dfsp-spirit/haze}.
+
+This function is quite expensive computationally, especially when using \code{interp = 'linear'}.
 }
 \examples{
 \dontrun{

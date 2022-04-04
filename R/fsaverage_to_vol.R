@@ -1,7 +1,7 @@
 # functions for projecting fsaverage(7/6/5) per-vertex data to MNI152/Colin27 volumes.
 
 
-# lh_input = rh_input = rnorm(163842L, 3.0, 0.2); template_type="MNI152_orig"; rf_type='RF_ANTs'; interp='linear'; out_type='mgz'; out_dir=NULL; fsaverage_path=NULL;
+# lh_input = rh_input = rnorm(163842L, 3.0, 0.2); target_space="FSL_MNI152"; rf_type='RF_ANTs'; interp='linear'; out_type='mgz'; out_dir=NULL; fsaverage_path=NULL;
 
 
 #' @title Project or map per-vertex values from the fsaverage surface to the cortex voxels of an MNI volume.
@@ -29,6 +29,7 @@
 #' @author Tim Schäfer for the R version, Wu Jianxiao and CBIG for the original Matlab version.
 #'
 #' @note This function requires the packages 'fsbrain' and 'haze', which are optional dependencies. The package 'fsbrain' can be installed from CRAN. For 'haze', see \code{https://github.com/dfsp-spirit/haze}.
+#' @note This function is quite expensive computationally, especially when using \code{interp = 'linear'}.
 #'
 #' @importFrom freesurferformats write.fs.morph read.fs.volume read.fs.mgh
 #' @importFrom pracma interp1
@@ -42,6 +43,8 @@
 #'
 #' @export
 fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_type='RF_ANTs', interp='linear', out_type='mgz', out_dir=NULL, fsaverage_path=NULL) {
+
+  silent = TRUE;
 
   rh_seg_start = 1000; # offset to identify right hemisphere projected values in whole brain volume.
 
@@ -81,10 +84,16 @@ fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_t
         }
         if(length(lh_input) == 40962L) {
           # Automatic up-sampling of input data from fsaverage6 mesh.
+          if(! silent) {
+            cat(sprintf("Upsampling fsaverage6 per-vertex data to fsaverage mesh.\n"));
+          }
           template_orig_meshes = fsbrain::subject.surface(fsaverage_path, "fsaverage6", surface = "sphere");
           lh_input = haze::nn_interpolate_kdtree(template_meshes_surface$lh$vertices, template_orig_meshes$lh, lh_input);
           rh_input = haze::nn_interpolate_kdtree(template_meshes_surface$lh$vertices, template_orig_meshes$lh, rh_input);
         } else if(length(lh_input) == 10242L) {
+          if(! silent) {
+            cat(sprintf("Upsampling fsaverage5 per-vertex data to fsaverage mesh.\n"));
+          }
           # Automatic up-sampling of input data from fsaverage5 mesh.
           template_orig_meshes = fsbrain::subject.surface(fsaverage_path, "fsaverage5", surface = "sphere");
           lh_input = haze::nn_interpolate_kdtree(template_meshes_surface$lh$vertices, template_orig_meshes$lh, lh_input);
@@ -105,8 +114,8 @@ fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_t
         }
       }
 
-      lh_map_file = get_data_file(sprintf("allSub_fsaverage_to_%s_FS4.5.0_%s_avgMapping.lh.mgz", target_space, rf_type), subdir = "coordmap");
-      rh_map_file = get_data_file(sprintf("allSub_fsaverage_to_%s_FS4.5.0_%s_avgMapping.rh.mgz", target_space, rf_type), subdir = "coordmap");
+      lh_map_file = regfusionr:::get_data_file(sprintf("allSub_fsaverage_to_%s_FS4.5.0_%s_avgMapping.lh.mgz", target_space, rf_type), subdir = "coordmap");
+      rh_map_file = regfusionr:::get_data_file(sprintf("allSub_fsaverage_to_%s_FS4.5.0_%s_avgMapping.rh.mgz", target_space, rf_type), subdir = "coordmap");
       lh_coord = freesurferformats::read.fs.mgh(lh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 3x16777216 matrix
       rh_coord = freesurferformats::read.fs.mgh(rh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 3x16777216 matrix
 
@@ -118,12 +127,18 @@ fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_t
       out = list();
 
       projected_vol_data = list();
-      if(interp == 'linear') {
+      if(interp == 'linear') { # for continuous data like thickness
+        if(! silent) {
+          cat(sprintf("Using 'linear' interpolation, suitable for continuous per-vertex data.\n"));
+        }
         projected_vol_data$lh = rep(0.0, num_voxels);
-        projected_vol_data$lh[lh_mask] = haze::linear_interpolate_kdtree(t(lh_coord[, lh_mask]), template_meshes_surface$lh, lh_input);
+        projected_vol_data$lh[lh_mask] = haze::linear_interpolate_kdtree(t(lh_coord[, lh_mask]), template_meshes_surface$lh, lh_input)$interp_values;
         projected_vol_data$rh = rep(0.0, num_voxels);
-        projected_vol_data$rh[rh_mask] = haze::linear_interpolate_kdtree(t(rh_coord[, rh_mask]), template_meshes_surface$rh, rh_input);
-      } else if(interp == 'nearest') {
+        projected_vol_data$rh[rh_mask] = haze::linear_interpolate_kdtree(t(rh_coord[, rh_mask]), template_meshes_surface$rh, rh_input)$interp_values;
+      } else if(interp == 'nearest') { # for labels
+        if(! silent) {
+          cat(sprintf("Using 'nearest' interpolation, suitable for label data (integers).\n"));
+        }
         lh_vertex = rep(0.0, num_voxels);
         lh_vertex[lh_mask] = haze::find_nv_kdtree(t(lh_coord[, lh_mask]), template_meshes_surface$lh)$index;
         projected_vol_data$lh = rep(0.0, num_voxels);
@@ -137,9 +152,13 @@ fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_t
         stop("Currently the only supported interpolation methods are 'linear' and 'nearest'.");
       }
 
+      if(! silent) {
+        cat(sprintf("Applying volume mask and merging projected hemisphere data into a single volume.\n"));
+      }
+
       # Load cortex mask volume file and apply it. Data projected to non-cortical brain regions is useless/wrong, so we
       # remove it with a cortical volume mask.
-      cortex_mask_file_volume = get_data_file(sprintf("%s_FS4.5.0_cortex_estimate.nii.gz", target_space), subdir = "coordmap");
+      cortex_mask_file_volume = regfusionr:::get_data_file(sprintf("%s_FS4.5.0_cortex_estimate.nii.gz", target_space), subdir = "coordmap");
       cortex_mask_fs_volume = freesurferformats::read.fs.volume(cortex_mask_file_volume, with_header = TRUE, drop_empty_dims = TRUE);
       cortex_mask_volume = cortex_mask_fs_volume$data;
       #cortex_label_surface = fsbrain::subject.label(fsaverage_path, template_subject, label = "cortex", hemi = "both");
@@ -177,5 +196,4 @@ fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_t
   }
 }
 
-upsample_
 

@@ -1,11 +1,17 @@
 # regfusionr
 R implementation of the registration fusion method for MNI152 and Colin27 to fsaverage/MNI305 mapping.
 
+This package supports easy mapping of neuroimgaging data between the volume and surface templates used by the most common software package for structural neuroimaging in R:
+
+* [FreeSurfer](freesurfer.net/) surface space: the fsaverage template, in MNI305 space
+* [FSL](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki) volume space: the MNI152 template
+* [SPM](https://www.fil.ion.ucl.ac.uk/spm/software/) volumne space: the Colin27 template
+
 ## About
 
 This is an R implementation of [Wu et al. (2018)'s registration fusion methods](https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.24213) to project 3D magnetic resonance imaging (MRI) data from standard space volumetric coordinates, either MNI152 or Colin27, to Freesurfer's fsaverage (MNI305), and the other way around. Using this non-linear approach gives higher accuracy than the linear transformation with a 4x4 matrix. See [the paper](https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.24213) for details.
 
-This R implementation is heavily inspired by [Dan Gale's Python implementation](https://github.com/danjgale/reg-fusion) in the [regfusion pypi package](https://pypi.org/project/regfusion/). A huge thank you to Dan Gale and  *Wu et al* for making their excellent tools openly available!
+This R implementation is heavily inspired by [Dan Gale's Python implementation](https://github.com/danjgale/reg-fusion) in the [regfusion pypi package](https://pypi.org/project/regfusion/). A huge thank you to Dan Gale and  Wu *et al.* for making their excellent tools openly available!
 
 ## Documentation
 
@@ -16,7 +22,8 @@ The API of the `regfusionr` package consists of the following functions:
 * `mni152_coords_to_fsaverage()` : Map MNI152 RAS coordinates to fsaverage coordinates. For the coordinates, you also get the closest surface vertex and information on which hemisphere it belongs to.
 * `vol_to_fsaverage()`: Project the 3D data in an MNI152 or Colin27 volume (in NIFTI or MGH/MGZ format) to fsaverage and obtain per-vertex data (in curv or MGH/MGZ format).
 * `fsaverage_vertices_to_mni152_coords()`: Map fsaverage vertex indices to MNI152 coordinates.
-
+* `fsaverage_vertices_to_colin27_coords()`: Map fsaverage vertex indices to Colin27 coordinates.
+* `fsaverage_to_vol()`: Project or map per-vertex values from the fsaverage surface to the cortex voxels of an MNI volume. Also supports fsaverage6 and fsaverage5 as sources.
 
 ### Usage examples
 
@@ -34,8 +41,6 @@ See the [unit tests](./test/testthat/) for more usage examples, and use the in-b
 ## Limitations
 
 * When projecting volume data to the surface, currently only the 'linear' interpolation method is implemented (which uses trilinear interpolation from the `oce` package). This method is suitable for continuous data. The 'nearest' method, which is required to project labels or atlases (categorical data represented by integers), is not available yet. If you know an R function that does it, please let me know.
-* Some parts I don't need myself (like Colin27 coordinates to fsaverage vertex mapping) are not yet implemented. Please open an issue if you need them and I will do it.
-* Currently the reverse operation (mapping an fsaverage vertex-overlay to an MNI152 volume) is not implemented.
 
 
 ## Installation

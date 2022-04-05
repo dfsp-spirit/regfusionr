@@ -72,7 +72,7 @@ fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_t
       }
 
       if(length(lh_input) != length(rh_input)) {
-        stop(sprintf("The lengths of the lh_input and rh_input vectors must be identical for all supported templates (FreeSurfer fsaverage templates), but lengths $d and %d differ.\n", length(lh_input), length(rh_input)));
+        stop(sprintf("The lengths of the lh_input and rh_input vectors must be identical for all supported templates (FreeSurfer fsaverage templates), but lengths %d and %d differ.\n", length(lh_input), length(rh_input)));
       }
 
       template_meshes_surface = fsbrain::subject.surface(fsaverage_path, template_subject, surface = "sphere");

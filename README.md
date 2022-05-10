@@ -23,7 +23,7 @@ The API of the `regfusionr` package consists of the following functions:
 * `vol_to_fsaverage()`: Project the 3D data in an MNI152 or Colin27 volume (in NIFTI or MGH/MGZ format) to fsaverage and obtain per-vertex data (in curv or MGH/MGZ format).
 * `fsaverage_vertices_to_mni152_coords()`: Map fsaverage vertex indices to MNI152 coordinates.
 * `fsaverage_vertices_to_colin27_coords()`: Map fsaverage vertex indices to Colin27 coordinates.
-* `fsaverage_to_vol()`: Project or map per-vertex values from the fsaverage surface to the cortex voxels of an MNI volume. Also supports fsaverage6 and fsaverage5 as sources.
+* `fsaverage_to_vol()`: Project or map per-vertex values from the fsaverage surface to the cortex voxels of an MNI volume. Also supports fsaverage6 and fsaverage5 as sources. This is experimental and work in progress, use with care.
 
 ### Usage examples
 
@@ -86,7 +86,7 @@ sudo apt install libudunits2-dev libgdal-dev
 ```
 
 Required system level packages for other systems:
- 
+
 * rpm-based systems (like Fedora, EPEL, ...): `sudo yum install udunits2-devel gdal-devel`
 * MacOS (via [brew](https://brew.sh)): `brew install udunits gdal`
 
@@ -139,6 +139,3 @@ The code used to produce the comparison figure is available [in this unit test](
 Just cite the original *Wu et al.* paper:
 
 >Wu J, Ngo GH, Greve DN, Li J, He T, Fischl B, Eickhoff SB, Yeo BTT. [**Accurate nonlinear mapping between MNI volumetric and FreeSurfer surface coordinate systems**](http://people.csail.mit.edu/ythomas/publications/2018VolSurfMapping-HBM.pdf), *Human Brain Mapping* 39:3793–3808, 2018.
-
-
-   

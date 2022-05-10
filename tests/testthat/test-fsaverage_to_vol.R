@@ -62,7 +62,7 @@ testthat::test_that("Per-vertex label data for fsaverage can be projected, using
   }
 
   # run function
-  res = fsaverage_to_vol(lh_input, rh_input, target_space = "FSL_MNI152", out_dir = NULL, interp = "nearest");
+  res = fsaverage_to_vol(lh_input, rh_input, target_space = "FSL_MNI152", out_dir = NULL, interp = "nearest", silent = FALSE);
 
   if(do_plot) {
     # Show projected bankssts label in the volume.

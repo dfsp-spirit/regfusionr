@@ -24,7 +24,7 @@
 #'
 #' @param fsaverage_path character string or NULL, the file system path to the \code{fsaverage} directory (NOT including the 'fsaverage' dir itself). If \code{NULL}, defaults to the return value of \code{fsbrain::fsaverage.path()} on the system. This path is used to read the spherical surface (both hemisphere meshes) of the template subject.
 #'
-#' @param silent logical, whether to suppress status messages
+#' @param silent logical, whether to suppress status messages.
 #'
 #' @return named list with keys 'projected' and 'projected_seg', each of which holds an \code{fs.volume} instance, its 'data' key holds a \code{256x256x256} array with the projected data. The data in 'projected_seg' is identical to the data in 'projected', with the exception that data values originating from the right hemisphere have been incremented by 1000. See \code{out_dir} parameter to easily write results to files. If out_dir is not \code{NULL}, the return value additionally contains the following keys: 'out_file' and the output file format at key 'out_format'.
 #'
@@ -46,7 +46,7 @@
 #' @export
 fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_type='RF_ANTs', interp='linear', out_type='mgz', out_dir=NULL, fsaverage_path=NULL, silent = TRUE) {
 
-  rh_seg_start = 1000; # offset to identify right hemisphere projected values in whole brain volume.
+  rh_seg_start = 1000; # Offset to identify right hemisphere projected values in whole brain volume. Rather arbitrary. Mostly for labels.
 
   if(!(target_space %in% c("FSL_MNI152", "SPM_Colin27"))) {
     stop("Parameter 'target_space' must be one of 'FSL_MNI152' or 'SPM_Colin27'.");
@@ -55,7 +55,7 @@ fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_t
   if(requireNamespace("fsbrain", quietly = TRUE)) {
     if(requireNamespace("haze", quietly = TRUE)) {
 
-      template_subject = "fsaverage";
+      template_subject = "fsaverage";     # This is the full-size fsaverage (163842 verts per hemi). But we will auto-detect fsaverage6 and fsaverage5 based on their vertex count below.
       if(is.null(fsaverage_path)) {
         fsaverage_path = fsbrain::fsaverage.path(allow_fetch = TRUE);
       }
@@ -129,26 +129,21 @@ fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_t
       projected_vol_data = list();
       if(interp == 'linear') { # for continuous data like thickness
         if(! silent) {
-          cat(sprintf("Using 'linear' interpolation, suitable for continuous per-vertex data, for %d lh values.\n", length(lh_mask)));
+          cat(sprintf("Using 'linear' interpolation, suitable for continuous per-vertex data, to interpolate %d values for left hemi.\n"));
         }
         projected_vol_data$lh = rep(0.0, num_voxels);
         projected_vol_data$lh[lh_mask] = haze::linear_interpolate_kdtree(t(lh_coord[, lh_mask]), template_meshes_surface$lh, lh_input)$interp_values;
-        if(! silent) {
-          cat(sprintf("Using 'linear' interpolation, suitable for continuous per-vertex data, for %d rh values.\n", length(rh_mask)));
-        }
         projected_vol_data$rh = rep(0.0, num_voxels);
         projected_vol_data$rh[rh_mask] = haze::linear_interpolate_kdtree(t(rh_coord[, rh_mask]), template_meshes_surface$rh, rh_input)$interp_values;
       } else if(interp == 'nearest') { # for labels
         if(! silent) {
-          cat(sprintf("Using 'nearest' interpolation, suitable for label data (integers), for %d lh values.\n", length(lh_mask)));
+          cat(sprintf("Using 'nearest' interpolation, suitable for label data (integers).\n"));
         }
         lh_vertex = rep(0.0, num_voxels);
         lh_vertex[lh_mask] = haze::find_nv_kdtree(t(lh_coord[, lh_mask]), template_meshes_surface$lh)$index;
         projected_vol_data$lh = rep(0.0, num_voxels);
         projected_vol_data$lh[lh_mask] = pracma::interp1(seq.int(length(lh_input)), lh_input, lh_vertex[lh_mask], method = "nearest");
-        if(! silent) {
-          cat(sprintf("Using 'nearest' interpolation, suitable for label data (integers), for %d rh values.\n", length(rh_mask)));
-        }
+        # now for rh
         rh_vertex = rep(0.0, num_voxels);
         rh_vertex[rh_mask] = haze::find_nv_kdtree(t(rh_coord[, rh_mask]), template_meshes_surface$rh)$index;
         projected_vol_data$rh = rep(0.0, num_voxels);
@@ -173,12 +168,12 @@ fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_t
 
       # Combine results of the two hemispheres
       projected = cortex_mask_fs_volume;
-      projected$data = array(data = (projected_vol_data$lh + projected_vol_data$rh), dim = dim(cortex_mask_volume)); # reshape 1x16777216 vector to 256x256x256 array.
+      projected$data = array(data = projected_vol_data$lh + projected_vol_data$rh, dim = dim(cortex_mask_volume)); # reshape 1x16777216 vector to 256x256x256 array.
 
       # Create 2nd version with RH values incremented by 1000 offset.
-      projected_vol_data_rh_shifted = projected_vol_data$rh + rh_seg_start; # TODO: this is wrong, it increments all values. we only want to increment the rh values, not the background.
+      projected_vol_data$rh = projected_vol_data$rh + rh_seg_start;
       projected_seg = cortex_mask_fs_volume;
-      projected_seg$data = array(data = projected_vol_data$lh + projected_vol_data_rh_shifted, dim = dim(cortex_mask_volume)); # same as above, but RH values have been incremented.
+      projected_seg$data = array(data = projected_vol_data$lh + projected_vol_data$rh, dim = dim(cortex_mask_volume)); # same as above, but RH values have been incremented.
 
       out$projected = projected;
       out$projected_seg = projected_seg;

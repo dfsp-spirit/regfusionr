@@ -128,7 +128,7 @@ See the [development information file](./DEVELOP.md).
 
 In many cases the meshes that you will want to resample to/from are the two hemispheres of the FreeSurfer standard template `fsaverage`. You have two options to get them:
 
-1) Review the [FreeSurfer license](https://surfer.nmr.mgh.harvard.edu/fswiki/License), and if you accept it, start an `R` session, and type: `fsbrain::download_fsaverage(accept_freesurfer_license=TRUE)` to download only the fsaverage template. It will go into the directory mentioned in your error message, where `regfusionr` is looking for it. Note that you may need to `install::packages('fsbrain')` first to install fsbrain if you did install `regfusionr` with the minimal installation (i.e., without the suggested dependency packages that include fsbrain).
+1) Review the [FreeSurfer license](https://surfer.nmr.mgh.harvard.edu/fswiki/License), and if you accept it, start an `R` session, and type: `fsbrain::download_fsaverage(accept_freesurfer_license=TRUE)` to download only the fsaverage template. It will go into the fsbrain appdata directory in your user home, where `regfusionr` will find it. Note that you may need to `install::packages('fsbrain')` first to install fsbrain if you did install `regfusionr` with the minimal installation (i.e., without the suggested dependency packages that include fsbrain).
 2) Download and extract FreeSurfer, get a free license file from their website, and use the `fsaverage_path` parameter of the `fsaverage_to_vol` function to point it to `<freesurfer_install>/subjects/`. That directory should be available as the environment variable `$SUBJECTS_DIR` after you run the FreeSurfer setup function for your shell.
 
 

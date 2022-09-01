@@ -23,7 +23,6 @@ The API of the `regfusionr` package consists of the following functions:
 * `vol_to_fsaverage()`: Project the 3D data in an MNI152 or Colin27 volume (in NIFTI or MGH/MGZ format) to fsaverage and obtain per-vertex data (in curv or MGH/MGZ format).
 * `fsaverage_vertices_to_mni152_coords()`: Map fsaverage vertex indices to MNI152 coordinates.
 * `fsaverage_vertices_to_colin27_coords()`: Map fsaverage vertex indices to Colin27 coordinates.
-* `fsaverage_to_vol()`: Project or map per-vertex values from the fsaverage surface to the cortex voxels of an MNI volume. Also supports fsaverage6 and fsaverage5 as sources. This is experimental and work in progress, use with care.
 
 ### Usage examples
 

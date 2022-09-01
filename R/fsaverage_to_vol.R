@@ -46,6 +46,8 @@
 #' @export
 fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_type='RF_ANTs', interp='linear', out_type='mgz', out_dir=NULL, fsaverage_path=NULL, silent = TRUE) {
 
+  stop("This is not ready yet, do not use.");
+
   rh_seg_start = 1000; # Offset to identify right hemisphere projected values in whole brain volume. Rather arbitrary. Mostly for labels.
 
   if(!(target_space %in% c("FSL_MNI152", "SPM_Colin27"))) {

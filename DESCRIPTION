@@ -1,7 +1,7 @@
 Package: regfusionr
 Type: Package
 Title: Registration Fusion in R
-Version: 0.2.0
+Version: 0.3.0
 Authors@R: c(person("Tim", "Schäfer", role = c("aut", "cre"), email = "ts+code@rcmd.org", comment = c(ORCID = "0000-0002-3683-8070")),
                 person("Dan", "Gale", role = c("ctb"), comment = "Author of regfusion for python")),
                 person("Wu", "Jiachen", role = c("ctb"), comment = "Author of the original registration fusion method"))

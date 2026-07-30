@@ -1,6 +1,41 @@
 regfusionr Changes
 ==================
 
+
+Version 0.3.0 -- vol_to_fsaverage and many convenience functions
+-----------------------------------------------------------------
+
+New functions:
+
+* colin27_coords_to_fsaverage(): map Colin27 RAS coords to fsaverage vertices and coords
+* mni152_coords_to_colin27_coords(): convenience for MNI152 → Colin27 RAS coordinate mapping via fsaverage
+* colin27_coords_to_mni152_coords(): convenience for Colin27 → MNI152 RAS coordinate mapping via fsaverage
+* vol_coords_to_fsaverage_txt(): internal fallback using .txt mapping files for point queries when .mgz vertex map files are unavailable
+
+Improvements and bug fixes:
+
+* vol_coords_to_fsaverage(): fixed vertex-indexing bug where returned fsaverage_coords were indexed by query position instead of vertex index. Now correctly returns the coordinates of the mapped vertex.
+* vol_coords_to_fsaverage(): added automatic fallback to .txt-based nearest-vertex mapping when the .mgz vertex index files are not available (Colin27 and RF_M3Z combinations). This means all 4 template_type × rf_type combos now work for point queries.
+* colin27_coords_to_fsaverage(): now exported (was internal). Uses the .txt fallback since no Colin27 .mgz vertex map files exist.
+* fsaverage_to_vol(): unblocked (removed stop() guard). Function is now live. Fixed right-hemisphere upsampling bug for fsaverage6 and fsaverage5 input data (was incorrectly using LH surfaces for RH data).
+* fsaverage_vertices_to_colin27_coords(): fixed @return doc that incorrectly stated "MNI152".
+
+Documentation:
+
+* Added @examples to all exported functions: linear_fsaverage_coords_to_MNI152_coords, fsaverage_vertices_to_mni152_coords, fsaverage_vertices_to_colin27_coords, fsaverage_vertices_to_vol_coords, mni305_coords_to_mni152_coords, mni305_coords_to_colin27_coords, mni152_coords_to_colin27_coords, colin27_coords_to_mni152_coords, vol_to_fsaverage.
+* Added missing @param and @return tags to internal utility functions (check_coords, check_voxels, check_rf_and_template, get_data_file, mni152reg_mtx).
+* Added new vignette (vignettes/regfusionr.Rmd) covering all major functionality with usage examples.
+* Fixed example in colin27_coords_to_fsaverage() doc (incorrect variable name).
+
+Tests:
+
+* Added test for vertex-indexing bug fix (verifies fsaverage_coords match the mapped vertex).
+* Added test for colin27_coords_to_fsaverage() via .txt fallback.
+* Added tests for mni152_coords_to_colin27_coords() and colin27_coords_to_mni152_coords().
+* Added test for vol_coords_to_fsaverage() with RF_M3Z fallback path.
+
+
+
 Version 0.2.0 -- fsaverage_to_vol
 ---------------------------------
 * add the fsaverage_to_vol() function

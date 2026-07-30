@@ -52,7 +52,7 @@ mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.gete
 #'   res$fsaverage_vertices;
 #' }
 #'
-#' @keywords internal
+#' @export
 colin27_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.getenv("FS_HOME"), silent = TRUE) {
   res = vol_coords_to_fsaverage(coords, surface=surface, fs_home = fs_home, silent = silent, rf_type="RF_ANTs", template_type="SPM_Colin27");
   # rename fields.
@@ -126,6 +126,15 @@ vol_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.getenv(
     stop("Parameter 'surface' must be a character string like 'white' or a hemilist of fs.surface instances.");
   }
 
+  # Check whether vertex .mgz mapping files exist. If not, fall back to .txt-based approach.
+  lh_map_path = system.file("extdata", "coordmap", sprintf("%s_FS4.5.0_%s_avgMapping.vertex.lh.mgz", template_type, rf_type), package = "regfusionr");
+  if(lh_map_path == "") {
+    if(! silent) {
+      message(sprintf("Vertex map .mgz file not found for template_type='%s', rf_type='%s'. Using .txt-based nearest-vertex mapping instead.", template_type, rf_type));
+    }
+    return(vol_coords_to_fsaverage_txt(coords, lh_surf, rh_surf, silent, rf_type, template_type));
+  }
+
   # Load mappings
   lh_map_file = get_data_file(sprintf("%s_FS4.5.0_%s_avgMapping.vertex.lh.mgz", template_type, rf_type), subdir = "coordmap");
   rh_map_file = get_data_file(sprintf("%s_FS4.5.0_%s_avgMapping.vertex.rh.mgz", template_type, rf_type), subdir = "coordmap");
@@ -159,11 +168,11 @@ vol_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.getenv(
     if(lh_corr != 0) { # vertex is from left hemi
       verts[coord_idx] = lh_corr;
       hemi[coord_idx] = 'lh';
-      fs_coords[coord_idx, ] = lh_surf$vertices[coord_idx, ];
+      fs_coords[coord_idx, ] = lh_surf$vertices[verts[coord_idx], ];
     } else if(rh_corr != 0) {
       verts[coord_idx] = rh_corr;
       hemi[coord_idx] = 'rh';
-      fs_coords[coord_idx, ] = rh_surf$vertices[coord_idx, ];
+      fs_coords[coord_idx, ] = rh_surf$vertices[verts[coord_idx], ];
     } else {
       if(! silent) {
         message(sprintf("Input coord set %d not within volume cortex mask, returning NaNs.", coord_idx));
@@ -173,6 +182,102 @@ vol_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.getenv(
     }
   }
   return(list("fsaverage_vertices"=verts, "hemi"=hemi, "fsaverage_coords"=fs_coords, "query_mni_coords"=coords, "query_mni_voxels"=mni_voxels));
+}
+
+
+#' @title Map volume coords to fsaverage using .txt mapping files (fallback for missing .mgz files).
+#'
+#' @description Uses the per-vertex RAS coordinate .txt mapping files and nearest-neighbor Euclidean distance to find the closest fsaverage vertex for each query coordinate. Available for all template_type/rf_type combinations, but slower than the .mgz-based approach.
+#'
+#' @param coords nx3 numeric matrix of RAS coordinates in the source volume space.
+#'
+#' @param lh_surf fs.surface instance for the left hemisphere.
+#'
+#' @param rh_surf fs.surface instance for the right hemisphere.
+#'
+#' @param silent logical, whether to suppress messages for coordinates outside cortex.
+#'
+#' @param rf_type character string, the registration fusion type ('RF_ANTs' or 'RF_M3Z').
+#'
+#' @param template_type character string, the template type ('FSL_MNI152' or 'SPM_Colin27').
+#'
+#' @return named list, same structure as \code{\link{vol_coords_to_fsaverage}}.
+#'
+#' @keywords internal
+vol_coords_to_fsaverage_txt <- function(coords, lh_surf, rh_surf, silent, rf_type, template_type) {
+
+  # Map the template_type (FSL_MNI152/SPM_Colin27) + rf_type to the mapping file naming convention.
+  if(template_type == "FSL_MNI152") {
+    if(rf_type == "RF_ANTs") {
+      mapping_template = "MNI152_orig";
+    } else {
+      mapping_template = "MNI152_norm";
+    }
+  } else if(template_type == "SPM_Colin27") {
+    if(rf_type == "RF_ANTs") {
+      mapping_template = "Colin27_orig";
+    } else {
+      mapping_template = "Colin27_norm";
+    }
+  } else {
+    stop(sprintf("Invalid template_type '%s'.", template_type));
+  }
+
+  # Load the per-vertex RAS coordinate mapping files.
+  # These files have 3 rows (x, y, z) and 163842 columns (one per fsaverage vertex).
+  # Transpose to get 163842 x 3 matrices.
+  lh_mapping_file = get_data_file(sprintf("lh.avgMapping_allSub_%s_%s_to_fsaverage.txt", rf_type, mapping_template), subdir = "mappings");
+  rh_mapping_file = get_data_file(sprintf("rh.avgMapping_allSub_%s_%s_to_fsaverage.txt", rf_type, mapping_template), subdir = "mappings");
+
+  ras_lh = t(as.matrix(data.table::fread(lh_mapping_file, nrows = 3, header = FALSE)));
+  ras_rh = t(as.matrix(data.table::fread(rh_mapping_file, nrows = 3, header = FALSE)));
+
+  num_coords = nrow(coords);
+  num_verts_lh = nrow(ras_lh);
+  num_verts_rh = nrow(ras_rh);
+
+  verts = rep(NaN, num_coords);
+  fs_coords = matrix(rep(NaN, (num_coords * 3L)), ncol = 3L);
+  hemi = rep(NA_character_, num_coords);
+
+  # Distance threshold for "outside cortex" detection (in mm).
+  # A query coordinate more than this distance from any cortical vertex is considered outside cortex.
+  dist_threshold = 15.0;
+
+  for(coord_idx in seq_len(num_coords)) {
+    query_coord = coords[coord_idx, ];
+
+    # Compute Euclidean distances to all fsaverage vertices in each hemisphere.
+    lh_dists = sqrt(rowSums((ras_lh - matrix(query_coord, nrow = num_verts_lh, ncol = 3L, byrow = TRUE))^2));
+    rh_dists = sqrt(rowSums((ras_rh - matrix(query_coord, nrow = num_verts_rh, ncol = 3L, byrow = TRUE))^2));
+
+    lh_min_dist = min(lh_dists);
+    rh_min_dist = min(rh_dists);
+
+    if(lh_min_dist <= rh_min_dist && lh_min_dist < dist_threshold) {
+      verts[coord_idx] = which.min(lh_dists);
+      hemi[coord_idx] = 'lh';
+      fs_coords[coord_idx, ] = lh_surf$vertices[verts[coord_idx], ];
+    } else if(rh_min_dist < dist_threshold) {
+      verts[coord_idx] = which.min(rh_dists);
+      hemi[coord_idx] = 'rh';
+      fs_coords[coord_idx, ] = rh_surf$vertices[verts[coord_idx], ];
+    } else {
+      if(! silent) {
+        message(sprintf("Input coord set %d too far from any cortical vertex (min dist: %.2f mm), returning NaNs.", coord_idx, min(lh_min_dist, rh_min_dist)));
+      }
+    }
+  }
+
+  # Compute voxel indices for the query coords using the cortex mask (for consistency with the .mgz code path).
+  cortex_mask_file = get_data_file(sprintf("%s_FS4.5.0_cortex_estimate.nii.gz", template_type), subdir = "coordmap");
+  cortex_mask = freesurferformats::read.fs.volume(cortex_mask_file, with_header = TRUE, drop_empty_dims = TRUE);
+  mni_voxels = freesurferformats::doapply.transform.mtx(coords, freesurferformats::mghheader.ras2vox(cortex_mask)) + 1L;
+  if(is.vector(mni_voxels)) {
+    mni_voxels = matrix(mni_voxels, ncol = 3, byrow = TRUE);
+  }
+
+  return(list("fsaverage_vertices" = verts, "hemi" = hemi, "fsaverage_coords" = fs_coords, "query_mni_coords" = coords, "query_mni_voxels" = mni_voxels));
 }
 
 

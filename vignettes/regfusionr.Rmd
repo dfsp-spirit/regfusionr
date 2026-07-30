@@ -31,7 +31,13 @@ If you use this package, please cite the original paper:
 
 ## Prerequisites
 
-All examples in this vignette require a working [FreeSurfer](https://surfer.nmr.mgh.harvard.edu/) installation. The `FS_HOME` environment variable must be set to the FreeSurfer installation directory (e.g., `/Applications/freesurfer/7.4.0`), or you can pass the path explicitly via the `fs_home` parameter.
+All examples in this vignette require a working [FreeSurfer](https://surfer.nmr.mgh.harvard.edu/) installation. The `FREESURFER_HOME` environment variable must be set to the FreeSurfer installation directory (e.g., `/Applications/freesurfer/7.4.0`), or you can pass the path explicitly via the `fs_home` parameter.
+
+If you have properly installed and configured FreeSurfer, this should already be the case. You can check that the `FREESURFER_HOME` environment variable is set correctly:
+
+```{r}
+Sys.getenv("FREESURFER_HOME")
+```
 
 The `vol_to_fsaverage()` function additionally requires the `oce` package for trilinear interpolation. The `fsaverage_to_vol()` function requires `fsbrain` and `haze`. These are optional dependencies and can be installed as needed.
 
@@ -172,7 +178,7 @@ If you have MNI305 (fsaverage) coordinates and want MNI152 or Colin27 coordinate
 
 ```{r}
 # Get MNI305 coords of fsaverage vertex 9092 from the orig surface.
-fsaverage_home = file.path(Sys.getenv("FS_HOME"), "subjects")
+fsaverage_home = file.path(Sys.getenv("FREESURFER_HOME"), "subjects")
 rh_orig = freesurferformats::read.fs.surface(
   file.path(fsaverage_home, "fsaverage", "surf", "rh.orig"))
 mni305_pt = rh_orig$vertices[9092L, ]

@@ -16,6 +16,7 @@ Imports:
     data.table,
     pracma
 Suggests:
+    gifti,
     oce,
     oro.nifti,
     knitr,

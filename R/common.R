@@ -12,6 +12,8 @@ valid_rf_types <- function() c('RF_ANTs', 'RF_M3Z')
 
 #' @title Check whether coords is a nx3 numerical matrix.
 #'
+#' @param coords numeric matrix to check, expected to be nx3.
+#'
 #' @note Stops if its not.
 #'
 #' @keywords internal
@@ -26,6 +28,8 @@ check_coords <- function(coords) {
 }
 
 #' @title Check whether voxels is a nx3 integer matrix.
+#'
+#' @param voxels integer matrix to check, expected to be nx3.
 #'
 #' @note Stops if its not.
 #'
@@ -63,6 +67,10 @@ check_affine <- function(affine) {
 
 #' @title Ensure the template and rf types and valid and are an allowed combination.
 #'
+#' @param template_type character string, the template type.
+#'
+#' @param rf_type character string, the registration fusion type.
+#'
 #' @keywords internal
 check_rf_and_template <- function(template_type, rf_type) {
   if(! (template_type %in% valid_template_types())) { stop(sprintf("Parameter template_type must be one of: '%s' but is '%s'.", paste(valid_template_types(), collapse=", "), template_type)); }
@@ -84,6 +92,8 @@ check_rf_and_template <- function(template_type, rf_type) {
 #' @param filename character string, the filename
 #'
 #' @param subdir character string, subdirectories (if any).
+#'
+#' @return character string, the full file path to the data file.
 #'
 #' @keywords internal
 get_data_file <- function(filename, subdir = NULL) {

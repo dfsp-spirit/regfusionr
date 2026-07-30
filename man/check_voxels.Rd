@@ -6,6 +6,9 @@
 \usage{
 check_voxels(voxels)
 }
+\arguments{
+\item{voxels}{integer matrix to check, expected to be nx3.}
+}
 \description{
 Check whether voxels is a nx3 integer matrix.
 }

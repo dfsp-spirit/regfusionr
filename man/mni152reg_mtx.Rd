@@ -6,6 +6,9 @@
 \usage{
 mni152reg_mtx()
 }
+\value{
+4x4 numeric matrix, the MNI305-to-MNI152 registration matrix.
+}
 \description{
 This returns the 4x4 matrix from the FreeSurfer Coordinate Systems documentation.
 }

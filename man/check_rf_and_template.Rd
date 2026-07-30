@@ -6,6 +6,11 @@
 \usage{
 check_rf_and_template(template_type, rf_type)
 }
+\arguments{
+\item{template_type}{character string, the template type.}
+
+\item{rf_type}{character string, the registration fusion type.}
+}
 \description{
 Ensure the template and rf types and valid and are an allowed combination.
 }

@@ -23,6 +23,16 @@
 #'
 #' @importFrom data.table fread
 #'
+#' @examples
+#' \dontrun{
+#'   # Project a 3D MNI152 volume to fsaverage surface space, get data in R.
+#'   input_file = system.file("extdata", "testdata",
+#'     "MNI_probMap_ants.central_sulc.nii.gz", package = "regfusionr");
+#'   res = vol_to_fsaverage(input_file, template_type = 'MNI152_orig',
+#'     rf_type = 'RF_ANTs', out_dir = NULL);
+#'   # res$lh contains per-vertex data for the left hemisphere.
+#' }
+#'
 #' @export
 vol_to_fsaverage <- function(input_img, template_type, rf_type='RF_ANTs', interp='linear', out_type='curv', out_dir=".") {
 

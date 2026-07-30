@@ -11,6 +11,9 @@ get_data_file(filename, subdir = NULL)
 
 \item{subdir}{character string, subdirectories (if any).}
 }
+\value{
+character string, the full file path to the data file.
+}
 \description{
 Get path to a data file required by the package code.
 }

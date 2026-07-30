@@ -26,4 +26,4 @@ Suggests:
     fsbrain (>= 0.5.3)
 Additional_repositories: https://dfsp-spirit.r-universe.dev
 VignetteBuilder: knitr
-RoxygenNote: 7.1.2
+Config/roxygen2/version: 8.0.0

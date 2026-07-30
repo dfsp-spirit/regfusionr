@@ -6,6 +6,9 @@
 \usage{
 check_coords(coords)
 }
+\arguments{
+\item{coords}{numeric matrix to check, expected to be nx3.}
+}
 \description{
 Check whether coords is a nx3 numerical matrix.
 }

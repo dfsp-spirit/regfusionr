@@ -32,3 +32,12 @@ matrix of dim \code{n x 3}, the MNI152 or Colin27 coordinates for the query vert
 \description{
 Map fsaverage vertex indices to MNI152 or Colin27 volumne coordinates.
 }
+\examples{
+\dontrun{
+  vertices = c(9092L, 100L);
+  hemis = c("rh", "lh");
+  mni_coords = fsaverage_vertices_to_vol_coords(vertices, hemis,
+    rf_type = "RF_ANTs", template_type = "MNI152_orig");
+}
+
+}

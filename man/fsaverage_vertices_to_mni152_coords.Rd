@@ -26,6 +26,14 @@ matrix of dim \code{n x 3}, the MNI152 coordinates for the query vertices, one r
 \description{
 Map fsaverage vertex indices to MNI152 coordinates.
 }
+\examples{
+\dontrun{
+  vertices = c(9092L);
+  hemis = c("rh");
+  mni_coords = fsaverage_vertices_to_mni152_coords(vertices, hemis);
+}
+
+}
 \seealso{
 Use the more general function \code{\link{fsaverage_vertices_to_vol_coords}} for more options.
 }

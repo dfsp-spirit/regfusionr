@@ -18,3 +18,8 @@ This uses the 4x4 matrix from the FreeSurfer Coordinate Systems documentation.
 \note{
 This is the opposite of using the \cite{Wu et al.} approach: a linear transformation matrix is used. This approach is mainly implemented in this package to allow you to easily check the difference between the methods.
 }
+\examples{
+  fsaverage_verts = matrix(c(10.0, 20.0, 30.0, 0.0, 0.0, 0.0), ncol=3, byrow=TRUE);
+  mni152_coords = linear_fsaverage_coords_to_MNI152_coords(fsaverage_verts);
+
+}

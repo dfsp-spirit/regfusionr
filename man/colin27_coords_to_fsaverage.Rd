@@ -32,7 +32,7 @@ See the more general function \code{\link{vol_coords_to_fsaverage}} for more opt
 \examples{
 \dontrun{
   c27_ras = c(60.0, 0.0, 10.0)
-  res = colin27_coords_to_fsaverage(mni_ras, surface = "white");
+  res = colin27_coords_to_fsaverage(c27_ras, surface = "white");
   res$fsaverage_vertices;
 }
 
@@ -40,4 +40,3 @@ See the more general function \code{\link{vol_coords_to_fsaverage}} for more opt
 \author{
 Tim Schäfer for the R version, Wu Jianxiao and CBIG for the original Matlab version.
 }
-\keyword{internal}

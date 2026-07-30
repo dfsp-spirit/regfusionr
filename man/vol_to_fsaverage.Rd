@@ -32,6 +32,17 @@ named list of 2 character strings, the output files (for the 2 hemispheres) at k
 \description{
 Applies the Wu et al. regfusion method to obtain surface coords, then interpolates values.
 }
+\examples{
+\dontrun{
+  # Project a 3D MNI152 volume to fsaverage surface space, get data in R.
+  input_file = system.file("extdata", "testdata",
+    "MNI_probMap_ants.central_sulc.nii.gz", package = "regfusionr");
+  res = vol_to_fsaverage(input_file, template_type = 'MNI152_orig',
+    rf_type = 'RF_ANTs', out_dir = NULL);
+  # res$lh contains per-vertex data for the left hemisphere.
+}
+
+}
 \author{
 Tim Schäfer for the R version, Wu Jianxiao and CBIG for the original Matlab version.
 }

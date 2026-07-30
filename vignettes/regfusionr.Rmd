@@ -1,0 +1,210 @@
+---
+title: "regfusionr: Registration Fusion in R"
+author: "Tim Schäfer"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{regfusionr: Registration Fusion in R}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE    # These examples require FreeSurfer, which is not available on CRAN check machines.
+)
+```
+
+## Overview
+
+The `regfusionr` package implements [Wu et al. (2018)'s registration fusion methods](https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.24213) in R. It provides accurate nonlinear mapping between three standard coordinate systems commonly used in neuroimaging:
+
+- **FreeSurfer fsaverage** surface space (MNI305)
+- **FSL MNI152** volume space
+- **SPM Colin27** volume space
+
+If you use this package, please cite the original paper:
+
+> Wu J, Ngo GH, Greve DN, Li J, He T, Fischl B, Eickhoff SB, Yeo BTT. **Accurate nonlinear mapping between MNI volumetric and FreeSurfer surface coordinate systems**, *Human Brain Mapping* 39:3793–3808, 2018.
+
+## Prerequisites
+
+All examples in this vignette require a working [FreeSurfer](https://surfer.nmr.mgh.harvard.edu/) installation. The `FS_HOME` environment variable must be set to the FreeSurfer installation directory (e.g., `/Applications/freesurfer/7.4.0`), or you can pass the path explicitly via the `fs_home` parameter.
+
+The `vol_to_fsaverage()` function additionally requires the `oce` package for trilinear interpolation. The `fsaverage_to_vol()` function requires `fsbrain` and `haze`. These are optional dependencies and can be installed as needed.
+
+```{r}
+library("regfusionr")
+```
+
+## Mapping Volume Coordinates to fsaverage Surface
+
+### MNI152 coordinates to fsaverage
+
+The most common use case: you have a peak coordinate from an fMRI paper in MNI152 space, and you want to know where it is on the fsaverage surface.
+
+```{r}
+# Map a single MNI152 coordinate to fsaverage.
+mni_ras = c(60.0, 0.0, 10.0)
+res = mni152_coords_to_fsaverage(mni_ras, surface = "white")
+res$fsaverage_vertices   # The fsaverage vertex index
+res$hemi                 # Which hemisphere
+res$fsaverage_coords     # The MNI305 (fsaverage) RAS coordinates
+```
+
+```{r}
+# Map multiple coordinates at once.
+mni_ras_matrix = matrix(c(60, 0, 10, 0, 0, 0), ncol = 3, byrow = TRUE)
+res = mni152_coords_to_fsaverage(mni_ras_matrix, surface = "white")
+# Coordinates outside cortex return NaN.
+res$fsaverage_vertices   # e.g., c(9092, NaN)
+```
+
+### Colin27 coordinates to fsaverage
+
+```{r}
+c27_ras = c(60.0, 0.0, 10.0)
+res = colin27_coords_to_fsaverage(c27_ras, surface = "white")
+res$fsaverage_vertices
+```
+
+## Mapping fsaverage Vertices to Volume Coordinates
+
+### fsaverage vertices to MNI152
+
+```{r}
+# Map fsaverage vertex 9092 (right hemisphere) to MNI152 RAS coordinates.
+vertices = c(9092L)
+hemis = c("rh")
+mni_coords = fsaverage_vertices_to_mni152_coords(vertices, hemis)
+```
+
+### fsaverage vertices to Colin27
+
+```{r}
+vertices = c(9092L)
+hemis = c("rh")
+c27_coords = fsaverage_vertices_to_colin27_coords(vertices, hemis)
+```
+
+### Combining both hemispheres
+
+```{r}
+vertices = c(9092L, 100L)      # vertex 9092 (rh) and vertex 100 (lh)
+hemis = c("rh", "lh")
+coords = fsaverage_vertices_to_vol_coords(vertices, hemis,
+  rf_type = "RF_ANTs", template_type = "MNI152_orig")
+# coords is a 2x3 matrix of MNI152 RAS coordinates.
+```
+
+## Cross-Template Volume-to-Volume Mapping
+
+Convenience functions let you map directly between MNI152 and Colin27 space via fsaverage.
+
+### MNI152 to Colin27
+
+```{r}
+mni_ras = c(60.0, 0.0, 10.0)
+c27_coords = mni152_coords_to_colin27_coords(mni_ras, surface = "white")
+```
+
+### Colin27 to MNI152
+
+```{r}
+c27_ras = c(60.0, 0.0, 10.0)
+mni_coords = colin27_coords_to_mni152_coords(c27_ras, surface = "white")
+```
+
+## Projecting Volume Data to the fsaverage Surface
+
+Instead of mapping individual coordinates, you can project an entire 3D or 4D volume to per-vertex surface data.
+
+```{r}
+# Project an MNI152 volume file to fsaverage surface space.
+# The result is stored in R memory (out_dir = NULL).
+input_file = system.file("extdata", "testdata",
+  "MNI_probMap_ants.central_sulc.nii.gz", package = "regfusionr")
+res = vol_to_fsaverage(input_file, template_type = 'MNI152_orig',
+  rf_type = 'RF_ANTs', out_dir = NULL)
+# res$lh: per-vertex data for the left hemisphere (numeric vector, length 163842)
+# res$rh: per-vertex data for the right hemisphere
+
+# To write output files instead, specify an out_dir.
+out_dir = tempfile("regfusionr_output_")
+res = vol_to_fsaverage(input_file, template_type = 'MNI152_orig',
+  rf_type = 'RF_ANTs', out_type = 'curv', out_dir = out_dir)
+# res$lh and res$rh now contain file paths to the written curv files.
+```
+
+## Projecting Surface Data to a Volume
+
+Convert per-vertex fsaverage data (e.g., cortical thickness maps) to an MNI152 or Colin27 volume.
+
+```{r}
+# Create synthetic per-vertex data (fsaverage: 163842 vertices per hemisphere).
+lh_data = rnorm(163842L, 3.0, 0.2)
+rh_data = rnorm(163842L, 3.0, 0.2)
+
+# Project to MNI152 volume space using linear interpolation.
+# The result is kept in memory only (out_dir = NULL).
+res = fsaverage_to_vol(lh_data, rh_data, target_space = "FSL_MNI152",
+  interp = "linear", out_dir = NULL)
+# res$projected:   fs.volume instance with a 256x256x256 data array.
+# res$projected_seg: same, but right-hemisphere values incremented by 1000
+#                    (useful for distinguishing hemispheres in labels).
+```
+
+For categorical label data, use `interp = "nearest"`:
+
+```{r}
+# Create synthetic label data per vertex.
+lh_labels = sample.int(20, size = 163842L, replace = TRUE)
+rh_labels = sample.int(20, size = 163842L, replace = TRUE)
+res = fsaverage_to_vol(lh_labels, rh_labels, target_space = "FSL_MNI152",
+  interp = "nearest", out_dir = NULL)
+```
+
+## MNI305 to MNI152/Colin27 via Closest Vertex
+
+If you have MNI305 (fsaverage) coordinates and want MNI152 or Colin27 coordinates, you can find the closest fsaverage vertex and map it.
+
+```{r}
+# Get MNI305 coords of fsaverage vertex 9092 from the orig surface.
+fsaverage_home = file.path(Sys.getenv("FS_HOME"), "subjects")
+rh_orig = freesurferformats::read.fs.surface(
+  file.path(fsaverage_home, "fsaverage", "surf", "rh.orig"))
+mni305_pt = rh_orig$vertices[9092L, ]
+
+# Map to MNI152.
+mni152_coords = mni305_coords_to_mni152_coords(mni305_pt)
+
+# Map to Colin27.
+c27_coords = mni305_coords_to_colin27_coords(mni305_pt)
+```
+
+## Linear Method (for Comparison)
+
+The package also includes the linear 4×4 matrix method from the FreeSurfer documentation, which you can use to compare accuracy with the nonlinear regfusion approach.
+
+```{r}
+# This function does NOT require FreeSurfer and CAN be run anywhere.
+fsaverage_verts = matrix(c(10.0, 20.0, 30.0, 0.0, 0.0, 0.0), ncol = 3, byrow = TRUE)
+mni152_linear = linear_fsaverage_coords_to_MNI152_coords(fsaverage_verts)
+```
+
+## Choosing RF-ANTs vs RF-M3Z
+
+The package supports two registration fusion approaches:
+
+- **RF-ANTs** (default): Recommended when ANTs or similar tools were used for registration. Use with `MNI152_orig` or `Colin27_orig` templates.
+- **RF-M3Z**: Recommended when FreeSurfer was used for registration. Use with `MNI152_norm` or `Colin27_norm` templates.
+
+For the coordinate-mapping functions (`mni152_coords_to_fsaverage`, `colin27_coords_to_fsaverage`), RF-M3Z uses a fallback `.txt`-based nearest-vertex method. The RF-ANTs MNI152 combination uses a faster pre-computed vertex index volume.
+
+## Session Info
+
+```{r}
+sessionInfo()
+```

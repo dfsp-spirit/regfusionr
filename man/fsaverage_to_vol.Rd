@@ -12,7 +12,8 @@ fsaverage_to_vol(
   interp = "linear",
   out_type = "mgz",
   out_dir = NULL,
-  fsaverage_path = NULL
+  fsaverage_path = NULL,
+  silent = TRUE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ fsaverage_to_vol(
 \item{out_dir}{optional character string, the path to a writable output directory to which the output should be written as volume files. If \code{NULL}, no data is written to files. If out_dir is not \code{NULL}, the return value additionally contains the following keys: 'out_file' and the output file format at key 'out_format', (and 'out_file_seg'/'out_format_seg' for the respective \code{seg} versions).}
 
 \item{fsaverage_path}{character string or NULL, the file system path to the \code{fsaverage} directory (NOT including the 'fsaverage' dir itself). If \code{NULL}, defaults to the return value of \code{fsbrain::fsaverage.path()} on the system. This path is used to read the spherical surface (both hemisphere meshes) of the template subject.}
+
+\item{silent}{logical, whether to suppress status messages.}
 }
 \value{
 named list with keys 'projected' and 'projected_seg', each of which holds an \code{fs.volume} instance, its 'data' key holds a \code{256x256x256} array with the projected data. The data in 'projected_seg' is identical to the data in 'projected', with the exception that data values originating from the right hemisphere have been incremented by 1000. See \code{out_dir} parameter to easily write results to files. If out_dir is not \code{NULL}, the return value additionally contains the following keys: 'out_file' and the output file format at key 'out_format'.

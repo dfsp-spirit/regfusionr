@@ -48,7 +48,7 @@ mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.gete
 #' @examples
 #' \dontrun{
 #'   c27_ras = c(60.0, 0.0, 10.0)
-#'   res = colin27_coords_to_fsaverage(mni_ras, surface = "white");
+#'   res = colin27_coords_to_fsaverage(c27_ras, surface = "white");
 #'   res$fsaverage_vertices;
 #' }
 #'
@@ -354,6 +354,12 @@ colin27_voxels_to_fsaverage <- function(voxels, surface='white', fs_home=Sys.get
 #'
 #' @return nx3 numeric matrix of Colin27 RAS coordinates. Also see the 'simplify' parameter.
 #'
+#' @examples
+#' \dontrun{
+#'   mni_ras = c(60.0, 0.0, 10.0);
+#'   c27_coords = mni152_coords_to_colin27_coords(mni_ras, surface = "white");
+#' }
+#'
 #' @export
 mni152_coords_to_colin27_coords <- function(coords, surface='white', fs_home=Sys.getenv("FS_HOME"), silent = TRUE, simplify = FALSE) {
   res = mni152_coords_to_fsaverage(coords, surface = surface, fs_home = fs_home, silent = silent);
@@ -380,6 +386,12 @@ mni152_coords_to_colin27_coords <- function(coords, surface='white', fs_home=Sys
 #' @param simplify logical, whether to return a vector instead of a single-row matrix when only a single query coordinate is given.
 #'
 #' @return nx3 numeric matrix of MNI152 RAS coordinates. Also see the 'simplify' parameter.
+#'
+#' @examples
+#' \dontrun{
+#'   c27_ras = c(60.0, 0.0, 10.0);
+#'   mni_coords = colin27_coords_to_mni152_coords(c27_ras, surface = "white");
+#' }
 #'
 #' @export
 colin27_coords_to_mni152_coords <- function(coords, surface='white', fs_home=Sys.getenv("FS_HOME"), silent = TRUE, simplify = FALSE) {

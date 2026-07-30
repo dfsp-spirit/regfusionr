@@ -21,10 +21,18 @@ fsaverage_vertices_to_colin27_coords(
 \item{simplify}{logical, whether to return a vector instead of a single-row matrix in case only a single query vertex is given.}
 }
 \value{
-matrix of dim \code{n x 3}, the MNI152 coordinates for the query vertices, one row per vertex. Also see the 'simplify' parameter.
+matrix of dim \code{n x 3}, the Colin27 coordinates for the query vertices, one row per vertex. Also see the 'simplify' parameter.
 }
 \description{
 Map fsaverage vertex indices to Colin27 coordinates.
+}
+\examples{
+\dontrun{
+  vertices = c(9092L);
+  hemis = c("rh");
+  c27_coords = fsaverage_vertices_to_colin27_coords(vertices, hemis);
+}
+
 }
 \seealso{
 Use the more general function \code{\link{fsaverage_vertices_to_vol_coords}} for more options.

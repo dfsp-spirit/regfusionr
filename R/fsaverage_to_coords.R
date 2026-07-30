@@ -13,6 +13,13 @@
 #'
 #' @seealso Use the more general function \code{\link{fsaverage_vertices_to_vol_coords}} for more options.
 #'
+#' @examples
+#' \dontrun{
+#'   vertices = c(9092L);
+#'   hemis = c("rh");
+#'   mni_coords = fsaverage_vertices_to_mni152_coords(vertices, hemis);
+#' }
+#'
 #' @export
 fsaverage_vertices_to_mni152_coords <- function(vertices, hemis, fs_home=Sys.getenv("FS_HOME"), simplify = FALSE) {
   return(fsaverage_vertices_to_vol_coords(vertices, hemis, fs_home=fs_home, simplify=simplify, rf_type="RF_ANTs", template_type="MNI152_orig"));
@@ -22,9 +29,16 @@ fsaverage_vertices_to_mni152_coords <- function(vertices, hemis, fs_home=Sys.get
 #'
 #' @inheritParams fsaverage_vertices_to_mni152_coords
 #'
-#' @return matrix of dim \code{n x 3}, the MNI152 coordinates for the query vertices, one row per vertex. Also see the 'simplify' parameter.
+#' @return matrix of dim \code{n x 3}, the Colin27 coordinates for the query vertices, one row per vertex. Also see the 'simplify' parameter.
 #'
 #' @seealso Use the more general function \code{\link{fsaverage_vertices_to_vol_coords}} for more options.
+#'
+#' @examples
+#' \dontrun{
+#'   vertices = c(9092L);
+#'   hemis = c("rh");
+#'   c27_coords = fsaverage_vertices_to_colin27_coords(vertices, hemis);
+#' }
 #'
 #' @export
 fsaverage_vertices_to_colin27_coords <- function(vertices, hemis, fs_home=Sys.getenv("FS_HOME"), simplify = FALSE) {
@@ -47,6 +61,14 @@ fsaverage_vertices_to_colin27_coords <- function(vertices, hemis, fs_home=Sys.ge
 #' @param template_type the space into which to map. One of 'MNI152_orig', 'MNI152_norm', 'Colin27_orig', 'Colin27_norm'. Note that the 'RF_ANTs' rf_type must be used for \code{_orig} templates, and the 'RF_M3Z' type for \code{_norm} templates.
 #'
 #' @return matrix of dim \code{n x 3}, the MNI152 or Colin27 coordinates for the query vertices, one row per vertex. Also see the 'simplify' parameter.
+#'
+#' @examples
+#' \dontrun{
+#'   vertices = c(9092L, 100L);
+#'   hemis = c("rh", "lh");
+#'   mni_coords = fsaverage_vertices_to_vol_coords(vertices, hemis,
+#'     rf_type = "RF_ANTs", template_type = "MNI152_orig");
+#' }
 #'
 #' @export
 fsaverage_vertices_to_vol_coords <- function(vertices, hemis, fs_home=Sys.getenv("FS_HOME"), simplify = FALSE, rf_type="RF_ANTs", template_type="MNI152_orig") {
@@ -95,15 +117,25 @@ fsaverage_vertices_to_vol_coords <- function(vertices, hemis, fs_home=Sys.getenv
 
 #' @title Find MNI152 coordinate of fsaverage vertex closest to the given MNI305 coordinate.
 #'
-#' @inheritParams fsaverage_vertices_to_mni152_coords
-#'
 #' @param coords nx3 numerical matrix, the MNI305 query coordinates.
 #'
 #' @param surface a character string defining the fsaverage surface to load (like \code{"white"} or \code{"orig"}), or a pre-loaded hemilist of surfaces (i.e., \code{freesurferformats::fs.surface} instances)
 #'
 #' @param fs_home character string, path of the FreeSurfer directory from which the fsaverage surfaces should be loaded. Ignored if \code{surface} is a hemilist (in that case the surfaces have already been loaded).
 #'
+#' @param simplify logical, whether to return a vector instead of a single-row matrix in case only a single query coordinate is given.
+#'
 #' @return nx3 numerical matrix, the MNI152 coordinates for the vertices closest to the given MNI305 query coordinates. Depending on the distance to the closest vertex, this may be way off. Also see the 'simplify' parameter.
+#'
+#' @examples
+#' \dontrun{
+#'   # Get MNI305 coords of fsaverage vertex 9092 (right hemisphere, orig surface).
+#'   fsaverage_home = file.path(Sys.getenv("FS_HOME"), "subjects");
+#'   rh_orig = freesurferformats::read.fs.surface(
+#'     file.path(fsaverage_home, "fsaverage", "surf", "rh.orig"));
+#'   mni305_pt = rh_orig$vertices[9092L, ];
+#'   mni152_coords = mni305_coords_to_mni152_coords(mni305_pt);
+#' }
 #'
 #' @export
 mni305_coords_to_mni152_coords <- function(coords, surface = "orig", fs_home=Sys.getenv("FS_HOME"), simplify = FALSE) {
@@ -120,15 +152,25 @@ mni305_coords_to_mni152_coords <- function(coords, surface = "orig", fs_home=Sys
 
 #' @title Find Colin27 coordinate of fsaverage vertex closest to the given MNI305 coordinate.
 #'
-#' @inheritParams mni305_coords_to_mni152_coords
-#'
 #' @param coords nx3 numerical matrix, the MNI305 query coordinates.
 #'
 #' @param surface a character string defining the fsaverage surface to load (like \code{"white"} or \code{"orig"}), or a pre-loaded hemilist of surfaces (i.e., \code{freesurferformats::fs.surface} instances)
 #'
 #' @param fs_home character string, path of the FreeSurfer directory from which the fsaverage surfaces should be loaded. Ignored if \code{surface} is a hemilist (in that case the surfaces have already been loaded).
 #'
+#' @param simplify logical, whether to return a vector instead of a single-row matrix in case only a single query coordinate is given.
+#'
 #' @return nx3 numerical matrix, the Colin27 coordinates for the vertices closest to the given MNI305 query coordinates. Depending on the distance to the closest vertex, this may be way off. Also see the 'simplify' parameter.
+#'
+#' @examples
+#' \dontrun{
+#'   # Get MNI305 coords of fsaverage vertex 9092 (right hemisphere, orig surface).
+#'   fsaverage_home = file.path(Sys.getenv("FS_HOME"), "subjects");
+#'   rh_orig = freesurferformats::read.fs.surface(
+#'     file.path(fsaverage_home, "fsaverage", "surf", "rh.orig"));
+#'   mni305_pt = rh_orig$vertices[9092L, ];
+#'   c27_coords = mni305_coords_to_colin27_coords(mni305_pt);
+#' }
 #'
 #' @export
 mni305_coords_to_colin27_coords <- function(coords, surface = "orig", fs_home=Sys.getenv("FS_HOME"), simplify = FALSE) {

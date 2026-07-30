@@ -46,8 +46,6 @@
 #' @export
 fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_type='RF_ANTs', interp='linear', out_type='mgz', out_dir=NULL, fsaverage_path=NULL, silent = TRUE) {
 
-  stop("This is not ready yet, do not use.");
-
   rh_seg_start = 1000; # Offset to identify right hemisphere projected values in whole brain volume. Rather arbitrary. Mostly for labels.
 
   if(!(target_space %in% c("FSL_MNI152", "SPM_Colin27"))) {
@@ -91,7 +89,7 @@ fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_t
           }
           template_orig_meshes = fsbrain::subject.surface(fsaverage_path, "fsaverage6", surface = "sphere");
           lh_input = haze::nn_interpolate_kdtree(template_meshes_surface$lh$vertices, template_orig_meshes$lh, lh_input);
-          rh_input = haze::nn_interpolate_kdtree(template_meshes_surface$lh$vertices, template_orig_meshes$lh, rh_input);
+          rh_input = haze::nn_interpolate_kdtree(template_meshes_surface$rh$vertices, template_orig_meshes$rh, rh_input);
         } else if(length(lh_input) == 10242L) {
           if(! silent) {
             cat(sprintf("Upsampling fsaverage5 per-vertex data to fsaverage mesh.\n"));
@@ -99,7 +97,7 @@ fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_t
           # Automatic up-sampling of input data from fsaverage5 mesh.
           template_orig_meshes = fsbrain::subject.surface(fsaverage_path, "fsaverage5", surface = "sphere");
           lh_input = haze::nn_interpolate_kdtree(template_meshes_surface$lh$vertices, template_orig_meshes$lh, lh_input);
-          rh_input = haze::nn_interpolate_kdtree(template_meshes_surface$lh$vertices, template_orig_meshes$lh, rh_input);
+          rh_input = haze::nn_interpolate_kdtree(template_meshes_surface$rh$vertices, template_orig_meshes$rh, rh_input);
         } else {
           stop(sprintf("Unsupported number of input vertices: %d. Value must match vertex count for one of the templates fsaverage (163842), fsaverage6 (40962), or fsaverage5 (10242). Please map data to an MNI305 template using recon-all/qcache.\n", length(lh_input)));
         }

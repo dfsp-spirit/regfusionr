@@ -344,3 +344,57 @@ colin27_voxels_to_fsaverage <- function(voxels, surface='white', fs_home=Sys.get
 }
 
 
+#' @title Map MNI152 coordinates to Colin27 coordinates via fsaverage.
+#'
+#' @description Convenience function that maps MNI152 RAS coordinates to Colin27 RAS coordinates by chaining through fsaverage: MNI152 coords are first mapped to fsaverage vertices using \code{\link{mni152_coords_to_fsaverage}}, then the fsaverage vertices are mapped to Colin27 coordinates using \code{\link{fsaverage_vertices_to_colin27_coords}}.
+#'
+#' @inheritParams mni152_coords_to_fsaverage
+#'
+#' @param simplify logical, whether to return a vector instead of a single-row matrix when only a single query coordinate is given.
+#'
+#' @return nx3 numeric matrix of Colin27 RAS coordinates. Also see the 'simplify' parameter.
+#'
+#' @export
+mni152_coords_to_colin27_coords <- function(coords, surface='white', fs_home=Sys.getenv("FS_HOME"), silent = TRUE, simplify = FALSE) {
+  res = mni152_coords_to_fsaverage(coords, surface = surface, fs_home = fs_home, silent = silent);
+  valid_mask = (! is.na(res$fsaverage_vertices)) & (! is.nan(res$fsaverage_vertices));
+  c27_coords = matrix(rep(NA_real_, nrow(coords) * 3L), ncol = 3L);
+  if(any(valid_mask)) {
+    c27_coords[valid_mask, ] = fsaverage_vertices_to_colin27_coords(
+      res$fsaverage_vertices[valid_mask], res$hemi[valid_mask],
+      fs_home = fs_home, simplify = FALSE);
+  }
+  if(nrow(coords) == 1L & simplify) {
+    return(c27_coords[1L, ]);
+  }
+  return(c27_coords);
+}
+
+
+#' @title Map Colin27 coordinates to MNI152 coordinates via fsaverage.
+#'
+#' @description Convenience function that maps Colin27 RAS coordinates to MNI152 RAS coordinates by chaining through fsaverage: Colin27 coords are first mapped to fsaverage vertices using \code{\link{colin27_coords_to_fsaverage}}, then the fsaverage vertices are mapped to MNI152 coordinates using \code{\link{fsaverage_vertices_to_mni152_coords}}.
+#'
+#' @inheritParams mni152_coords_to_fsaverage
+#'
+#' @param simplify logical, whether to return a vector instead of a single-row matrix when only a single query coordinate is given.
+#'
+#' @return nx3 numeric matrix of MNI152 RAS coordinates. Also see the 'simplify' parameter.
+#'
+#' @export
+colin27_coords_to_mni152_coords <- function(coords, surface='white', fs_home=Sys.getenv("FS_HOME"), silent = TRUE, simplify = FALSE) {
+  res = colin27_coords_to_fsaverage(coords, surface = surface, fs_home = fs_home, silent = silent);
+  valid_mask = (! is.na(res$fsaverage_vertices)) & (! is.nan(res$fsaverage_vertices));
+  mni_coords = matrix(rep(NA_real_, nrow(coords) * 3L), ncol = 3L);
+  if(any(valid_mask)) {
+    mni_coords[valid_mask, ] = fsaverage_vertices_to_mni152_coords(
+      res$fsaverage_vertices[valid_mask], res$hemi[valid_mask],
+      fs_home = fs_home, simplify = FALSE);
+  }
+  if(nrow(coords) == 1L & simplify) {
+    return(mni_coords[1L, ]);
+  }
+  return(mni_coords);
+}
+
+

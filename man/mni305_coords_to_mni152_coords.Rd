@@ -7,7 +7,7 @@
 mni305_coords_to_mni152_coords(
   coords,
   surface = "orig",
-  fs_home = Sys.getenv("FS_HOME"),
+  fs_home = Sys.getenv("FREESURFER_HOME"),
   simplify = FALSE
 )
 }
@@ -29,7 +29,7 @@ Find MNI152 coordinate of fsaverage vertex closest to the given MNI305 coordinat
 \examples{
 \dontrun{
   # Get MNI305 coords of fsaverage vertex 9092 (right hemisphere, orig surface).
-  fsaverage_home = file.path(Sys.getenv("FS_HOME"), "subjects");
+  fsaverage_home = file.path(Sys.getenv("FREESURFER_HOME"), "subjects");
   rh_orig = freesurferformats::read.fs.surface(
     file.path(fsaverage_home, "fsaverage", "surf", "rh.orig"));
   mni305_pt = rh_orig$vertices[9092L, ];

@@ -7,7 +7,7 @@
 mni152_coords_to_colin27_coords(
   coords,
   surface = "white",
-  fs_home = Sys.getenv("FS_HOME"),
+  fs_home = Sys.getenv("FREESURFER_HOME"),
   silent = TRUE,
   simplify = FALSE
 )

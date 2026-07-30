@@ -24,7 +24,7 @@
 #' }
 #'
 #' @export
-mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.getenv("FS_HOME"), silent = TRUE) {
+mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.getenv("FREESURFER_HOME"), silent = TRUE) {
   return(vol_coords_to_fsaverage(coords, surface=surface, fs_home = fs_home, silent = silent, rf_type="RF_ANTs", template_type="FSL_MNI152"));
 }
 
@@ -53,7 +53,7 @@ mni152_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.gete
 #' }
 #'
 #' @export
-colin27_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.getenv("FS_HOME"), silent = TRUE) {
+colin27_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.getenv("FREESURFER_HOME"), silent = TRUE) {
   res = vol_coords_to_fsaverage(coords, surface=surface, fs_home = fs_home, silent = silent, rf_type="RF_ANTs", template_type="SPM_Colin27");
   # rename fields.
   res$query_coords = res$query_mni_coords;
@@ -88,7 +88,7 @@ colin27_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.get
 #' }
 #'
 #' @export
-vol_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.getenv("FS_HOME"), silent = TRUE, rf_type="RF_ANTs", template_type="FSL_MNI152") {
+vol_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.getenv("FREESURFER_HOME"), silent = TRUE, rf_type="RF_ANTs", template_type="FSL_MNI152") {
   if(is.vector(coords)) {
     if(length(coords) %% 3L == 0L) {
       coords = matrix(coords, ncol = 3L);
@@ -110,7 +110,7 @@ vol_coords_to_fsaverage <- function(coords, surface='white', fs_home=Sys.getenv(
     }
   } else if (is.character(surface)) {
     if(nchar(fs_home) == 0) {
-      stop("Parameter 'fs_home' must not be empty. Make sure that the environment variable FS_HOME is set or pass a valid path.");
+      stop("Parameter 'fs_home' must not be empty. Make sure that the environment variable FREESURFER_HOME is set or pass a valid path.");
     }
     if(! dir.exists(fs_home)) {
       stop(sprintf("Parameter 'fs_home' points to '%s', but that directory does not exist (or is not readable).", fs_home));
@@ -294,7 +294,7 @@ vol_coords_to_fsaverage_txt <- function(coords, lh_surf, rh_surf, silent, rf_typ
 #' @note The voxel indices used by this function are specific to the cortex mask reference volume, so it is preferable to use the \code{} function. However, the code of this function illustrates how to get the fsaverage coords based on the IJK voxel indices for your own image, so take it as a demo.
 #'
 #' @keywords internal
-mni152_voxels_to_fsaverage <- function(voxels, surface='white', fs_home=Sys.getenv("FS_HOME"), silent = TRUE) {
+mni152_voxels_to_fsaverage <- function(voxels, surface='white', fs_home=Sys.getenv("FREESURFER_HOME"), silent = TRUE) {
   if(is.vector(voxels)) {
     if(length(voxels) %% 3L == 0L) {
       voxels = matrix(voxels, ncol = 3L);
@@ -325,7 +325,7 @@ mni152_voxels_to_fsaverage <- function(voxels, surface='white', fs_home=Sys.gete
 #' @note The voxel indices used by this function are specific to the cortex mask reference volume, so it is preferable to use the \code{} function. However, the code of this function illustrates how to get the fsaverage coords based on the IJK voxel indices for your own image, so take it as a demo.
 #'
 #' @keywords internal
-colin27_voxels_to_fsaverage <- function(voxels, surface='white', fs_home=Sys.getenv("FS_HOME"), silent = TRUE) {
+colin27_voxels_to_fsaverage <- function(voxels, surface='white', fs_home=Sys.getenv("FREESURFER_HOME"), silent = TRUE) {
   if(is.vector(voxels)) {
     if(length(voxels) %% 3L == 0L) {
       voxels = matrix(voxels, ncol = 3L);
@@ -361,7 +361,12 @@ colin27_voxels_to_fsaverage <- function(voxels, surface='white', fs_home=Sys.get
 #' }
 #'
 #' @export
-mni152_coords_to_colin27_coords <- function(coords, surface='white', fs_home=Sys.getenv("FS_HOME"), silent = TRUE, simplify = FALSE) {
+mni152_coords_to_colin27_coords <- function(coords, surface='white', fs_home=Sys.getenv("FREESURFER_HOME"), silent = TRUE, simplify = FALSE) {
+  if(is.vector(coords)) {
+    if(length(coords) %% 3L == 0L) {
+      coords = matrix(coords, ncol = 3L);
+    }
+  }
   res = mni152_coords_to_fsaverage(coords, surface = surface, fs_home = fs_home, silent = silent);
   valid_mask = (! is.na(res$fsaverage_vertices)) & (! is.nan(res$fsaverage_vertices));
   c27_coords = matrix(rep(NA_real_, nrow(coords) * 3L), ncol = 3L);
@@ -394,7 +399,12 @@ mni152_coords_to_colin27_coords <- function(coords, surface='white', fs_home=Sys
 #' }
 #'
 #' @export
-colin27_coords_to_mni152_coords <- function(coords, surface='white', fs_home=Sys.getenv("FS_HOME"), silent = TRUE, simplify = FALSE) {
+colin27_coords_to_mni152_coords <- function(coords, surface='white', fs_home=Sys.getenv("FREESURFER_HOME"), silent = TRUE, simplify = FALSE) {
+  if(is.vector(coords)) {
+    if(length(coords) %% 3L == 0L) {
+      coords = matrix(coords, ncol = 3L);
+    }
+  }
   res = colin27_coords_to_fsaverage(coords, surface = surface, fs_home = fs_home, silent = silent);
   valid_mask = (! is.na(res$fsaverage_vertices)) & (! is.nan(res$fsaverage_vertices));
   mni_coords = matrix(rep(NA_real_, nrow(coords) * 3L), ncol = 3L);

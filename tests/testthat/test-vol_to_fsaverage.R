@@ -24,6 +24,9 @@ vol3dto4d <- function(input_volume_3d, num_frames = 3L) {
 
 testthat::test_that("The Colin27 data projection using m3z registration works", {
 
+  if(! requireNamespace("oro.nifti", quietly = TRUE)) {
+    testthat::skip("The optional dependency package 'oro.nifti' is required for this unit test.");
+  }
   if(! requireNamespace("oce", quietly = TRUE)) {
     testthat::skip("The optional dependency package 'oce' is required for this unit test.");
   }
@@ -64,6 +67,9 @@ testthat::test_that("The Colin27 data projection using m3z registration works", 
 
 testthat::test_that("The MNI152 data projection using ANTs registration works using output curv files", {
 
+  if(! requireNamespace("oro.nifti", quietly = TRUE)) {
+    testthat::skip("The optional dependency package 'oro.nifti' is required for this unit test.");
+  }
   if(! requireNamespace("oce", quietly = TRUE)) {
     testthat::skip("The optional dependency package 'oce' is required for this unit test.");
   }
@@ -103,6 +109,12 @@ testthat::test_that("The MNI152 data projection using ANTs registration works us
 
 testthat::test_that("The MNI152 data projection using ANTs registration works using output gii files", {
 
+  if(! requireNamespace("oro.nifti", quietly = TRUE)) {
+    testthat::skip("The optional dependency package 'oro.nifti' is required for this unit test.");
+  }
+  if(! requireNamespace("gifti", quietly = TRUE)) {
+    testthat::skip("The optional dependency package 'gifti' is required for this unit test.");
+  }
   if(! requireNamespace("oce", quietly = TRUE)) {
     testthat::skip("The optional dependency package 'oce' is required for this unit test.");
   }
@@ -141,6 +153,9 @@ testthat::test_that("The MNI152 data projection using ANTs registration works us
 
 testthat::test_that("The MNI152 data projection using ANTs registration works returning data (from 3D input)", {
 
+  if(! requireNamespace("oro.nifti", quietly = TRUE)) {
+    testthat::skip("The optional dependency package 'oro.nifti' is required for this unit test.");
+  }
   if(! requireNamespace("oce", quietly = TRUE)) {
     testthat::skip("The optional dependency package 'oce' is required for this unit test.");
   }
@@ -186,6 +201,9 @@ testthat::test_that("The MNI152 data projection using ANTs registration works re
 
 testthat::test_that("The MNI152 data projection using ANTs registration works returning data (from 4D input)", {
 
+  if(! requireNamespace("oro.nifti", quietly = TRUE)) {
+    testthat::skip("The optional dependency package 'oro.nifti' is required for this unit test.");
+  }
   if(! requireNamespace("oce", quietly = TRUE)) {
     testthat::skip("The optional dependency package 'oce' is required for this unit test.");
   }
@@ -227,6 +245,9 @@ testthat::test_that("The MNI152 data projection using ANTs registration works re
 
 testthat::test_that("Projecting input 3D and 4D data leads to the expected return types.", {
 
+  if(! requireNamespace("oro.nifti", quietly = TRUE)) {
+    testthat::skip("The optional dependency package 'oro.nifti' is required for this unit test.");
+  }
   if(! requireNamespace("oce", quietly = TRUE)) {
     testthat::skip("The optional dependency package 'oce' is required for this unit test.");
   }

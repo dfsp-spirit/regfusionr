@@ -21,7 +21,7 @@
 #' }
 #'
 #' @export
-fsaverage_vertices_to_mni152_coords <- function(vertices, hemis, fs_home=Sys.getenv("FS_HOME"), simplify = FALSE) {
+fsaverage_vertices_to_mni152_coords <- function(vertices, hemis, fs_home=Sys.getenv("FREESURFER_HOME"), simplify = FALSE) {
   return(fsaverage_vertices_to_vol_coords(vertices, hemis, fs_home=fs_home, simplify=simplify, rf_type="RF_ANTs", template_type="MNI152_orig"));
 }
 
@@ -41,7 +41,7 @@ fsaverage_vertices_to_mni152_coords <- function(vertices, hemis, fs_home=Sys.get
 #' }
 #'
 #' @export
-fsaverage_vertices_to_colin27_coords <- function(vertices, hemis, fs_home=Sys.getenv("FS_HOME"), simplify = FALSE) {
+fsaverage_vertices_to_colin27_coords <- function(vertices, hemis, fs_home=Sys.getenv("FREESURFER_HOME"), simplify = FALSE) {
   return(fsaverage_vertices_to_vol_coords(vertices, hemis, fs_home=fs_home, simplify=simplify, rf_type="RF_ANTs", template_type="Colin27_orig"));
 }
 
@@ -71,7 +71,7 @@ fsaverage_vertices_to_colin27_coords <- function(vertices, hemis, fs_home=Sys.ge
 #' }
 #'
 #' @export
-fsaverage_vertices_to_vol_coords <- function(vertices, hemis, fs_home=Sys.getenv("FS_HOME"), simplify = FALSE, rf_type="RF_ANTs", template_type="MNI152_orig") {
+fsaverage_vertices_to_vol_coords <- function(vertices, hemis, fs_home=Sys.getenv("FREESURFER_HOME"), simplify = FALSE, rf_type="RF_ANTs", template_type="MNI152_orig") {
   if(! is.integer(vertices)) {
     message("Converting vertices to integer values.");
     vertices = as.integer(vertices);
@@ -130,7 +130,7 @@ fsaverage_vertices_to_vol_coords <- function(vertices, hemis, fs_home=Sys.getenv
 #' @examples
 #' \dontrun{
 #'   # Get MNI305 coords of fsaverage vertex 9092 (right hemisphere, orig surface).
-#'   fsaverage_home = file.path(Sys.getenv("FS_HOME"), "subjects");
+#'   fsaverage_home = file.path(Sys.getenv("FREESURFER_HOME"), "subjects");
 #'   rh_orig = freesurferformats::read.fs.surface(
 #'     file.path(fsaverage_home, "fsaverage", "surf", "rh.orig"));
 #'   mni305_pt = rh_orig$vertices[9092L, ];
@@ -138,7 +138,7 @@ fsaverage_vertices_to_vol_coords <- function(vertices, hemis, fs_home=Sys.getenv
 #' }
 #'
 #' @export
-mni305_coords_to_mni152_coords <- function(coords, surface = "orig", fs_home=Sys.getenv("FS_HOME"), simplify = FALSE) {
+mni305_coords_to_mni152_coords <- function(coords, surface = "orig", fs_home=Sys.getenv("FREESURFER_HOME"), simplify = FALSE) {
   if(! is.list(surface)) {
     surface_name = surface;
     lh_surf = freesurferformats::read.fs.surface(file.path(fs_home, "subjects", "fsaverage", "surf", sprintf("lh.%s", surface_name)));
@@ -165,7 +165,7 @@ mni305_coords_to_mni152_coords <- function(coords, surface = "orig", fs_home=Sys
 #' @examples
 #' \dontrun{
 #'   # Get MNI305 coords of fsaverage vertex 9092 (right hemisphere, orig surface).
-#'   fsaverage_home = file.path(Sys.getenv("FS_HOME"), "subjects");
+#'   fsaverage_home = file.path(Sys.getenv("FREESURFER_HOME"), "subjects");
 #'   rh_orig = freesurferformats::read.fs.surface(
 #'     file.path(fsaverage_home, "fsaverage", "surf", "rh.orig"));
 #'   mni305_pt = rh_orig$vertices[9092L, ];
@@ -173,7 +173,7 @@ mni305_coords_to_mni152_coords <- function(coords, surface = "orig", fs_home=Sys
 #' }
 #'
 #' @export
-mni305_coords_to_colin27_coords <- function(coords, surface = "orig", fs_home=Sys.getenv("FS_HOME"), simplify = FALSE) {
+mni305_coords_to_colin27_coords <- function(coords, surface = "orig", fs_home=Sys.getenv("FREESURFER_HOME"), simplify = FALSE) {
   if(! is.list(surface)) {
     surface_name = surface;
     lh_surf = freesurferformats::read.fs.surface(file.path(fs_home, "subjects", "fsaverage", "surf", sprintf("lh.%s", surface_name)));

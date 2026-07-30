@@ -7,7 +7,7 @@
 colin27_voxels_to_fsaverage(
   voxels,
   surface = "white",
-  fs_home = Sys.getenv("FS_HOME"),
+  fs_home = Sys.getenv("FREESURFER_HOME"),
   silent = TRUE
 )
 }

@@ -7,7 +7,7 @@
 fsaverage_vertices_to_vol_coords(
   vertices,
   hemis,
-  fs_home = Sys.getenv("FS_HOME"),
+  fs_home = Sys.getenv("FREESURFER_HOME"),
   simplify = FALSE,
   rf_type = "RF_ANTs",
   template_type = "MNI152_orig"

@@ -7,7 +7,7 @@
 vol_coords_to_fsaverage(
   coords,
   surface = "white",
-  fs_home = Sys.getenv("FS_HOME"),
+  fs_home = Sys.getenv("FREESURFER_HOME"),
   silent = TRUE,
   rf_type = "RF_ANTs",
   template_type = "FSL_MNI152"

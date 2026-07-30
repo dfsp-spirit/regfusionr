@@ -3,19 +3,13 @@ test_that("We can compare the linear FreeSurfer method versus the regfusion appr
 
   testthat::skip_on_cran();
 
-  # The next line is a setup for Tim's test system only and should be removed once this package is official.
-  Sys.setenv("FS_HOME"=file.path(Sys.getenv("HOME"), "software/freesurfer/"));
-
-  if(nchar(Sys.getenv("FS_HOME")) == 0L) {
-    testthat::skip("No FreeSurfer installation found or FS_HOME environment variable not set correctly.");
-  }
-  if(! dir.exists(Sys.getenv("FS_HOME"))) {
-    testthat::skip("No FreeSurfer installation found at path given in FS_HOME environment variable.");
+  fs_home = Sys.getenv("FREESURFER_HOME");
+  if(nchar(fs_home) == 0L || ! dir.exists(fs_home)) {
+    testthat::skip("FreeSurfer not available: FREESURFER_HOME not set or invalid.");
   }
 
-
-  lh_orig_file = file.path(Sys.getenv("FS_HOME"), "subjects", "fsaverage", "surf", "lh.orig");
-  rh_orig_file = file.path(Sys.getenv("FS_HOME"), "subjects", "fsaverage", "surf", "rh.orig");
+  lh_orig_file = file.path(fs_home, "subjects", "fsaverage", "surf", "lh.orig");
+  rh_orig_file = file.path(fs_home, "subjects", "fsaverage", "surf", "rh.orig");
   if(! file.exists(lh_orig_file)) {
     testthat::skip(sprintf("Could not find fsaverage lh.orig surface file at '%s'.\n", lh_orig_file));
   }

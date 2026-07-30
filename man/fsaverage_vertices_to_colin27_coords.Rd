@@ -7,7 +7,7 @@
 fsaverage_vertices_to_colin27_coords(
   vertices,
   hemis,
-  fs_home = Sys.getenv("FS_HOME"),
+  fs_home = Sys.getenv("FREESURFER_HOME"),
   simplify = FALSE
 )
 }

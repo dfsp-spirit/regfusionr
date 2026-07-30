@@ -1,15 +1,9 @@
 
 
 test_that("MNI152 coords can be mapped to fsaverage space", {
-
-  # The next line is a setup for Tim's test system only and should be removed once this package is official.
-  Sys.setenv("FS_HOME"=file.path(Sys.getenv("HOME"), "software/freesurfer/"));
-
-  if(nchar(Sys.getenv("FS_HOME")) == 0L) {
-    testthat::skip("No FreeSurfer installation found or FS_HOME environment variable not set correctly.");
-  }
-  if(! dir.exists(Sys.getenv("FS_HOME"))) {
-    testthat::skip("No FreeSurfer installation found at path given in FS_HOME environment variable.");
+  fs_home = Sys.getenv("FREESURFER_HOME");
+  if(nchar(fs_home) == 0L || ! dir.exists(fs_home)) {
+    testthat::skip("FreeSurfer not available: FREESURFER_HOME not set or invalid.");
   }
 
   mni_coord_in_cortex = c(60.0, 0.0, 10.0);
@@ -50,16 +44,10 @@ test_that("MNI152 coords can be mapped to fsaverage space", {
 # })
 
 
-test_that("MNI152 coord mapping works with matrix iunput of several coords at once", {
-
-  # The next line is a setup for Tim's test system only and should be removed once this package is official.
-  Sys.setenv("FS_HOME"=file.path(Sys.getenv("HOME"), "software/freesurfer/"));
-
-  if(nchar(Sys.getenv("FS_HOME")) == 0L) {
-    testthat::skip("No FreeSurfer installation found or FS_HOME environment variable not set correctly.");
-  }
-  if(! dir.exists(Sys.getenv("FS_HOME"))) {
-    testthat::skip("No FreeSurfer installation found at path given in FS_HOME environment variable.");
+test_that("MNI152 coord mapping works with matrix input of several coords at once", {
+  fs_home = Sys.getenv("FREESURFER_HOME");
+  if(nchar(fs_home) == 0L || ! dir.exists(fs_home)) {
+    testthat::skip("FreeSurfer not available: FREESURFER_HOME not set or invalid.");
   }
 
   mni_coords = matrix(c(60, 0, 10, 0, 0, 0), ncol = 3, byrow = TRUE);
@@ -77,15 +65,9 @@ test_that("MNI152 coord mapping works with matrix iunput of several coords at on
 # Keep in mind that the voxel indices are specific for the template file, and thus of very
 # limited use in general.
 test_that("MNI152 voxels based on the demo input file can be mapped to fsaverage space", {
-
-  # The next line is a setup for Tim's test system only and should be removed once this package is official.
-  Sys.setenv("FS_HOME"=file.path(Sys.getenv("HOME"), "software/freesurfer/"));
-
-  if(nchar(Sys.getenv("FS_HOME")) == 0L) {
-    testthat::skip("No FreeSurfer installation found or FS_HOME environment variable not set correctly.");
-  }
-  if(! dir.exists(Sys.getenv("FS_HOME"))) {
-    testthat::skip("No FreeSurfer installation found at path given in FS_HOME environment variable.");
+  fs_home = Sys.getenv("FREESURFER_HOME");
+  if(nchar(fs_home) == 0L || ! dir.exists(fs_home)) {
+    testthat::skip("FreeSurfer not available: FREESURFER_HOME not set or invalid.");
   }
 
   mni_voxel_ijk = c(68L, 138L, 146L);
@@ -98,15 +80,9 @@ test_that("MNI152 voxels based on the demo input file can be mapped to fsaverage
 
 
 test_that("Vertex-indexing bug is fixed: fsaverage_coords correspond to fsaverage_vertices", {
-
-  # The next line is a setup for Tim's test system only and should be removed once this package is official.
-  Sys.setenv("FS_HOME"=file.path(Sys.getenv("HOME"), "software/freesurfer/"));
-
-  if(nchar(Sys.getenv("FS_HOME")) == 0L) {
-    testthat::skip("No FreeSurfer installation found or FS_HOME environment variable not set correctly.");
-  }
-  if(! dir.exists(Sys.getenv("FS_HOME"))) {
-    testthat::skip("No FreeSurfer installation found at path given in FS_HOME environment variable.");
+  fs_home = Sys.getenv("FREESURFER_HOME");
+  if(nchar(fs_home) == 0L || ! dir.exists(fs_home)) {
+    testthat::skip("FreeSurfer not available: FREESURFER_HOME not set or invalid.");
   }
 
   mni_coord_in_cortex = c(60.0, 0.0, 10.0);
@@ -114,8 +90,11 @@ test_that("Vertex-indexing bug is fixed: fsaverage_coords correspond to fsaverag
 
   # The returned fsaverage_coords should match the surface vertex coordinates at the returned vertex index.
   # If the bug were present, fsaverage_coords would be for vertex 1 instead of vertex 9092.
-  fsaverage_home = file.path(Sys.getenv("FS_HOME"), "subjects");
-  rh_surf = freesurferformats::read.fs.surface(file.path(fsaverage_home, "fsaverage", "surf", "rh.white"));
+  fsaverage_surf_file = file.path(fs_home, "subjects", "fsaverage", "surf", "rh.white");
+  if(! file.exists(fsaverage_surf_file)) {
+    testthat::skip(sprintf("fsaverage surface file not found at '%s'.", fsaverage_surf_file));
+  }
+  rh_surf = freesurferformats::read.fs.surface(fsaverage_surf_file);
   expected_coords = rh_surf$vertices[res$fsaverage_vertices, ];
 
   testthat::expect_equal(res$hemi, c("rh"));
@@ -124,21 +103,15 @@ test_that("Vertex-indexing bug is fixed: fsaverage_coords correspond to fsaverag
 
 
 test_that("Colin27 coords can be mapped to fsaverage space via txt fallback", {
-
-  # The next line is a setup for Tim's test system only and should be removed once this package is official.
-  Sys.setenv("FS_HOME"=file.path(Sys.getenv("HOME"), "software/freesurfer/"));
-
-  if(nchar(Sys.getenv("FS_HOME")) == 0L) {
-    testthat::skip("No FreeSurfer installation found or FS_HOME environment variable not set correctly.");
-  }
-  if(! dir.exists(Sys.getenv("FS_HOME"))) {
-    testthat::skip("No FreeSurfer installation found at path given in FS_HOME environment variable.");
+  fs_home = Sys.getenv("FREESURFER_HOME");
+  if(nchar(fs_home) == 0L || ! dir.exists(fs_home)) {
+    testthat::skip("FreeSurfer not available: FREESURFER_HOME not set or invalid.");
   }
 
   # Use a coordinate known to be in the Colin27 cortex. The coordinate 60,0,10 in MNI152
   # maps to fsaverage vertex 9092. In Colin27 space the mapping will differ.
   colin_coord_in_cortex = c(60.0, 0.0, 10.0);
-  colin_coord_outside_cortex = c(0.0, 0.0, 0.0);
+  colin_coord_outside_cortex = c(200.0, 200.0, 200.0);  # far outside head
 
   res_in_cortex = colin27_coords_to_fsaverage(colin_coord_in_cortex, surface = "white");
   res_outside_cortex = colin27_coords_to_fsaverage(colin_coord_outside_cortex, surface = "white");
@@ -160,15 +133,9 @@ test_that("Colin27 coords can be mapped to fsaverage space via txt fallback", {
 
 
 test_that("MNI152 coords can be mapped to Colin27 coords via convenience function", {
-
-  # The next line is a setup for Tim's test system only and should be removed once this package is official.
-  Sys.setenv("FS_HOME"=file.path(Sys.getenv("HOME"), "software/freesurfer/"));
-
-  if(nchar(Sys.getenv("FS_HOME")) == 0L) {
-    testthat::skip("No FreeSurfer installation found or FS_HOME environment variable not set correctly.");
-  }
-  if(! dir.exists(Sys.getenv("FS_HOME"))) {
-    testthat::skip("No FreeSurfer installation found at path given in FS_HOME environment variable.");
+  fs_home = Sys.getenv("FREESURFER_HOME");
+  if(nchar(fs_home) == 0L || ! dir.exists(fs_home)) {
+    testthat::skip("FreeSurfer not available: FREESURFER_HOME not set or invalid.");
   }
 
   mni_coord_in_cortex = c(60.0, 0.0, 10.0);
@@ -193,15 +160,9 @@ test_that("MNI152 coords can be mapped to Colin27 coords via convenience functio
 
 
 test_that("Colin27 coords can be mapped to MNI152 coords via convenience function", {
-
-  # The next line is a setup for Tim's test system only and should be removed once this package is official.
-  Sys.setenv("FS_HOME"=file.path(Sys.getenv("HOME"), "software/freesurfer/"));
-
-  if(nchar(Sys.getenv("FS_HOME")) == 0L) {
-    testthat::skip("No FreeSurfer installation found or FS_HOME environment variable not set correctly.");
-  }
-  if(! dir.exists(Sys.getenv("FS_HOME"))) {
-    testthat::skip("No FreeSurfer installation found at path given in FS_HOME environment variable.");
+  fs_home = Sys.getenv("FREESURFER_HOME");
+  if(nchar(fs_home) == 0L || ! dir.exists(fs_home)) {
+    testthat::skip("FreeSurfer not available: FREESURFER_HOME not set or invalid.");
   }
 
   colin_coord_in_cortex = c(60.0, 0.0, 10.0);
@@ -219,22 +180,16 @@ test_that("Colin27 coords can be mapped to MNI152 coords via convenience functio
   testthat::expect_equal(length(mni_vec), 3L);
 
   # Test that coordinates outside cortex return NA
-  c27_outside = c(0.0, 0.0, 0.0);
+  c27_outside = c(200.0, 200.0, 200.0);  # far outside head
   mni_outside = colin27_coords_to_mni152_coords(c27_outside, surface = "white");
   testthat::expect_true(all(is.na(mni_outside)));
 })
 
 
 test_that("vol_coords_to_fsaverage works with RF_M3Z via txt fallback", {
-
-  # The next line is a setup for Tim's test system only and should be removed once this package is official.
-  Sys.setenv("FS_HOME"=file.path(Sys.getenv("HOME"), "software/freesurfer/"));
-
-  if(nchar(Sys.getenv("FS_HOME")) == 0L) {
-    testthat::skip("No FreeSurfer installation found or FS_HOME environment variable not set correctly.");
-  }
-  if(! dir.exists(Sys.getenv("FS_HOME"))) {
-    testthat::skip("No FreeSurfer installation found at path given in FS_HOME environment variable.");
+  fs_home = Sys.getenv("FREESURFER_HOME");
+  if(nchar(fs_home) == 0L || ! dir.exists(fs_home)) {
+    testthat::skip("FreeSurfer not available: FREESURFER_HOME not set or invalid.");
   }
 
   mni_coord_in_cortex = c(60.0, 0.0, 10.0);

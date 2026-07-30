@@ -114,8 +114,8 @@ fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_t
         }
       }
 
-      lh_map_file = regfusionr:::get_data_file(sprintf("allSub_fsaverage_to_%s_FS4.5.0_%s_avgMapping.lh.mgz", target_space, rf_type), subdir = "coordmap");
-      rh_map_file = regfusionr:::get_data_file(sprintf("allSub_fsaverage_to_%s_FS4.5.0_%s_avgMapping.rh.mgz", target_space, rf_type), subdir = "coordmap");
+      lh_map_file = get_data_file(sprintf("allSub_fsaverage_to_%s_FS4.5.0_%s_avgMapping.lh.mgz", target_space, rf_type), subdir = "coordmap");
+      rh_map_file = get_data_file(sprintf("allSub_fsaverage_to_%s_FS4.5.0_%s_avgMapping.rh.mgz", target_space, rf_type), subdir = "coordmap");
       lh_coord = freesurferformats::read.fs.mgh(lh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 3x16777216 matrix
       rh_coord = freesurferformats::read.fs.mgh(rh_map_file, with_header = FALSE, drop_empty_dims = TRUE); # 3x16777216 matrix
 
@@ -158,7 +158,7 @@ fsaverage_to_vol <- function(lh_input, rh_input, target_space="FSL_MNI152", rf_t
 
       # Load cortex mask volume file and apply it. Data projected to non-cortical brain regions is useless/wrong, so we
       # remove it with a cortical volume mask.
-      cortex_mask_file_volume = regfusionr:::get_data_file(sprintf("%s_FS4.5.0_cortex_estimate.nii.gz", target_space), subdir = "coordmap");
+      cortex_mask_file_volume = get_data_file(sprintf("%s_FS4.5.0_cortex_estimate.nii.gz", target_space), subdir = "coordmap");
       cortex_mask_fs_volume = freesurferformats::read.fs.volume(cortex_mask_file_volume, with_header = TRUE, drop_empty_dims = TRUE);
       cortex_mask_volume = cortex_mask_fs_volume$data;
       #cortex_label_surface = fsbrain::subject.label(fsaverage_path, template_subject, label = "cortex", hemi = "both");

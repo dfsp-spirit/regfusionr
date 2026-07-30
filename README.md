@@ -19,10 +19,32 @@ This R implementation is heavily inspired by [Dan Gale's Python implementation](
 
 The API of the `regfusionr` package consists of the following functions:
 
-* `mni152_coords_to_fsaverage()` : Map MNI152 RAS coordinates to fsaverage coordinates. For the coordinates, you also get the closest surface vertex and information on which hemisphere it belongs to.
-* `vol_to_fsaverage()`: Project the 3D data in an MNI152 or Colin27 volume (in NIFTI or MGH/MGZ format) to fsaverage and obtain per-vertex data (in curv or MGH/MGZ format).
-* `fsaverage_vertices_to_mni152_coords()`: Map fsaverage vertex indices to MNI152 coordinates.
-* `fsaverage_vertices_to_colin27_coords()`: Map fsaverage vertex indices to Colin27 coordinates.
+**Volume → fsaverage surface:**
+
+* `mni152_coords_to_fsaverage()`: Map MNI152 RAS coordinates to fsaverage vertices and coordinates.
+* `colin27_coords_to_fsaverage()`: Map Colin27 RAS coordinates to fsaverage vertices and coordinates.
+* `vol_to_fsaverage()`: Project 3D or 4D data from an MNI152 or Colin27 volume (NIFTI or MGH/MGZ) to fsaverage per-vertex data.
+
+**fsaverage surface → volume:**
+
+* `fsaverage_vertices_to_mni152_coords()`: Map fsaverage vertex indices to MNI152 RAS coordinates.
+* `fsaverage_vertices_to_colin27_coords()`: Map fsaverage vertex indices to Colin27 RAS coordinates.
+* `fsaverage_vertices_to_vol_coords()`: General function to map fsaverage vertices to MNI152 or Colin27 coordinates (supports all template and RF type combinations).
+* `fsaverage_to_vol()`: Project fsaverage per-vertex data (e.g., cortical thickness maps) to an MNI152 or Colin27 volume.
+
+**Cross-template volume-to-volume:**
+
+* `mni152_coords_to_colin27_coords()`: Map MNI152 RAS coordinates to Colin27 space (via fsaverage).
+* `colin27_coords_to_mni152_coords()`: Map Colin27 RAS coordinates to MNI152 space (via fsaverage).
+
+**MNI305 (fsaverage) coordinate mapping:**
+
+* `mni305_coords_to_mni152_coords()`: Find the closest fsaverage vertex to a given MNI305 coordinate and return its MNI152 coordinates.
+* `mni305_coords_to_colin27_coords()`: Same, but returns Colin27 coordinates.
+
+**Linear method (for comparison):**
+
+* `linear_fsaverage_coords_to_MNI152_coords()`: Map fsaverage (MNI305) coordinates to MNI152 using the linear 4×4 matrix from the FreeSurfer documentation. Faster but less accurate.
 
 ### Usage examples
 
@@ -34,12 +56,15 @@ mni_ras_coords = matrix(c(60, 0, 10, 0, 0, 0), ncol = 3, byrow = TRUE);
 res = mni152_coords_to_fsaverage(mni_ras_coords, surface = "white");
 ```
 
-See the [unit tests](./test/testthat/) for more usage examples, and use the in-built R help (with `?`) to see more details on all the parameters and return values, e.g. `?regfusionr::mni152_coords_to_fsaverage`.
+See the [unit tests](./tests/testthat/) for more usage examples, and use the in-built R help (with `?`) to see more details on all the parameters and return values, e.g. `?regfusionr::mni152_coords_to_fsaverage`. A vignette with additional examples is also available: `vignette("regfusionr")`.
 
 
 ## Limitations
 
-* When projecting volume data to the surface, currently only the 'linear' interpolation method is implemented (which uses trilinear interpolation from the `oce` package). This method is suitable for continuous data. The 'nearest' method, which is required to project labels or atlases (categorical data represented by integers), is not available yet. If you know an R function that does it, please let me know.
+* **Volume-to-surface projection** (`vol_to_fsaverage`): currently only the 'linear' (trilinear) interpolation method is implemented, suitable for continuous data. The 'nearest' method, required to project integer labels or atlases, is not available yet in this direction.
+* **Surface-to-volume projection** (`fsaverage_to_vol`): both 'linear' and 'nearest' interpolation are supported.
+* **Coordinate mapping for Colin27 and RF_M3Z**: the MNI152 RF-ANTs combination uses a fast pre-computed vertex index volume. All other combinations (Colin27, RF_M3Z) use a .txt-based nearest-vertex fallback that produces correct results but is slower for large numbers of query coordinates.
+* The package data files are ~100 MB, exceeding CRAN's 5 MB limit, so this package is distributed via GitHub and R-universe only.
 
 
 ## Installation
@@ -140,6 +165,16 @@ If all you need is the coordinate mapping *and* you are fine with a less acurate
 **Fig. 2** *Difference between the regfusionr approach and the linear method. The coordinates of all fsaverage vertices were mapped to MNI152 space using both the regfusionr method and the linear method. The difference between the two methods was computed as the Euclidean distance between the resulting MNI152 coordinates.*
 
 The code used to produce the comparison figure is available [in this unit test](tests/testthat/test-compare_linear_to_regfusion.R).
+
+
+## Acknowledgements
+
+This R package is a reimplementation of the registration fusion method by **Wu Jianxiao, Ngo Gia Hung, Greve Douglas, Li Jingwei, He Tong, Fischl Bruce, Eickhoff Simon, and Yeo B.T. Thomas**. All credit for the method and the underlying mapping data goes to them. The original MATLAB implementation is part of the [CBIG repository](https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/registration/Wu2017_RegistrationFusion).
+
+The R package was heavily inspired by **[Dan Gale](https://github.com/danjgale)'s Python implementation**, available as the [`regfusion` package on PyPI](https://pypi.org/project/regfusion/) and on [GitHub](https://github.com/danjgale/reg-fusion). Thank you, Dan, for making your code and the reformatted mapping data openly available.
+
+Both Wu *et al.* and Dan Gale released their work under permissive open-source licenses, without which this R package would not exist.
+
 
 ## Citation
 

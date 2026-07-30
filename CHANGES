@@ -5,6 +5,9 @@ regfusionr Changes
 Version 0.3.0 -- vol_to_fsaverage and many convenience functions
 -----------------------------------------------------------------
 
+Breaking:
+* use standard FREESURFER_HOME env variable to locate fsaverage, instead of FS_HOME.
+
 New functions:
 
 * colin27_coords_to_fsaverage(): map Colin27 RAS coords to fsaverage vertices and coords

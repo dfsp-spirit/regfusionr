@@ -9,6 +9,7 @@ testthat::test_that("Per-vertex data for fsaverage can be projected, using linea
   }
 
   testthat::skip_on_cran(); # CRAN does not allow downloading test data.
+  testthat::skip_on_ci();   # Too slow for CI (fsaverage download + linear interp on 163k verts).
 
   # Get some per-vertex data for fsaverage. We use the fsbrain download option.
   fsbrain::download_fsaverage(TRUE);
@@ -43,6 +44,7 @@ testthat::test_that("Per-vertex label data for fsaverage can be projected, using
   }
 
   testthat::skip_on_cran(); # CRAN does not allow downloading test data.
+  testthat::skip_on_ci();   # Too slow for CI (fsaverage download + nearest interp on 163k verts).
 
   numverts_fsaverage = 163842L;
 

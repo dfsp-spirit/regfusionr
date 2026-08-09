@@ -9,7 +9,7 @@ Maintainer: Tim Schäfer <ts+code@rcmd.org>
 Description: Implementation of the 'Wu et al. 2018' registration fusion method in R, inspired by Dan Gale's regfusion for python.
 License: MIT + file LICENSE
 Encoding: UTF-8
-URL: https://github.com/dfsp-spirit/regfusionr
+URL: https://github.com/dfsp-spirit/regfusionr, https://dfsp-spirit.github.io/regfusionr/
 BugReports: https://github.com/dfsp-spirit/regfusionr/issues
 Imports:
     freesurferformats (>= 0.1.17),

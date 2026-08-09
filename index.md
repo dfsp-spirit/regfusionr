@@ -34,6 +34,15 @@ openly available!
 
 ## Documentation
 
+### R Vignettes
+
+- [Registration Fusion in
+  R](https://dfsp-spirit.github.io/regfusionr/articles/regfusionr.html)
+
+### API Docs
+
+- [dfsp-spirit.github.io/regfusionr/reference/](https://dfsp-spirit.github.io/regfusionr/reference/index.html)
+
 ### Quickstart
 
 The API of the `regfusionr` package consists of the following functions:

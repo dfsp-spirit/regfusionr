@@ -3,7 +3,7 @@ pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   regfusionr: regfusionr.html
-last_built: 2026-08-09T20:15Z
+last_built: 2026-08-09T20:21Z
 urls:
   reference: https://dfsp-spirit.github.io/regfusionr/reference
   article: https://dfsp-spirit.github.io/regfusionr/articles

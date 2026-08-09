@@ -1,0 +1,9 @@
+pandoc: 3.8.3
+pkgdown: 2.2.1
+pkgdown_sha: ~
+articles:
+  regfusionr: regfusionr.html
+last_built: 2026-08-09T20:15Z
+urls:
+  reference: https://dfsp-spirit.github.io/regfusionr/reference
+  article: https://dfsp-spirit.github.io/regfusionr/articles

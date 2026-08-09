@@ -1,6 +1,14 @@
 # regfusionr
 R implementation of the registration fusion method for MNI152 and Colin27 to fsaverage/MNI305 mapping.
 
+
+<!-- badges: start -->
+  [![tests_R](https://github.com/dfsp-spirit/regfusionr/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main)](https://github.com/dfsp-spirit/regfusionr/actions)
+  [![docs](https://github.com/dfsp-spirit/regfusionr/actions/workflows/pkgdown.yaml/badge.svg?branch=main)](https://github.com/dfsp-spirit/regfusionr/actions)
+<!-- badges: end -->
+
+
+
 This package supports easy mapping of neuroimgaging data between the volume and surface templates used by the most common software package for structural neuroimaging in R:
 
 * [FreeSurfer](freesurfer.net/) surface space: the fsaverage template, in MNI305 space
